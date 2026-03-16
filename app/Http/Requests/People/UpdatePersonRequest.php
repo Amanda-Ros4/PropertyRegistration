@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Requests\People;
+
+use App\Enums\Gender;
+use App\Rules\ValidCpf;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
+
+class UpdatePersonRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        $personId = $this->route('person')->id;
+
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'birth_date' => ['required', 'date', 'before_or_equal:today'],
+            'cpf' => [
+                'required',
+                'string',
+                new ValidCpf(),
+                Rule::unique('people', 'cpf')
+                    ->where('user_id', $this->user()->id)
+                    ->whereNull('deleted_at')
+                    ->ignore($personId),
+            ],
+            'gender' => ['required', new Enum(Gender::class)],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'email' => ['nullable', 'email', 'max:255'],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'name',
+            'birth_date' => 'birth date',
+            'cpf' => 'CPF',
+            'gender' => 'gender',
+            'phone' => 'phone',
+            'email' => 'email',
+        ];
+    }
+}

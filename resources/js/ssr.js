@@ -4,8 +4,10 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import createServer from '@inertiajs/vue3/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import { installPrimeVue } from '@/plugins/primevue';
+import { installI18n } from '@/plugins/i18n';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'PropertyReg';
 
 createServer((page) =>
     createInertiaApp({
@@ -14,12 +16,20 @@ createServer((page) =>
         title: (title) => `${title} - ${appName}`,
         resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
         setup({ App, props, plugin }) {
-            return createSSRApp({ render: () => h(App, props) })
-                .use(plugin)
-                .use(ZiggyVue, {
-                    ...page.props.ziggy,
-                    location: new URL(page.props.ziggy.location),
-                });
+            // In SSR, locale comes from shared props (set by server)
+            const locale = props.initialPage?.props?.locale ?? 'en';
+
+            const app = createSSRApp({ render: () => h(App, props) });
+
+            app.use(plugin);
+            app.use(ZiggyVue, {
+                ...page.props.ziggy,
+                location: new URL(page.props.ziggy.location),
+            });
+            installPrimeVue(app);
+            installI18n(app, locale);
+
+            return app;
         },
     })
 );

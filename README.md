@@ -1,59 +1,277 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PropertyRegistration
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A complete real estate registration system built with Laravel 12, Vue 3, Inertia.js (SSR), Jetstream, PrimeVue, and multi-language support.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Layer        | Technology                          |
+|--------------|-------------------------------------|
+| Backend      | Laravel 12, PHP 8.2+                |
+| Auth         | Laravel Jetstream (Fortify + Sanctum)|
+| Frontend     | Vue 3, Inertia.js v2 (SSR enabled)  |
+| UI Library   | PrimeVue 4 (Aura theme)             |
+| Styling      | Tailwind CSS v3                     |
+| i18n         | laravel-vue-i18n                    |
+| Database     | MySQL                               |
+| Build        | Vite 7 + SSR                        |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- PHP 8.2+
+- Node.js 18+
+- MySQL 8.0+
+- Composer 2.x
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Setup Instructions
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 1. Clone & Install PHP Dependencies
 
-### Premium Partners
+```bash
+git clone <repository-url>
+cd PropertyRegistration
+composer install
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 2. Environment Configuration
 
-## Contributing
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Edit `.env` with your database credentials:
 
-## Code of Conduct
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=properties
+DB_USERNAME=root
+DB_PASSWORD=your_password
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+VITE_APP_NAME="PropertyReg"
+```
 
-## Security Vulnerabilities
+### 3. Install Node Dependencies
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+npm install
+```
 
-## License
+### 4. Database Setup
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan migrate
+```
+
+Optionally seed demo data (creates `admin@example.com` / `password`):
+
+```bash
+php artisan db:seed
+```
+
+### 5. Build Frontend Assets
+
+For production:
+```bash
+npm run build
+```
+
+For development with hot reload:
+```bash
+npm run dev
+```
+
+### 6. Start the Application
+
+```bash
+php artisan serve
+```
+
+Visit `http://localhost:8000` and register or log in with the seeded account.
+
+---
+
+## Running the Dev Server (All-in-One)
+
+The project includes a `dev` composer script that runs all processes concurrently:
+
+```bash
+composer dev
+```
+
+This starts: `php artisan serve`, queue listener, Pail log viewer, and `npm run dev` simultaneously.
+
+---
+
+## Architecture Overview
+
+### Backend
+
+```
+app/
+├── Enums/
+│   └── Gender.php               # Backed string enum: male, female, other, prefer_not_to_say
+├── Http/
+│   ├── Controllers/
+│   │   ├── DashboardController.php
+│   │   ├── PersonController.php
+│   │   └── PropertyController.php
+│   ├── Middleware/
+│   │   └── HandleInertiaRequests.php  # Shares flash, locale, ziggy props
+│   └── Requests/
+│       ├── People/
+│       │   ├── StorePersonRequest.php
+│       │   └── UpdatePersonRequest.php
+│       └── Properties/
+│           ├── StorePropertyRequest.php
+│           └── UpdatePropertyRequest.php
+├── Models/
+│   ├── User.php
+│   ├── Person.php               # Scopes: forUser, search
+│   └── Property.php             # Scopes: forUser, search, filterByPerson
+├── Policies/
+│   ├── PersonPolicy.php         # Auto-discovered by Laravel
+│   └── PropertyPolicy.php
+├── Rules/
+│   └── ValidCpf.php             # Full CPF digit validation
+└── Services/
+    ├── PersonService.php        # Business logic + deletion protection
+    └── PropertyService.php
+```
+
+### Frontend
+
+```
+resources/js/
+├── app.js                       # Client entry point
+├── ssr.js                       # SSR entry point (eager i18n loading)
+├── composables/
+│   ├── useTheme.js              # Dark/light toggle, localStorage persistence
+│   └── useLocale.js             # Language switcher + PrimeVue locale maps
+├── plugins/
+│   ├── primevue.js              # PrimeVue config (Aura preset, dark mode)
+│   └── i18n.js                  # laravel-vue-i18n setup (SSR-safe)
+├── Layouts/
+│   └── AppLayout.vue            # Main layout with nav, theme, lang, flash toasts
+├── Components/
+│   ├── PageHeader.vue           # Page title + create/back buttons
+│   ├── FilterBar.vue            # Search input + optional select filter
+│   ├── EmptyState.vue           # Empty table state component
+│   ├── DeleteConfirmation.vue   # ConfirmDialog wrapper
+│   ├── FormCard.vue             # Form wrapper card
+│   └── FormField.vue            # Label + slot + error display
+└── Pages/
+    ├── Dashboard.vue
+    ├── People/
+    │   ├── Index.vue
+    │   ├── Create.vue
+    │   └── Edit.vue
+    └── Properties/
+        ├── Index.vue
+        ├── Create.vue
+        └── Edit.vue
+```
+
+---
+
+## Multi-tenancy
+
+Every `Person` and `Property` record is scoped to `user_id`. The system enforces:
+
+- All queries use `scopeForUser($userId)` — users can never see each other's data
+- Form Requests validate `person_id` belongs to the authenticated user
+- Policies (`PersonPolicy`, `PropertyPolicy`) enforce ownership on edit/delete
+- CPF uniqueness is scoped **per tenant** (`UNIQUE(user_id, cpf)`)
+
+---
+
+## Validation Rules
+
+### Person
+| Field       | Rules                                              |
+|-------------|---------------------------------------------------|
+| name        | required, string, max:255                         |
+| birth_date  | required, date, before_or_equal:today             |
+| cpf         | required, ValidCpf rule, unique per user_id       |
+| gender      | required, Gender enum                             |
+| phone       | nullable, string, max:20                          |
+| email       | nullable, email, max:255                          |
+
+### Property
+| Field        | Rules                                             |
+|--------------|--------------------------------------------------|
+| person_id    | required, exists in people scoped to user_id     |
+| street       | required, string, max:255                        |
+| number       | required, string, max:20                         |
+| neighborhood | required, string, max:255                        |
+| complement   | nullable, string, max:255                        |
+
+---
+
+## Deletion Rules
+
+- **Person with active Properties**: deletion is **blocked** with a clear error message
+- **Property**: soft-deleted safely
+- Both models use `SoftDeletes`; hard deletion is never exposed in the UI
+
+---
+
+## Internationalization
+
+Languages supported: **English** (`en`), **Português** (`pt_BR`), **Español** (`es`)
+
+- Translation files: `lang/en.json`, `lang/pt_BR.json`, `lang/es.json`
+- Library: `laravel-vue-i18n` v2.x
+- SSR-safe: uses `import.meta.glob(..., { eager: true })` for synchronous resolution
+- PrimeVue locale maps for calendar, paginator, and UI components per language
+- User preference persisted in `localStorage`
+- Language switcher available in the navigation bar
+
+---
+
+## Dark / Light Mode
+
+- PrimeVue configured with `darkModeSelector: '.dark'`
+- Tailwind configured with `darkMode: 'class'`
+- Toggle adds/removes `.dark` class on `<html>`
+- Preference persisted in `localStorage`
+- Respects OS preference on first visit
+
+---
+
+## Suggested Commit Steps
+
+```
+git commit -m "feat: initial Laravel 12 + Jetstream + Inertia SSR setup"
+git commit -m "feat: install and configure PrimeVue 4 + laravel-vue-i18n"
+git commit -m "feat: add dark/light theme and multi-language support"
+git commit -m "feat: create migrations for people and properties tables"
+git commit -m "feat: add Person and Property models with tenant scopes"
+git commit -m "feat: add Gender enum and ValidCpf validation rule"
+git commit -m "feat: implement PersonService with deletion protection"
+git commit -m "feat: implement PropertyService"
+git commit -m "feat: add PersonController and PropertyController with full CRUD"
+git commit -m "feat: add PersonPolicy and PropertyPolicy for authorization"
+git commit -m "feat: rebuild AppLayout with PrimeVue nav, theme toggle, lang switcher"
+git commit -m "feat: create People pages (Index, Create, Edit)"
+git commit -m "feat: create Properties pages (Index, Create, Edit)"
+git commit -m "feat: create Dashboard with stats and recent records"
+git commit -m "feat: add database seeders with demo data"
+git commit -m "docs: add README with full setup and architecture guide"
+```
+
+---
+
+## Test Credentials (after seeding)
+
+| Field    | Value               |
+|----------|---------------------|
+| Email    | admin@example.com   |
+| Password | password            |

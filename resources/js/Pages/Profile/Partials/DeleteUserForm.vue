@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import ActionSection from '@/Components/ActionSection.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import DialogModal from '@/Components/DialogModal.vue';
@@ -40,32 +41,32 @@ const closeModal = () => {
 <template>
     <ActionSection>
         <template #title>
-            Delete Account
+            {{ trans('profile.delete.title') }}
         </template>
 
         <template #description>
-            Permanently delete your account.
+            {{ trans('profile.delete.description') }}
         </template>
 
         <template #content>
-            <div class="max-w-xl text-sm text-gray-600">
-                Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.
+            <div class="max-w-xl text-sm text-gray-600 dark:text-gray-400">
+                {{ trans('profile.delete.info') }}
             </div>
 
             <div class="mt-5">
                 <DangerButton @click="confirmUserDeletion">
-                    Delete Account
+                    {{ trans('profile.delete.title') }}
                 </DangerButton>
             </div>
 
             <!-- Delete Account Confirmation Modal -->
             <DialogModal :show="confirmingUserDeletion" @close="closeModal">
                 <template #title>
-                    Delete Account
+                    {{ trans('profile.delete.title') }}
                 </template>
 
                 <template #content>
-                    Are you sure you want to delete your account? Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.
+                    {{ trans('profile.delete.confirm_question') }}
 
                     <div class="mt-4">
                         <TextInput
@@ -73,7 +74,7 @@ const closeModal = () => {
                             v-model="form.password"
                             type="password"
                             class="mt-1 block w-3/4"
-                            placeholder="Password"
+                            :placeholder="trans('auth.password')"
                             autocomplete="current-password"
                             @keyup.enter="deleteUser"
                         />
@@ -84,7 +85,7 @@ const closeModal = () => {
 
                 <template #footer>
                     <SecondaryButton @click="closeModal">
-                        Cancel
+                        {{ trans('common.cancel') }}
                     </SecondaryButton>
 
                     <DangerButton
@@ -93,7 +94,7 @@ const closeModal = () => {
                         :disabled="form.processing"
                         @click="deleteUser"
                     >
-                        Delete Account
+                        {{ trans('profile.delete.title') }}
                     </DangerButton>
                 </template>
             </DialogModal>
