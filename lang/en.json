@@ -1,4 +1,6 @@
 {
+    "site.name": "PropertyReg",
+
     "common.save": "Save",
     "common.cancel": "Cancel",
     "common.edit": "Edit",

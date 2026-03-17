@@ -24,7 +24,10 @@ const genderOptions = computed(() => [
 
 function parseBirthDate(dateStr) {
     if (!dateStr) return null;
-    const [y, m, d] = dateStr.split('-');
+    const str = String(dateStr);
+    const datePart = str.substring(0, 10);
+    const [y, m, d] = datePart.split('-');
+    if (!y || !m || !d) return null;
     return new Date(Number(y), Number(m) - 1, Number(d));
 }
 

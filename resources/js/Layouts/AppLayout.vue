@@ -106,10 +106,10 @@ function isActiveRoute(routeName) {
                     <div class="flex items-center gap-6 min-w-0">
                         <Link :href="route('dashboard')" class="flex items-center gap-2 font-bold text-indigo-600 dark:text-indigo-400 text-lg shrink-0">
                             <i class="pi pi-building text-xl" />
-                            <span class="hidden sm:inline truncate">PropertyReg</span>
+                            <span class="hidden sm:inline truncate">{{ trans('site.name') }}</span>
                         </Link>
 
-                        <div class="hidden lg:flex items-center gap-1">
+                        <div class="hidden sm:flex items-center gap-1">
                             <Link
                                 v-for="link in navLinks"
                                 :key="link.route"
@@ -128,7 +128,7 @@ function isActiveRoute(routeName) {
                     </div>
 
                     <!-- Desktop: theme, language, user -->
-                    <div class="hidden lg:flex items-center gap-1 shrink-0">
+                    <div class="hidden sm:flex items-center gap-1 shrink-0">
                         <Button
                             :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
                             text
@@ -153,20 +153,22 @@ function isActiveRoute(routeName) {
                             text
                             size="small"
                             @click="(e) => userMenuRef.toggle(e)"
-                            class="!text-gray-700 dark:!text-gray-300 max-w-[180px]"
+                            class="!text-gray-700 dark:!text-gray-300 whitespace-nowrap"
                         />
                         <Menu ref="userMenuRef" :model="userMenuItems" :popup="true" />
                     </div>
 
-                    <!-- Mobile: only hamburger -->
-                    <Button
-                        :icon="mobileMenuOpen ? 'pi pi-times' : 'pi pi-bars'"
-                        text
-                        rounded
-                        class="lg:hidden !text-gray-600 dark:!text-gray-400 shrink-0"
-                        :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
-                        @click="mobileMenuOpen = !mobileMenuOpen"
-                    />
+                    <!-- Mobile only: hamburger (hidden on sm+) -->
+                    <div class="flex shrink-0 sm:!hidden">
+                        <Button
+                            :icon="mobileMenuOpen ? 'pi pi-times' : 'pi pi-bars'"
+                            text
+                            rounded
+                            class="!text-gray-600 dark:!text-gray-400"
+                            :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
+                            @click="mobileMenuOpen = !mobileMenuOpen"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -179,7 +181,7 @@ function isActiveRoute(routeName) {
                 leave-from-class="opacity-100 translate-y-0"
                 leave-to-class="opacity-0 -translate-y-2"
             >
-                <div v-show="mobileMenuOpen" class="lg:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+                <div v-show="mobileMenuOpen" class="sm:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
                     <div class="px-4 py-4 space-y-1">
                         <!-- Nav links -->
                         <Link
