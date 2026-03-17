@@ -32,11 +32,11 @@ class UpdatePropertyRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'person_id' => 'owner',
-            'street' => 'street',
-            'number' => 'number',
-            'neighborhood' => 'neighborhood',
-            'complement' => 'complement',
+            'person_id' => __('properties.fields.owner'),
+            'street' => __('properties.fields.street'),
+            'number' => __('properties.fields.number'),
+            'neighborhood' => __('properties.fields.neighborhood'),
+            'complement' => __('properties.fields.complement'),
         ];
     }
 }

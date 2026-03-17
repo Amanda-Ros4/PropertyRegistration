@@ -10,7 +10,7 @@ class ValidCpf implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (! $this->isValid($value)) {
-            $fail('validation.invalid_cpf');
+            $fail('validation.invalid_cpf')->translate();
         }
     }
 

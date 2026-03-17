@@ -50,6 +50,13 @@ async function changeLocale(locale) {
     if (primeVueLocales[locale]) {
         primeVue.config.locale = { ...primeVue.config.locale, ...primeVueLocales[locale] };
     }
+    router.reload({
+        preserveState: true,
+        preserveScroll: true,
+        headers: {
+            'X-Locale': locale,
+        },
+    });
 }
 
 // ─── Navigation ──────────────────────────────────────────────────────────────

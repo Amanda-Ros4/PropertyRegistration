@@ -23,7 +23,7 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
-            'locale' => $request->cookie('app_locale', 'en'),
+            'locale' => app()->getLocale(),
             'flash' => fn () => [
                 'type' => $request->session()->get('flash.type'),
                 'message' => $request->session()->get('flash.message'),

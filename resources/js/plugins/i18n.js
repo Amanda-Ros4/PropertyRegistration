@@ -10,9 +10,12 @@ export function getStoredLocale() {
     return stored && SUPPORTED_LOCALES.includes(stored) ? stored : DEFAULT_LOCALE;
 }
 
+const COOKIE_MAX_AGE = 365 * 24 * 60 * 60; // 1 year
+
 export function storeLocale(locale) {
     if (typeof window !== 'undefined') {
         localStorage.setItem(LOCALE_KEY, locale);
+        document.cookie = `app_locale=${locale}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
     }
 }
 

@@ -6,15 +6,29 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { installPrimeVue } from '@/plugins/primevue';
-import { installI18n, getStoredLocale } from '@/plugins/i18n';
+import { installI18n, getStoredLocale, storeLocale } from '@/plugins/i18n';
 
 const appName = import.meta.env.VITE_APP_NAME || 'PropertyReg';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
+    defaults: {
+        visitOptions: (_href, options) => {
+            const locale = getStoredLocale();
+
+            return {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    'X-Locale': locale,
+                },
+            };
+        },
+    },
     setup({ el, App, props, plugin }) {
         const locale = getStoredLocale();
+        storeLocale(locale);
         const app = createApp({ render: () => h(App, props) });
 
         app.use(plugin);

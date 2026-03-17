@@ -37,12 +37,12 @@ class StorePersonRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name' => 'name',
-            'birth_date' => 'birth date',
-            'cpf' => 'CPF',
-            'gender' => 'gender',
-            'phone' => 'phone',
-            'email' => 'email',
+            'name' => __('people.fields.name'),
+            'birth_date' => __('people.fields.birth_date'),
+            'cpf' => __('people.fields.cpf'),
+            'gender' => __('people.fields.gender'),
+            'phone' => __('people.fields.phone'),
+            'email' => __('people.fields.email'),
         ];
     }
 }
