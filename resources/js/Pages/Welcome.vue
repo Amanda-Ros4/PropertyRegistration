@@ -168,22 +168,21 @@ async function changeLocale(locale) {
                                     />
                                 </Link>
 
-                                <template v-else>
-                                    <Link v-if="canLogin" :href="route('login')">
-                                        <Button
-                                            :label="trans('auth.login')"
-                                            icon="pi pi-sign-in"
-                                        />
-                                    </Link>
-                                    <Link v-if="canRegister" :href="route('register')">
-                                        <Button
-                                            :label="trans('welcome.secondary_cta')"
-                                            icon="pi pi-user-plus"
-                                            outlined
-                                            severity="contrast"
-                                        />
-                                    </Link>
-                                </template>
+                                <Link v-if="canLogin" :href="route('login')">
+                                    <Button
+                                        :label="trans('auth.login')"
+                                        icon="pi pi-sign-in"
+                                        outlined
+                                        severity="contrast"
+                                    />
+                                </Link>
+                                <Link v-if="canRegister" :href="route('register')">
+                                    <Button
+                                        :label="trans('welcome.secondary_cta')"
+                                        icon="pi pi-user-plus"
+                                        severity="contrast"
+                                    />
+                                </Link>
                             </div>
                         </div>
                     </div>
