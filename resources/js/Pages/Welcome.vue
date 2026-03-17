@@ -1,7 +1,9 @@
 <script setup>
+import { computed, ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import Button from 'primevue/button';
+import Menu from 'primevue/menu';
 import { useTheme } from '@/composables/useTheme';
 import { useLocale, SUPPORTED_LOCALES } from '@/composables/useLocale';
 
@@ -24,6 +26,7 @@ defineProps({
 
 const { isDark, toggleTheme } = useTheme();
 const { currentLocale, setLocale } = useLocale();
+const langMenuRef = ref(null);
 
 const featureCards = [
     {
@@ -48,6 +51,17 @@ const featureCards = [
         description: () => trans('welcome.security_description'),
     },
 ];
+
+const langMenuItems = ref(
+    SUPPORTED_LOCALES.map((locale) => ({
+        label: locale.label,
+        command: () => changeLocale(locale.code),
+    }))
+);
+
+const currentLocaleLabel = computed(
+    () => SUPPORTED_LOCALES.find((locale) => locale.code === currentLocale.value)?.label ?? currentLocale.value
+);
 
 async function changeLocale(locale) {
     await setLocale(locale);
@@ -80,22 +94,16 @@ async function changeLocale(locale) {
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <div class="hidden sm:flex items-center gap-2">
-                                <button
-                                    v-for="loc in SUPPORTED_LOCALES"
-                                    :key="loc.code"
-                                    type="button"
-                                    :class="[
-                                        'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
-                                        currentLocale === loc.code
-                                            ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300'
-                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                    ]"
-                                    @click="changeLocale(loc.code)"
-                                >
-                                    {{ loc.label }}
-                                </button>
-                            </div>
+                            <Button
+                                icon="pi pi-language"
+                                text
+                                rounded
+                                :label="currentLocaleLabel"
+                                class="!text-gray-600 dark:!text-gray-400"
+                                :aria-label="trans('language.label')"
+                                @click="(e) => langMenuRef.toggle(e)"
+                            />
+                            <Menu ref="langMenuRef" :model="langMenuItems" :popup="true" />
 
                             <Button
                                 :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
@@ -116,7 +124,12 @@ async function changeLocale(locale) {
 
                                 <template v-else>
                                     <Link :href="route('login')">
-                                        <Button :label="trans('auth.login')" size="small" text />
+                                        <Button
+                                            :label="trans('auth.login')"
+                                            size="small"
+                                            outlined
+                                            severity="secondary"
+                                        />
                                     </Link>
                                     <Link v-if="canRegister" :href="route('register')">
                                         <Button :label="trans('auth.register')" size="small" />
