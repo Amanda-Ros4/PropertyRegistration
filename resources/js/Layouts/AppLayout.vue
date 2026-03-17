@@ -98,22 +98,33 @@ function isActiveRoute(routeName) {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
         <Head :title="title" />
 
         <Toast position="top-right" />
         <ConfirmDialog />
 
         <!-- ─── Top Navigation ──────────────────────────────────────────────── -->
-        <nav class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+        <div class="border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                {{ trans('welcome.agency') }}
+            </div>
+        </div>
+
+        <nav class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-14 min-h-14">
 
                     <!-- Logo + Nav Links (desktop) -->
                     <div class="flex items-center gap-6 min-w-0">
-                        <Link :href="route('dashboard')" class="flex items-center gap-2 font-bold text-indigo-600 dark:text-indigo-400 text-lg shrink-0">
-                            <i class="pi pi-building text-xl" />
-                            <span class="hidden sm:inline truncate">{{ trans('site.name') }}</span>
+                        <Link :href="route('dashboard')" class="flex items-center gap-3 text-lg shrink-0 min-w-0">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 dark:bg-slate-700 ring-1 ring-slate-700 dark:ring-slate-600 shadow-sm">
+                                <i class="pi pi-building text-sm text-amber-400" />
+                            </div>
+                            <div class="hidden sm:flex min-w-0 flex-col">
+                                <span class="truncate font-bold leading-tight text-slate-800 dark:text-slate-100">{{ trans('site.name') }}</span>
+                                <span class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ trans('site.context_short') }}</span>
+                            </div>
                         </Link>
 
                         <div class="hidden sm:flex items-center gap-1">
@@ -124,8 +135,8 @@ function isActiveRoute(routeName) {
                                 :class="[
                                     'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
                                     isActiveRoute(link.route)
-                                        ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300'
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        ? 'bg-slate-800 text-amber-300 dark:bg-slate-700 dark:text-amber-300'
+                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                 ]"
                             >
                                 <i :class="link.icon" />
@@ -142,7 +153,7 @@ function isActiveRoute(routeName) {
                             rounded
                             :aria-label="trans('theme.toggle')"
                             @click="toggleTheme"
-                            class="!text-gray-600 dark:!text-gray-400"
+                            class="!text-slate-600 dark:!text-slate-400"
                         />
                         <Button
                             icon="pi pi-language"
@@ -150,7 +161,7 @@ function isActiveRoute(routeName) {
                             rounded
                             :aria-label="trans('language.label')"
                             @click="(e) => langMenuRef.toggle(e)"
-                            class="!text-gray-600 dark:!text-gray-400"
+                            class="!text-slate-600 dark:!text-slate-400"
                         />
                         <Menu ref="langMenuRef" :model="langMenuItems" :popup="true" />
                         <Button
@@ -160,7 +171,7 @@ function isActiveRoute(routeName) {
                             text
                             size="small"
                             @click="(e) => userMenuRef.toggle(e)"
-                            class="!text-gray-700 dark:!text-gray-300 whitespace-nowrap"
+                            class="!text-slate-700 dark:!text-slate-300 whitespace-nowrap"
                         />
                         <Menu ref="userMenuRef" :model="userMenuItems" :popup="true" />
                     </div>
@@ -171,7 +182,7 @@ function isActiveRoute(routeName) {
                             :icon="mobileMenuOpen ? 'pi pi-times' : 'pi pi-bars'"
                             text
                             rounded
-                            class="!text-gray-600 dark:!text-gray-400"
+                            class="!text-slate-600 dark:!text-slate-400"
                             :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
                             @click="mobileMenuOpen = !mobileMenuOpen"
                         />
@@ -188,7 +199,7 @@ function isActiveRoute(routeName) {
                 leave-from-class="opacity-100 translate-y-0"
                 leave-to-class="opacity-0 -translate-y-2"
             >
-                <div v-show="mobileMenuOpen" class="sm:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+                <div v-show="mobileMenuOpen" class="sm:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
                     <div class="px-4 py-4 space-y-1">
                         <!-- Nav links -->
                         <Link
@@ -198,8 +209,8 @@ function isActiveRoute(routeName) {
                             :class="[
                                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                                 isActiveRoute(link.route)
-                                    ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300'
-                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                    ? 'bg-slate-800 text-amber-300 dark:bg-slate-700 dark:text-amber-300'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                             ]"
                             @click="mobileMenuOpen = false"
                         >
@@ -207,12 +218,12 @@ function isActiveRoute(routeName) {
                             {{ link.label() }}
                         </Link>
 
-                        <div class="border-t border-gray-100 dark:border-gray-800 my-3" />
+                        <div class="border-t border-slate-100 dark:border-slate-800 my-3" />
 
                         <!-- Theme toggle -->
                         <button
                             type="button"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                             @click="toggleTheme"
                         >
                             <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" class="w-5 text-center" />
@@ -221,7 +232,7 @@ function isActiveRoute(routeName) {
 
                         <!-- Language -->
                         <div class="px-3 py-2">
-                            <p class="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">{{ trans('language.label') }}</p>
+                            <p class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">{{ trans('language.label') }}</p>
                             <div class="flex flex-wrap gap-2">
                                 <button
                                     v-for="loc in SUPPORTED_LOCALES"
@@ -230,8 +241,8 @@ function isActiveRoute(routeName) {
                                     :class="[
                                         'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
                                         currentLocale === loc.code
-                                            ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300'
-                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                            ? 'bg-slate-800 text-amber-300 dark:bg-slate-700 dark:text-amber-300'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                                     ]"
                                     @click="changeLocale(loc.code); mobileMenuOpen = false"
                                 >
@@ -240,15 +251,15 @@ function isActiveRoute(routeName) {
                             </div>
                         </div>
 
-                        <div class="border-t border-gray-100 dark:border-gray-800 my-3" />
+                        <div class="border-t border-slate-100 dark:border-slate-800 my-3" />
 
                         <!-- User section -->
                         <div class="px-3 py-2">
-                            <p class="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">{{ $page.props.auth.user.name }}</p>
+                            <p class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">{{ $page.props.auth.user.name }}</p>
                             <div class="space-y-1">
                                 <Link
                                     :href="route('profile.show')"
-                                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                     @click="mobileMenuOpen = false"
                                 >
                                     <i class="pi pi-user w-5 text-center" />
@@ -256,7 +267,7 @@ function isActiveRoute(routeName) {
                                 </Link>
                                 <button
                                     type="button"
-                                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                     @click="router.post(route('logout')); mobileMenuOpen = false"
                                 >
                                     <i class="pi pi-sign-out w-5 text-center" />
