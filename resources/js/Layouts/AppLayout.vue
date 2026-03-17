@@ -8,6 +8,7 @@ import Menu from 'primevue/menu';
 import Toast from 'primevue/toast';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useToast } from 'primevue/usetoast';
+import AppBrandMark from '@/Components/AppBrandMark.vue';
 import { useTheme } from '@/composables/useTheme';
 import { useLocale, SUPPORTED_LOCALES, primeVueLocales } from '@/composables/useLocale';
 
@@ -118,9 +119,7 @@ function isActiveRoute(routeName) {
                     <!-- Logo + Nav Links (desktop) -->
                     <div class="flex items-center gap-6 min-w-0">
                         <Link :href="route('dashboard')" class="flex items-center gap-3 text-lg shrink-0 min-w-0">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 dark:bg-slate-700 ring-1 ring-slate-700 dark:ring-slate-600 shadow-sm">
-                                <i class="pi pi-building text-sm text-amber-400" />
-                            </div>
+                            <AppBrandMark class="h-10 w-10 shrink-0" />
                             <div class="hidden sm:flex min-w-0 flex-col">
                                 <span class="truncate font-bold leading-tight text-slate-800 dark:text-slate-100">{{ trans('site.name') }}</span>
                                 <span class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ trans('site.context_short') }}</span>
@@ -135,7 +134,7 @@ function isActiveRoute(routeName) {
                                 :class="[
                                     'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
                                     isActiveRoute(link.route)
-                                        ? 'bg-slate-800 text-amber-300 dark:bg-slate-700 dark:text-amber-300'
+                                        ? 'bg-green-700 text-green-50 dark:bg-green-800 dark:text-green-100'
                                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                 ]"
                             >
@@ -209,7 +208,7 @@ function isActiveRoute(routeName) {
                             :class="[
                                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                                 isActiveRoute(link.route)
-                                    ? 'bg-slate-800 text-amber-300 dark:bg-slate-700 dark:text-amber-300'
+                                    ? 'bg-green-700 text-green-50 dark:bg-green-800 dark:text-green-100'
                                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                             ]"
                             @click="mobileMenuOpen = false"
@@ -241,7 +240,7 @@ function isActiveRoute(routeName) {
                                     :class="[
                                         'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
                                         currentLocale === loc.code
-                                            ? 'bg-slate-800 text-amber-300 dark:bg-slate-700 dark:text-amber-300'
+                                            ? 'bg-green-700 text-green-50 dark:bg-green-800 dark:text-green-100'
                                             : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                                     ]"
                                     @click="changeLocale(loc.code); mobileMenuOpen = false"

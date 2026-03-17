@@ -32,7 +32,7 @@ const genderLabel = {
 
         <div class="mb-8 grid grid-cols-1 xl:grid-cols-[1.25fr_0.75fr] gap-6">
             <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 mb-3">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-green-700 dark:text-green-400 mb-3">
                     {{ trans('dashboard.context') }}
                 </p>
                 <h1 class="text-2xl font-bold mb-2 text-slate-900 dark:text-slate-100">{{ trans('dashboard.welcome') }}</h1>
@@ -49,7 +49,7 @@ const genderLabel = {
             </div>
 
             <div class="rounded-xl bg-slate-800 dark:bg-slate-900 text-white p-6 shadow-sm ring-1 ring-slate-700">
-                <p class="text-sm font-semibold text-amber-300 mb-2">{{ trans('dashboard.operational_summary_title') }}</p>
+                <p class="text-sm font-semibold text-green-300 mb-2">{{ trans('dashboard.operational_summary_title') }}</p>
                 <p class="text-sm text-slate-300 leading-relaxed mb-5">{{ trans('dashboard.operational_summary_description') }}</p>
                 <div class="space-y-3">
                     <div class="rounded-lg bg-white/5 border border-white/10 px-4 py-3">
@@ -67,28 +67,28 @@ const genderLabel = {
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             <Link :href="route('people.index')" class="block">
-                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:border-amber-300 dark:hover:border-amber-700 transition-colors cursor-pointer group">
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:border-green-300 dark:hover:border-green-700 transition-colors cursor-pointer group">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ trans('dashboard.total_people') }}</p>
                             <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-1">{{ stats.totalPeople }}</p>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center group-hover:bg-amber-100 dark:group-hover:bg-amber-900/30 transition-colors">
-                            <i class="pi pi-users text-xl text-amber-700 dark:text-amber-400" />
+                        <div class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-950/20 flex items-center justify-center group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors">
+                            <i class="pi pi-users text-xl text-green-700 dark:text-green-400" />
                         </div>
                     </div>
                 </div>
             </Link>
 
             <Link :href="route('properties.index')" class="block">
-                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:border-amber-300 dark:hover:border-amber-700 transition-colors cursor-pointer group">
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:border-green-300 dark:hover:border-green-700 transition-colors cursor-pointer group">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ trans('dashboard.total_properties') }}</p>
                             <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-1">{{ stats.totalProperties }}</p>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
-                            <i class="pi pi-building text-xl text-slate-700 dark:text-slate-200" />
+                        <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-950/30 flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-900/30 transition-colors">
+                            <i class="pi pi-building text-xl text-green-800 dark:text-green-300" />
                         </div>
                     </div>
                 </div>
@@ -101,7 +101,7 @@ const genderLabel = {
             <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
                     <h2 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                        <i class="pi pi-users text-amber-700 dark:text-amber-400" />
+                        <i class="pi pi-users text-green-700 dark:text-green-400" />
                         {{ trans('dashboard.recent_people') }}
                     </h2>
                     <Link :href="route('people.index')">
@@ -132,7 +132,7 @@ const genderLabel = {
             <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
                     <h2 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                        <i class="pi pi-building text-slate-700 dark:text-slate-200" />
+                        <i class="pi pi-building text-green-800 dark:text-green-300" />
                         {{ trans('dashboard.recent_properties') }}
                     </h2>
                     <Link :href="route('properties.index')">
