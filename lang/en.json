@@ -77,8 +77,11 @@
     "auth.logout": "Log Out",
     "auth.email": "Email",
     "auth.password": "Password",
+    "auth.password_confirmation": "Confirm Password",
     "auth.remember_me": "Remember me",
     "auth.forgot_password": "Forgot your password?",
+    "auth.no_account": "Don't have an account?",
+    "auth.already_registered": "Already have an account?",
 
     "dashboard.title": "Dashboard",
     "dashboard.context": "Treasury Department · IPTU Operations",

@@ -8,10 +8,21 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { installPrimeVue } from '@/plugins/primevue';
 import { installI18n, getStoredLocale, storeLocale } from '@/plugins/i18n';
 
-const appName = import.meta.env.VITE_APP_NAME || 'PropertyReg';
+const appNames = {
+    en: 'Property Registration',
+    pt_BR: 'Cadastro Imobiliário',
+    es: 'Registro de Propiedades',
+};
+
+function getAppName(locale) {
+    return appNames[locale] || appNames.pt_BR;
+}
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => {
+        const appName = getAppName(getStoredLocale());
+        return title ? `${title} - ${appName}` : appName;
+    },
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     defaults: {
         visitOptions: (_href, options) => {

@@ -1,11 +1,13 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
 const form = useForm({
@@ -24,7 +26,7 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Register" />
+    <Head :title="trans('auth.register')" />
 
     <AuthenticationCard>
         <template #logo>
@@ -33,7 +35,7 @@ const submit = () => {
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" :value="trans('common.name')" />
                 <TextInput
                     id="name"
                     v-model="form.name"
@@ -47,7 +49,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" :value="trans('auth.email')" />
                 <TextInput
                     id="email"
                     v-model="form.email"
@@ -60,7 +62,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" :value="trans('auth.password')" />
                 <TextInput
                     id="password"
                     v-model="form.password"
@@ -73,7 +75,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
+                <InputLabel for="password_confirmation" :value="trans('auth.password_confirmation')" />
                 <TextInput
                     id="password_confirmation"
                     v-model="form.password_confirmation"
@@ -98,14 +100,25 @@ const submit = () => {
                 </InputLabel>
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <Link :href="route('login')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    Already registered?
+            <div class="flex flex-col gap-4 mt-6">
+                <div class="flex flex-wrap gap-3">
+                    <PrimaryButton
+                        type="submit"
+                        class="shrink-0"
+                        :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing"
+                    >
+                        {{ trans('auth.register') }}
+                    </PrimaryButton>
+                    <Link :href="route('login')">
+                        <SecondaryButton type="button">
+                            {{ trans('auth.login') }}
+                        </SecondaryButton>
+                    </Link>
+                </div>
+                <Link :href="route('login')" class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
+                    {{ trans('auth.already_registered') }} {{ trans('auth.login') }}
                 </Link>
-
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Register
-                </PrimaryButton>
             </div>
         </form>
     </AuthenticationCard>

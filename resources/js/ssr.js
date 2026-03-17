@@ -7,13 +7,25 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { installPrimeVue } from '@/plugins/primevue';
 import { installI18n } from '@/plugins/i18n';
 
-const appName = import.meta.env.VITE_APP_NAME || 'PropertyReg';
+const appNames = {
+    en: 'Property Registration',
+    pt_BR: 'Cadastro Imobiliário',
+    es: 'Registro de Propiedades',
+};
+
+function getAppName(locale) {
+    return appNames[locale] || appNames.pt_BR;
+}
 
 createServer((page) =>
     createInertiaApp({
         page,
         render: renderToString,
-        title: (title) => `${title} - ${appName}`,
+        title: (title) => {
+            const locale = page.props?.locale ?? 'pt_BR';
+            const appName = getAppName(locale);
+            return title ? `${title} - ${appName}` : appName;
+        },
         resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
         setup({ App, props, plugin }) {
             // In SSR, locale comes from shared props (set by server)

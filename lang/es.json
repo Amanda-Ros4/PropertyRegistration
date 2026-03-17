@@ -77,8 +77,11 @@
     "auth.logout": "Cerrar sesión",
     "auth.email": "Correo",
     "auth.password": "Contraseña",
+    "auth.password_confirmation": "Confirmar contraseña",
     "auth.remember_me": "Recordarme",
     "auth.forgot_password": "¿Olvidaste tu contraseña?",
+    "auth.no_account": "¿No tienes cuenta?",
+    "auth.already_registered": "¿Ya tienes cuenta?",
 
     "dashboard.title": "Panel",
     "dashboard.context": "Secretaría de Hacienda · Operación del IPTU",

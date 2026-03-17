@@ -77,8 +77,11 @@
     "auth.logout": "Sair",
     "auth.email": "E-mail",
     "auth.password": "Senha",
+    "auth.password_confirmation": "Confirmar senha",
     "auth.remember_me": "Lembrar de mim",
     "auth.forgot_password": "Esqueceu sua senha?",
+    "auth.no_account": "Não tem conta?",
+    "auth.already_registered": "Já tem conta?",
 
     "dashboard.title": "Painel",
     "dashboard.context": "Secretaria da Fazenda · Operação do IPTU",

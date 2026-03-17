@@ -174,20 +174,21 @@ async function changeLocale(locale) {
                                     />
                                 </Link>
 
-                                <Link v-if="canLogin" :href="route('login')">
-                                    <Button
-                                        :label="trans('auth.login')"
-                                        icon="pi pi-sign-in"
-                                        outlined
-                                        severity="secondary"
-                                    />
-                                </Link>
-                                <Link v-if="canRegister" :href="route('register')">
-                                    <Button
-                                        :label="trans('welcome.secondary_cta')"
-                                        icon="pi pi-user-plus"
-                                    />
-                                </Link>
+                                <template v-else>
+                                    <Link v-if="canLogin" :href="route('login')">
+                                        <Button
+                                            :label="trans('auth.login')"
+                                            icon="pi pi-sign-in"
+                                            severity="secondary"
+                                        />
+                                    </Link>
+                                    <Link v-if="canRegister" :href="route('register')">
+                                        <Button
+                                            :label="trans('auth.register')"
+                                            icon="pi pi-user-plus"
+                                        />
+                                    </Link>
+                                </template>
                             </div>
 
                             <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">

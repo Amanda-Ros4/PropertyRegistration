@@ -19,6 +19,7 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            'canRegister' => fn () => \Illuminate\Support\Facades\Route::has('register'),
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
