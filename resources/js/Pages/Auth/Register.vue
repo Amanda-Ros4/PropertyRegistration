@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
@@ -7,8 +8,8 @@ import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { CPF_INPUT_MAX_LENGTH, formatCpfInput } from '@/utils/cpfMask';
 
 const form = useForm({
     name: '',
@@ -19,14 +20,14 @@ const form = useForm({
     terms: false,
 });
 
-function formatCpf(value) {
-    const digits = value.replace(/\D/g, '').slice(0, 11);
-    let formatted = digits;
-    if (digits.length > 3) formatted = digits.slice(0, 3) + '.' + digits.slice(3);
-    if (digits.length > 6) formatted = formatted.slice(0, 7) + '.' + digits.slice(6);
-    if (digits.length > 9) formatted = formatted.slice(0, 11) + '-' + digits.slice(9);
-    form.cpf = formatted;
-}
+const cpfModel = computed({
+    get() {
+        return form.cpf;
+    },
+    set(value) {
+        form.cpf = formatCpfInput(value);
+    },
+});
 
 const submit = () => {
     form.post(route('register'), {
@@ -62,14 +63,14 @@ const submit = () => {
                 <InputLabel for="cpf" :value="trans('people.fields.cpf')" />
                 <TextInput
                     id="cpf"
-                    :model-value="form.cpf"
+                    v-model="cpfModel"
                     type="text"
                     class="mt-1 block w-full font-mono"
                     required
                     inputmode="numeric"
                     autocomplete="off"
+                    :maxlength="CPF_INPUT_MAX_LENGTH"
                     :placeholder="trans('people.placeholders.cpf')"
-                    @update:model-value="formatCpf"
                 />
                 <InputError class="mt-2" :message="form.errors.cpf" />
             </div>
@@ -127,21 +128,14 @@ const submit = () => {
             </div>
 
             <div class="flex flex-col gap-4 mt-6">
-                <div class="flex flex-wrap gap-3">
-                    <PrimaryButton
-                        type="submit"
-                        class="shrink-0"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                    >
-                        {{ trans('auth.register') }}
-                    </PrimaryButton>
-                    <Link :href="route('login')">
-                        <SecondaryButton type="button">
-                            {{ trans('auth.login') }}
-                        </SecondaryButton>
-                    </Link>
-                </div>
+                <PrimaryButton
+                    type="submit"
+                    class="w-full sm:w-auto shrink-0"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                >
+                    {{ trans('auth.register') }}
+                </PrimaryButton>
                 <Link :href="route('login')" class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
                     {{ trans('auth.already_registered') }} {{ trans('auth.login') }}
                 </Link>

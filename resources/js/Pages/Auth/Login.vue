@@ -7,7 +7,6 @@ import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
 defineProps({
@@ -80,21 +79,14 @@ const submit = () => {
             </div>
 
             <div class="flex flex-col gap-4 mt-6">
-                <div class="flex flex-wrap gap-3">
-                    <PrimaryButton
-                        type="submit"
-                        class="shrink-0"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                    >
-                        {{ trans('auth.login') }}
-                    </PrimaryButton>
-                    <Link v-if="canRegister" :href="route('register')">
-                        <SecondaryButton type="button">
-                            {{ trans('auth.register') }}
-                        </SecondaryButton>
-                    </Link>
-                </div>
+                <PrimaryButton
+                    type="submit"
+                    class="w-full sm:w-auto shrink-0"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                >
+                    {{ trans('auth.login') }}
+                </PrimaryButton>
                 <div class="flex flex-col gap-1">
                     <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                         {{ trans('auth.forgot_password') }}

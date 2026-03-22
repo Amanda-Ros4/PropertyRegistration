@@ -10,6 +10,7 @@ import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
+import { CPF_INPUT_MAX_LENGTH, formatCpfInput } from '@/utils/cpfMask';
 
 const props = defineProps({
     person: { type: Object, required: true },
@@ -41,12 +42,7 @@ const form = useForm({
 });
 
 function formatCpf(value) {
-    const digits = value.replace(/\D/g, '').slice(0, 11);
-    let formatted = digits;
-    if (digits.length > 3) formatted = digits.slice(0, 3) + '.' + digits.slice(3);
-    if (digits.length > 6) formatted = formatted.slice(0, 7) + '.' + digits.slice(6);
-    if (digits.length > 9) formatted = formatted.slice(0, 11) + '-' + digits.slice(9);
-    form.cpf = formatted;
+    form.cpf = formatCpfInput(value);
 }
 
 function formatPhone(value) {
@@ -116,6 +112,7 @@ function submit() {
                             :placeholder="trans('people.placeholders.cpf')"
                             :invalid="!!form.errors.cpf"
                             class="w-full font-mono"
+                            :maxlength="CPF_INPUT_MAX_LENGTH"
                             @input="formatCpf($event.target.value)"
                         />
                     </FormField>
