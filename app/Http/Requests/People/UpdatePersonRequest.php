@@ -4,6 +4,7 @@ namespace App\Http\Requests\People;
 
 use App\Enums\Gender;
 use App\Rules\ValidCpf;
+use App\Support\Digits;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -13,6 +14,14 @@ class UpdatePersonRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'cpf' => Digits::only($this->input('cpf')),
+            'phone' => Digits::onlyOrNull($this->input('phone')),
+        ]);
     }
 
     public function rules(): array
@@ -25,14 +34,14 @@ class UpdatePersonRequest extends FormRequest
             'cpf' => [
                 'required',
                 'string',
-                new ValidCpf(),
+                new ValidCpf,
                 Rule::unique('people', 'cpf')
                     ->where('user_id', $this->user()->id)
                     ->whereNull('deleted_at')
                     ->ignore($personId),
             ],
             'gender' => ['required', new Enum(Gender::class)],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:11'],
             'email' => ['nullable', 'email', 'max:255'],
         ];
     }

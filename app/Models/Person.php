@@ -59,12 +59,15 @@ class Person extends Model
             return $query;
         }
 
-        $term = '%' . $search . '%';
+        $term = '%'.$search.'%';
+        $cpfDigits = preg_replace('/[^0-9]/', '', $search);
 
-        return $query->where(function (Builder $q) use ($term) {
+        return $query->where(function (Builder $q) use ($term, $cpfDigits) {
             $q->where('name', 'like', $term)
-                ->orWhere('cpf', 'like', $term)
                 ->orWhere('email', 'like', $term);
+            if ($cpfDigits !== '') {
+                $q->orWhere('cpf', 'like', '%'.$cpfDigits.'%');
+            }
         });
     }
 
@@ -80,9 +83,9 @@ class Person extends Model
         $cpf = preg_replace('/[^0-9]/', '', $this->cpf);
 
         if (strlen($cpf) === 11) {
-            return substr($cpf, 0, 3) . '.' .
-                substr($cpf, 3, 3) . '.' .
-                substr($cpf, 6, 3) . '-' .
+            return substr($cpf, 0, 3).'.'.
+                substr($cpf, 3, 3).'.'.
+                substr($cpf, 6, 3).'-'.
                 substr($cpf, 9, 2);
         }
 

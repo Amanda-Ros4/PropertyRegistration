@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin User',
-                'cpf' => '390.533.447-05',
+                'cpf' => '39053344705',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
             ]
@@ -27,23 +27,23 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'João Silva Santos',
                 'birth_date' => '1985-03-15',
-                'cpf' => '529.982.247-25',
+                'cpf' => '52998224725',
                 'gender' => Gender::Male,
-                'phone' => '(11) 98765-4321',
+                'phone' => '11987654321',
                 'email' => 'joao.silva@example.com',
             ],
             [
                 'name' => 'Maria Oliveira Costa',
                 'birth_date' => '1990-07-22',
-                'cpf' => '853.940.520-63',
+                'cpf' => '85394052063',
                 'gender' => Gender::Female,
-                'phone' => '(21) 99876-5432',
+                'phone' => '21998765432',
                 'email' => 'maria.oliveira@example.com',
             ],
             [
                 'name' => 'Carlos Pereira Lima',
                 'birth_date' => '1978-11-08',
-                'cpf' => '111.444.777-35',
+                'cpf' => '11144477735',
                 'gender' => Gender::Male,
                 'phone' => null,
                 'email' => null,

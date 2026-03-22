@@ -9,7 +9,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { CPF_INPUT_MAX_LENGTH, formatCpfInput } from '@/utils/cpfMask';
+import { CPF_INPUT_MAX_LENGTH, formatCpfInput } from '@/utils/formatting';
 
 const form = useForm({
     name: '',

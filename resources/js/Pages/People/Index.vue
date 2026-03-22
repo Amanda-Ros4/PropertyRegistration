@@ -12,6 +12,7 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Paginator from 'primevue/paginator';
+import { formatCpfDisplay, formatPhoneDisplay } from '@/utils/formatting';
 
 const props = defineProps({
     people: { type: Object, required: true },
@@ -54,13 +55,6 @@ function formatDate(dateStr) {
     return new Date(dateStr).toLocaleDateString();
 }
 
-function formatCpf(cpf) {
-    const digits = cpf.replace(/\D/g, '');
-    if (digits.length === 11) {
-        return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}-${digits.slice(9)}`;
-    }
-    return cpf;
-}
 </script>
 
 <template>
@@ -112,7 +106,7 @@ function formatCpf(cpf) {
                     <Column field="name" :header="trans('people.fields.name')" />
                     <Column :header="trans('people.fields.cpf')">
                         <template #body="{ data }">
-                            <span class="font-mono text-sm">{{ formatCpf(data.cpf) }}</span>
+                            <span class="font-mono text-sm">{{ formatCpfDisplay(data.cpf) }}</span>
                         </template>
                     </Column>
                     <Column :header="trans('people.fields.gender')">
@@ -130,7 +124,7 @@ function formatCpf(cpf) {
                     </Column>
                     <Column :header="trans('people.fields.phone')">
                         <template #body="{ data }">
-                            {{ data.phone || '—' }}
+                            {{ data.phone ? formatPhoneDisplay(data.phone) : '—' }}
                         </template>
                     </Column>
                     <Column :header="trans('people.fields.email')">

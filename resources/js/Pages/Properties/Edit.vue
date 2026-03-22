@@ -9,25 +9,17 @@ import FormField from '@/Components/FormField.vue';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
-import Tag from 'primevue/tag';
+import { formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
     property: { type: Object, required: true },
     people: { type: Array, default: () => [] },
 });
 
-function formatCpf(cpf) {
-    const digits = cpf?.replace(/\D/g, '') ?? '';
-    if (digits.length === 11) {
-        return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}-${digits.slice(9)}`;
-    }
-    return cpf;
-}
-
 const peopleOptions = computed(() =>
     props.people.map(p => ({
         value: p.id,
-        label: `${p.name} — ${formatCpf(p.cpf)}`,
+        label: `${p.name} — ${formatCpfDisplay(p.cpf)}`,
     }))
 );
 

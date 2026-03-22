@@ -10,7 +10,13 @@ import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
-import { CPF_INPUT_MAX_LENGTH, formatCpfInput } from '@/utils/cpfMask';
+import {
+    CPF_INPUT_MAX_LENGTH,
+    formatCpfInput,
+    formatDateForSubmit,
+    formatPhoneInput,
+    PHONE_BR_INPUT_MAX_LENGTH,
+} from '@/utils/formatting';
 
 const props = defineProps({
     person: { type: Object, required: true },
@@ -41,26 +47,12 @@ const form = useForm({
     email: props.person.email ?? '',
 });
 
-function formatCpf(value) {
+function onCpfInput(value) {
     form.cpf = formatCpfInput(value);
 }
 
-function formatPhone(value) {
-    const digits = value.replace(/\D/g, '').slice(0, 11);
-    let formatted = digits;
-    if (digits.length > 0) formatted = '(' + digits.slice(0, 2);
-    if (digits.length > 2) formatted += ') ' + digits.slice(2, 7);
-    if (digits.length > 7) formatted += '-' + digits.slice(7);
-    form.phone = formatted;
-}
-
-function formatDateForSubmit(date) {
-    if (!date) return null;
-    if (typeof date === 'string') return date;
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
+function onPhoneInput(value) {
+    form.phone = formatPhoneInput(value);
 }
 
 function submit() {
@@ -113,7 +105,7 @@ function submit() {
                             :invalid="!!form.errors.cpf"
                             class="w-full font-mono"
                             :maxlength="CPF_INPUT_MAX_LENGTH"
-                            @input="formatCpf($event.target.value)"
+                            @input="onCpfInput($event.target.value)"
                         />
                     </FormField>
 
@@ -161,7 +153,8 @@ function submit() {
                             :placeholder="trans('people.placeholders.phone')"
                             :invalid="!!form.errors.phone"
                             class="w-full"
-                            @input="formatPhone($event.target.value)"
+                            :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
+                            @input="onPhoneInput($event.target.value)"
                         />
                     </FormField>
 

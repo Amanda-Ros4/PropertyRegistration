@@ -4,6 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Models\User;
 use App\Rules\ValidCpf;
+use App\Support\Digits;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -21,10 +22,10 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
-        $cpfFormatted = $this->formatCpf($input['cpf'] ?? '');
+        $cpfDigits = Digits::only($input['cpf'] ?? '');
 
         Validator::make(
-            array_merge($input, ['cpf' => $cpfFormatted]),
+            array_merge($input, ['cpf' => $cpfDigits]),
             [
                 'name' => ['required', 'string', 'max:255'],
                 'cpf' => ['required', 'string', new ValidCpf, Rule::unique('users', 'cpf')],
@@ -36,23 +37,9 @@ class CreateNewUser implements CreatesNewUsers
 
         return User::create([
             'name' => $input['name'],
-            'cpf' => $cpfFormatted,
+            'cpf' => $cpfDigits,
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
-    }
-
-    private function formatCpf(string $value): string
-    {
-        $digits = preg_replace('/[^0-9]/', '', $value);
-
-        if (strlen($digits) !== 11) {
-            return '';
-        }
-
-        return substr($digits, 0, 3).'.'.
-            substr($digits, 3, 3).'.'.
-            substr($digits, 6, 3).'-'.
-            substr($digits, 9, 2);
     }
 }

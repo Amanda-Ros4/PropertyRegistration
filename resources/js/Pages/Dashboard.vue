@@ -3,20 +3,13 @@ import { Head, Link } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Button from 'primevue/button';
+import { formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
     stats: { type: Object, default: () => ({ totalPeople: 0, totalProperties: 0 }) },
     recentPeople: { type: Array, default: () => [] },
     recentProperties: { type: Array, default: () => [] },
 });
-
-function formatCpf(cpf) {
-    const digits = cpf?.replace(/\D/g, '') ?? '';
-    if (digits.length === 11) {
-        return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}-${digits.slice(9)}`;
-    }
-    return cpf;
-}
 
 const genderLabel = {
     male: () => trans('genders.male'),
@@ -48,17 +41,17 @@ const genderLabel = {
                 </div>
             </div>
 
-            <div class="rounded-xl bg-slate-800 dark:bg-slate-900 text-white p-6 shadow-sm ring-1 ring-slate-700">
-                <p class="text-sm font-semibold text-green-300 mb-2">{{ trans('dashboard.operational_summary_title') }}</p>
-                <p class="text-sm text-slate-300 leading-relaxed mb-5">{{ trans('dashboard.operational_summary_description') }}</p>
+            <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+                <p class="text-sm font-semibold text-green-700 dark:text-green-300 mb-2">{{ trans('dashboard.operational_summary_title') }}</p>
+                <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5">{{ trans('dashboard.operational_summary_description') }}</p>
                 <div class="space-y-3">
-                    <div class="rounded-lg bg-white/5 border border-white/10 px-4 py-3">
-                        <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">{{ trans('dashboard.total_people') }}</p>
-                        <p class="text-2xl font-bold">{{ stats.totalPeople }}</p>
+                    <div class="rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3">
+                        <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1">{{ trans('dashboard.total_people') }}</p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.totalPeople }}</p>
                     </div>
-                    <div class="rounded-lg bg-white/5 border border-white/10 px-4 py-3">
-                        <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">{{ trans('dashboard.total_properties') }}</p>
-                        <p class="text-2xl font-bold">{{ stats.totalProperties }}</p>
+                    <div class="rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3">
+                        <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1">{{ trans('dashboard.total_properties') }}</p>
+                        <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats.totalProperties }}</p>
                     </div>
                 </div>
             </div>
@@ -119,7 +112,7 @@ const genderLabel = {
                     >
                         <div>
                             <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ person.name }}</p>
-                            <p class="text-xs text-slate-400 font-mono">{{ formatCpf(person.cpf) }}</p>
+                            <p class="text-xs text-slate-400 font-mono">{{ formatCpfDisplay(person.cpf) }}</p>
                         </div>
                         <Link :href="route('people.edit', person.id)">
                             <Button icon="pi pi-pencil" text rounded size="small" severity="secondary" />

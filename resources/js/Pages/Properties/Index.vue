@@ -11,6 +11,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Paginator from 'primevue/paginator';
+import { formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
     properties: { type: Object, required: true },
@@ -24,17 +25,9 @@ const propertyToDelete = ref(null);
 const peopleOptions = computed(() =>
     props.people.map(p => ({
         value: p.id,
-        label: `${p.name} — ${formatCpf(p.cpf)}`,
+        label: `${p.name} — ${formatCpfDisplay(p.cpf)}`,
     }))
 );
-
-function formatCpf(cpf) {
-    const digits = cpf?.replace(/\D/g, '') ?? '';
-    if (digits.length === 11) {
-        return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}-${digits.slice(9)}`;
-    }
-    return cpf;
-}
 
 function confirmDelete(property) {
     propertyToDelete.value = property;
@@ -116,7 +109,7 @@ function onPageChange(event) {
                         <template #body="{ data }">
                             <div v-if="data.person" class="flex flex-col">
                                 <span class="font-medium">{{ data.person.name }}</span>
-                                <span class="text-xs text-gray-400 font-mono">{{ formatCpf(data.person.cpf) }}</span>
+                                <span class="text-xs text-gray-400 font-mono">{{ formatCpfDisplay(data.person.cpf) }}</span>
                             </div>
                             <span v-else class="text-gray-400">—</span>
                         </template>

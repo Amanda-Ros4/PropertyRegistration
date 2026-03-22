@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Person;
 use App\Models\User;
+use App\Support\Digits;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,7 @@ class PersonService
     public function create(User $user, array $data): Person
     {
         return DB::transaction(function () use ($user, $data) {
-            $cpf = $data['cpf'];
+            $cpf = Digits::only($data['cpf']);
             $userId = $user->id;
 
             // Check for existing active record (validation should catch this, but enforce here)
@@ -52,6 +53,7 @@ class PersonService
 
             if ($trashed) {
                 $trashed->restore();
+
                 return $this->update($trashed, $data);
             }
 
@@ -61,7 +63,7 @@ class PersonService
                 'birth_date' => $data['birth_date'],
                 'cpf' => $cpf,
                 'gender' => $data['gender'],
-                'phone' => $data['phone'] ?? null,
+                'phone' => Digits::onlyOrNull($data['phone'] ?? null),
                 'email' => $data['email'] ?? null,
             ]);
         });
@@ -73,9 +75,9 @@ class PersonService
             $person->update([
                 'name' => $data['name'],
                 'birth_date' => $data['birth_date'],
-                'cpf' => $data['cpf'],
+                'cpf' => Digits::only($data['cpf']),
                 'gender' => $data['gender'],
-                'phone' => $data['phone'] ?? null,
+                'phone' => Digits::onlyOrNull($data['phone'] ?? null),
                 'email' => $data['email'] ?? null,
             ]);
 
