@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin User',
+                'cpf' => '390.533.447-05',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
             ]

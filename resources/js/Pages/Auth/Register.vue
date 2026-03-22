@@ -12,11 +12,21 @@ import TextInput from '@/Components/TextInput.vue';
 
 const form = useForm({
     name: '',
+    cpf: '',
     email: '',
     password: '',
     password_confirmation: '',
     terms: false,
 });
+
+function formatCpf(value) {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    let formatted = digits;
+    if (digits.length > 3) formatted = digits.slice(0, 3) + '.' + digits.slice(3);
+    if (digits.length > 6) formatted = formatted.slice(0, 7) + '.' + digits.slice(6);
+    if (digits.length > 9) formatted = formatted.slice(0, 11) + '-' + digits.slice(9);
+    form.cpf = formatted;
+}
 
 const submit = () => {
     form.post(route('register'), {
@@ -46,6 +56,22 @@ const submit = () => {
                     autocomplete="name"
                 />
                 <InputError class="mt-2" :message="form.errors.name" />
+            </div>
+
+            <div class="mt-4">
+                <InputLabel for="cpf" :value="trans('people.fields.cpf')" />
+                <TextInput
+                    id="cpf"
+                    :model-value="form.cpf"
+                    type="text"
+                    class="mt-1 block w-full font-mono"
+                    required
+                    inputmode="numeric"
+                    autocomplete="off"
+                    :placeholder="trans('people.placeholders.cpf')"
+                    @update:model-value="formatCpf"
+                />
+                <InputError class="mt-2" :message="form.errors.cpf" />
             </div>
 
             <div class="mt-4">
