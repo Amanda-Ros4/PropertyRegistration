@@ -17,6 +17,9 @@ import {
     formatPhoneInput,
     PHONE_BR_INPUT_MAX_LENGTH,
 } from '@/utils/formatting';
+import { useAppToast } from '@/composables/useAppToast';
+
+const { showValidationErrorToast } = useAppToast();
 
 const genderOptions = computed(() => [
     { value: 'male', label: trans('genders.male') },
@@ -48,7 +51,9 @@ function submit() {
             ...data,
             birth_date: formatDateForSubmit(data.birth_date),
         }))
-        .post(route('people.store'));
+        .post(route('people.store'), {
+            onError: showValidationErrorToast,
+        });
 }
 </script>
 

@@ -27,12 +27,24 @@ const langMenuRef = ref(null);
 // ─── Flash messages ──────────────────────────────────────────────────────────
 
 watch(() => page.props.flash, (flash) => {
-    if (flash?.message) {
+    if (!flash?.message) {
+        return;
+    }
+    if (flash.type === 'error') {
         toast.add({
-            severity: flash.type === 'error' ? 'error' : 'success',
-            summary: flash.type === 'error' ? trans('errors.server') : '',
+            severity: 'error',
+            summary: trans('errors.server'),
             detail: flash.message,
-            life: 4000,
+            life: 6500,
+            closable: true,
+        });
+    } else {
+        toast.add({
+            severity: 'success',
+            summary: trans('toast.success_summary'),
+            detail: flash.message,
+            life: 4500,
+            closable: true,
         });
     }
 }, { immediate: true, deep: true });
@@ -102,7 +114,7 @@ function isActiveRoute(routeName) {
     <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
         <Head :title="title" />
 
-        <Toast position="top-right" />
+        <Toast position="top-right" class="app-toast" :pt="{ root: { class: 'app-toast-root' } }" />
         <ConfirmDialog />
 
 

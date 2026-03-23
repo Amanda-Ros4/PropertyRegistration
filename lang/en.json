@@ -181,6 +181,10 @@
     "errors.unauthorized": "You are not authorized to perform this action.",
     "errors.server": "An unexpected error occurred. Please try again.",
 
+    "toast.success_summary": "Success",
+    "toast.validation_summary": "Could not save",
+    "toast.validation_generic": "Please check the form fields and try again.",
+
     "profile.title": "Profile",
     "profile.information.title": "Profile Information",
     "profile.information.description": "Update your account's profile information and email address.",

@@ -181,6 +181,10 @@
     "errors.unauthorized": "No está autorizado para realizar esta acción.",
     "errors.server": "Ocurrió un error inesperado. Por favor, inténtelo de nuevo.",
 
+    "toast.success_summary": "Éxito",
+    "toast.validation_summary": "No se pudo guardar",
+    "toast.validation_generic": "Revise los campos del formulario e inténtelo de nuevo.",
+
     "profile.title": "Perfil",
     "profile.information.title": "Información del Perfil",
     "profile.information.description": "Actualice la información de su perfil y dirección de correo electrónico.",

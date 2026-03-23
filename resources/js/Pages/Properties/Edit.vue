@@ -17,6 +17,9 @@ import {
     stripNonDigits,
 } from '@/utils/formatting';
 import { fetchAddressByCep } from '@/utils/viacep';
+import { useAppToast } from '@/composables/useAppToast';
+
+const { showValidationErrorToast } = useAppToast();
 
 const props = defineProps({
     property: { type: Object, required: true },
@@ -99,7 +102,9 @@ async function lookupCepDigits(digits) {
 }
 
 function submit() {
-    form.put(route('properties.update', props.property.id));
+    form.put(route('properties.update', props.property.id), {
+        onError: showValidationErrorToast,
+    });
 }
 </script>
 

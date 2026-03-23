@@ -17,6 +17,9 @@ import {
     formatPhoneInput,
     PHONE_BR_INPUT_MAX_LENGTH,
 } from '@/utils/formatting';
+import { useAppToast } from '@/composables/useAppToast';
+
+const { showValidationErrorToast } = useAppToast();
 
 const props = defineProps({
     person: { type: Object, required: true },
@@ -61,7 +64,9 @@ function submit() {
             ...data,
             birth_date: formatDateForSubmit(data.birth_date),
         }))
-        .put(route('people.update', props.person.id));
+        .put(route('people.update', props.person.id), {
+            onError: showValidationErrorToast,
+        });
 }
 </script>
 

@@ -11,3 +11,56 @@
 html, body {
     height: 100%;
 }
+
+/* PrimeVue Toast — painel com vidro fosco e hierarquia de texto (erro / sucesso) */
+.app-toast-root.p-toast {
+    max-width: min(24rem, calc(100vw - 2rem));
+}
+
+.app-toast-root .p-toast-message {
+    border-radius: 0.75rem;
+    border-width: 1px;
+    border-style: solid;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.35);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+}
+
+.app-toast-root .p-toast-message-error .p-toast-summary {
+    color: #b91c1c;
+}
+
+.app-toast-root .p-toast-message-error .p-toast-detail {
+    color: #334155;
+}
+
+.app-toast-root .p-toast-message-success .p-toast-summary {
+    color: #15803d;
+}
+
+.app-toast-root .p-toast-message-success .p-toast-detail {
+    color: #334155;
+}
+
+html.dark .app-toast-root .p-toast-message {
+    background: rgba(15, 23, 42, 0.78);
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+html.dark .app-toast-root .p-toast-message-error .p-toast-summary {
+    color: #f87171;
+}
+
+html.dark .app-toast-root .p-toast-message-error .p-toast-detail {
+    color: #f1f5f9;
+}
+
+html.dark .app-toast-root .p-toast-message-success .p-toast-summary {
+    color: #4ade80;
+}
+
+html.dark .app-toast-root .p-toast-message-success .p-toast-detail {
+    color: #e2e8f0;
+}
