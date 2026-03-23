@@ -76,6 +76,7 @@ function submit() {
                             :invalid="!!form.errors.person_id"
                             filter
                             class="w-full"
+                            @change="form.clearErrors('person_id')"
                         />
                     </FormField>
 
@@ -91,6 +92,7 @@ function submit() {
                             :placeholder="trans('properties.placeholders.street')"
                             :invalid="!!form.errors.street"
                             class="w-full"
+                            @change="form.clearErrors('street')"
                         />
                     </FormField>
 
@@ -105,6 +107,7 @@ function submit() {
                             :placeholder="trans('properties.placeholders.number')"
                             :invalid="!!form.errors.number"
                             class="w-full"
+                            @change="form.clearErrors('number')"
                         />
                     </FormField>
 
@@ -119,6 +122,7 @@ function submit() {
                             :placeholder="trans('properties.placeholders.neighborhood')"
                             :invalid="!!form.errors.neighborhood"
                             class="w-full"
+                            @change="form.clearErrors('neighborhood')"
                         />
                     </FormField>
 
@@ -133,6 +137,7 @@ function submit() {
                             :placeholder="trans('properties.placeholders.complement')"
                             :invalid="!!form.errors.complement"
                             class="w-full"
+                            @change="form.clearErrors('complement')"
                         />
                     </FormField>
                 </div>

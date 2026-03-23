@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Gender;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,7 @@ return new class extends Migration
             $table->string('name');
             $table->date('birth_date');
             $table->string('cpf', 14);
-            $table->string('gender', 30);
+            $table->enum('gender', Gender::values());
             $table->string('phone', 20)->nullable();
             $table->string('email')->nullable();
             $table->timestamps();

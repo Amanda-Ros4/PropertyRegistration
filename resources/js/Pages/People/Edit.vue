@@ -90,6 +90,7 @@ function submit() {
                             :placeholder="trans('people.placeholders.name')"
                             :invalid="!!form.errors.name"
                             class="w-full"
+                            @change="form.clearErrors('name')"
                         />
                     </FormField>
 
@@ -106,6 +107,7 @@ function submit() {
                             class="w-full font-mono"
                             :maxlength="CPF_INPUT_MAX_LENGTH"
                             @input="onCpfInput($event.target.value)"
+                            @change="form.clearErrors('cpf')"
                         />
                     </FormField>
 
@@ -123,6 +125,7 @@ function submit() {
                             :placeholder="trans('people.placeholders.gender')"
                             :invalid="!!form.errors.gender"
                             class="w-full"
+                            @change="form.clearErrors('gender')"
                         />
                     </FormField>
 
@@ -140,6 +143,7 @@ function submit() {
                             showIcon
                             dateFormat="dd/mm/yy"
                             class="w-full"
+                            @change="form.clearErrors('birth_date')"
                         />
                     </FormField>
 
@@ -155,6 +159,7 @@ function submit() {
                             class="w-full"
                             :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
                             @input="onPhoneInput($event.target.value)"
+                            @change="form.clearErrors('phone')"
                         />
                     </FormField>
 
@@ -169,6 +174,7 @@ function submit() {
                             :placeholder="trans('people.placeholders.email')"
                             :invalid="!!form.errors.email"
                             class="w-full"
+                            @change="form.clearErrors('email')"
                         />
                     </FormField>
                 </div>
