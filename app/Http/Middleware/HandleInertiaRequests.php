@@ -3,7 +3,9 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Inertia\Middleware;
+use Laravel\Fortify\Features;
 use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
@@ -19,7 +21,9 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'canRegister' => fn () => \Illuminate\Support\Facades\Route::has('register'),
+            'canRegister' => fn () => Route::has('register'),
+            'canResetPassword' => fn () => Features::enabled(Features::resetPasswords())
+                && Route::has('password.request'),
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

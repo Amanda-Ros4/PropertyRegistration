@@ -80,6 +80,9 @@
     "auth.password_confirmation": "Confirmar senha",
     "auth.remember_me": "Lembrar de mim",
     "auth.forgot_password": "Esqueceu sua senha?",
+    "auth.forgot_password_page_title": "Recuperar senha",
+    "auth.forgot_password_intro": "Informe seu e-mail e enviaremos um link para redefinir a senha.",
+    "auth.send_reset_link": "Enviar link por e-mail",
     "auth.no_account": "Não tem conta?",
     "auth.already_registered": "Já tem conta?",
 

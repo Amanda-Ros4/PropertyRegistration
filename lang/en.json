@@ -80,6 +80,9 @@
     "auth.password_confirmation": "Confirm Password",
     "auth.remember_me": "Remember me",
     "auth.forgot_password": "Forgot your password?",
+    "auth.forgot_password_page_title": "Reset password",
+    "auth.forgot_password_intro": "Enter your email address and we will send you a link to choose a new password.",
+    "auth.send_reset_link": "Email password reset link",
     "auth.no_account": "Don't have an account?",
     "auth.already_registered": "Already have an account?",
 

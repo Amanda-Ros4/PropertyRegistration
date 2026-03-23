@@ -14,6 +14,11 @@ return [
     |
     */
 
+    /*
+    | O padrão "log" grava o e-mail em storage/logs/laravel.log (não envia à caixa do usuário).
+    | Para receber de verdade, use MAIL_MAILER=smtp e configure host/porta/credenciais no .env
+    | (ex.: Mailpit local: MAIL_HOST=127.0.0.1 MAIL_PORT=1025 sem usuário/senha).
+    */
     'default' => env('MAIL_MAILER', 'log'),
 
     /*
