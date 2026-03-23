@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -9,7 +9,14 @@ import FormField from '@/Components/FormField.vue';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
-import { formatCpfDisplay } from '@/utils/formatting';
+import {
+    CEP_INPUT_MAX_LENGTH,
+    formatCepDisplay,
+    formatCepInput,
+    formatCpfDisplay,
+    stripNonDigits,
+} from '@/utils/formatting';
+import { fetchAddressByCep } from '@/utils/viacep';
 
 const props = defineProps({
     property: { type: Object, required: true },
@@ -23,13 +30,73 @@ const peopleOptions = computed(() =>
     }))
 );
 
+const cepLookupError = ref('');
+const cepLoading = ref(false);
+const lastFetchedCep = ref(
+    props.property.cep && stripNonDigits(props.property.cep, 8).length === 8
+        ? stripNonDigits(props.property.cep, 8)
+        : null
+);
+
 const form = useForm({
     person_id: props.property.person_id,
+    cep: props.property.cep ? formatCepDisplay(props.property.cep) : '',
     street: props.property.street,
     number: props.property.number,
     neighborhood: props.property.neighborhood,
     complement: props.property.complement ?? '',
 });
+
+const cepErrorDisplay = computed(() => form.errors.cep || cepLookupError.value);
+
+function onCepInput(value) {
+    form.cep = formatCepInput(value);
+    cepLookupError.value = '';
+
+    const digits = stripNonDigits(form.cep, 8);
+    if (digits.length !== 8) {
+        lastFetchedCep.value = null;
+        return;
+    }
+    if (lastFetchedCep.value === digits) {
+        return;
+    }
+
+    lookupCepDigits(digits);
+}
+
+async function lookupCepDigits(digits) {
+    cepLookupError.value = '';
+    cepLoading.value = true;
+    const result = await fetchAddressByCep(digits);
+    cepLoading.value = false;
+
+    if (!result.ok) {
+        lastFetchedCep.value = null;
+        if (result.reason === 'not_found') {
+            cepLookupError.value = trans('properties.errors.cep_not_found');
+        } else if (result.reason === 'network') {
+            cepLookupError.value = trans('properties.errors.cep_network');
+        }
+        return;
+    }
+
+    lastFetchedCep.value = digits;
+
+    const { data } = result;
+    if (data.logradouro) {
+        form.street = data.logradouro;
+    }
+    if (data.bairro) {
+        form.neighborhood = data.bairro;
+    }
+    if (data.complemento && String(form.complement ?? '').trim() === '') {
+        form.complement = data.complemento;
+    }
+    form.clearErrors('cep');
+    form.clearErrors('street');
+    form.clearErrors('neighborhood');
+}
 
 function submit() {
     form.put(route('properties.update', props.property.id));
@@ -78,6 +145,35 @@ function submit() {
                             class="w-full"
                             @change="form.clearErrors('person_id')"
                         />
+                    </FormField>
+
+                    <!-- CEP (ViaCEP — consulta ao completar 8 dígitos) -->
+                    <FormField
+                        class="md:col-span-2"
+                        :label="trans('properties.fields.cep')"
+                        :error="cepErrorDisplay"
+                        :hint="trans('properties.hint_cep')"
+                    >
+                        <div class="relative">
+                            <InputText
+                                :modelValue="form.cep"
+                                type="text"
+                                inputmode="numeric"
+                                autocomplete="postal-code"
+                                :placeholder="trans('properties.placeholders.cep')"
+                                :invalid="!!(form.errors.cep || cepLookupError)"
+                                class="w-full font-mono pr-10"
+                                :maxlength="CEP_INPUT_MAX_LENGTH"
+                                :disabled="cepLoading"
+                                @input="onCepInput($event.target.value)"
+                                @change="form.clearErrors('cep')"
+                            />
+                            <i
+                                v-show="cepLoading"
+                                class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                                aria-hidden="true"
+                            />
+                        </div>
                     </FormField>
 
                     <!-- Street -->

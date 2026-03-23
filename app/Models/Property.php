@@ -16,6 +16,7 @@ class Property extends Model
     protected $fillable = [
         'user_id',
         'person_id',
+        'cep',
         'street',
         'number',
         'neighborhood',
@@ -55,12 +56,13 @@ class Property extends Model
             return $query;
         }
 
-        $term = '%' . $search . '%';
+        $term = '%'.$search.'%';
 
         return $query->where(function (Builder $q) use ($term) {
             $q->where('street', 'like', $term)
                 ->orWhere('number', 'like', $term)
-                ->orWhere('neighborhood', 'like', $term);
+                ->orWhere('neighborhood', 'like', $term)
+                ->orWhere('cep', 'like', $term);
         });
     }
 

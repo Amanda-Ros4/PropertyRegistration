@@ -27,6 +27,7 @@ class PropertyService
             return Property::create([
                 'user_id' => $user->id,
                 'person_id' => $data['person_id'],
+                'cep' => $data['cep'] ?? null,
                 'street' => $data['street'],
                 'number' => $data['number'],
                 'neighborhood' => $data['neighborhood'],
@@ -40,6 +41,7 @@ class PropertyService
         return DB::transaction(function () use ($property, $data) {
             $property->update([
                 'person_id' => $data['person_id'],
+                'cep' => $data['cep'] ?? null,
                 'street' => $data['street'],
                 'number' => $data['number'],
                 'neighborhood' => $data['neighborhood'],

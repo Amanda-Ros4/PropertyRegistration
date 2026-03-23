@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id(); // auto-increment = municipal registration ID
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('person_id')->constrained('people');
+            $table->string('cep', 8)->nullable();
             $table->string('street');
             $table->string('number', 20);
             $table->string('neighborhood');

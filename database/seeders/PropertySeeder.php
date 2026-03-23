@@ -29,6 +29,7 @@ class PropertySeeder extends Seeder
             Property::query()->create([
                 'user_id' => $user->id,
                 'person_id' => $person->id,
+                'cep' => fake()->optional(0.85)->numerify('########'),
                 'street' => fake()->streetName(),
                 'number' => (string) fake()->buildingNumber(),
                 'neighborhood' => fake()->city(),

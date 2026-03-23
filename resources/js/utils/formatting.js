@@ -64,6 +64,34 @@ export function formatPhoneDisplay(phone) {
     return formatPhoneInput(phone);
 }
 
+// ─── CEP (Brasil) ────────────────────────────────────────────────────────────
+
+export const CEP_MAX_DIGITS = 8;
+
+/** Com máscara 00000-000 */
+export const CEP_INPUT_MAX_LENGTH = 9;
+
+/**
+ * Máscara durante digitação: até 8 dígitos → 00000-000
+ */
+export function formatCepInput(value) {
+    const d = stripNonDigits(value, CEP_MAX_DIGITS);
+    if (d.length <= 5) return d;
+    return `${d.slice(0, 5)}-${d.slice(5)}`;
+}
+
+/**
+ * Exibe CEP formatado quando há 8 dígitos.
+ */
+export function formatCepDisplay(cep) {
+    if (cep == null || cep === '') return '';
+    const digits = stripNonDigits(cep);
+    if (digits.length === 8) {
+        return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+    }
+    return String(cep);
+}
+
 // ─── Data (DatePicker → API) ─────────────────────────────────────────────────
 
 /**

@@ -11,7 +11,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Paginator from 'primevue/paginator';
-import { formatCpfDisplay } from '@/utils/formatting';
+import { formatCepDisplay, formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
     properties: { type: Object, required: true },
@@ -112,6 +112,11 @@ function onPageChange(event) {
                                 <span class="text-xs text-gray-400 font-mono">{{ formatCpfDisplay(data.person.cpf) }}</span>
                             </div>
                             <span v-else class="text-gray-400">—</span>
+                        </template>
+                    </Column>
+                    <Column :header="trans('properties.fields.cep')" style="width: 110px">
+                        <template #body="{ data }">
+                            <span class="font-mono text-sm">{{ data.cep ? formatCepDisplay(data.cep) : '—' }}</span>
                         </template>
                     </Column>
                     <Column field="street" :header="trans('properties.fields.street')" />
