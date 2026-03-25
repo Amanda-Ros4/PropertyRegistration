@@ -12,6 +12,20 @@ html, body {
     height: 100%;
 }
 
+/*
+ * @tailwindcss/forms força background #fff em text/password/email com seletores bem específicos.
+ * Garantir legível no tema escuro após o utilitário ! do campo (autofill ainda precisa disto).
+ */
+html.dark input.jetstream-text-input:-webkit-autofill,
+html.dark input.jetstream-text-input:-webkit-autofill:hover,
+html.dark input.jetstream-text-input:-webkit-autofill:focus,
+html.dark input.jetstream-text-input:-webkit-autofill:active {
+    -webkit-text-fill-color: #f1f5f9 !important;
+    caret-color: #f1f5f9;
+    box-shadow: inset 0 0 0 1000px #1e293b !important;
+    transition: background-color 99999s ease-out;
+}
+
 /* PrimeVue Toast — painel com vidro fosco e hierarquia de texto (erro / sucesso) */
 .app-toast-root.p-toast {
     max-width: min(24rem, calc(100vw - 2rem));
