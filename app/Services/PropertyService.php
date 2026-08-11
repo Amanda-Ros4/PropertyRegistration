@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\PropertyStatus;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -27,11 +28,15 @@ class PropertyService
             return Property::create([
                 'user_id' => $user->id,
                 'person_id' => $data['person_id'],
+                'type' => $data['type'],
+                'land_area' => $data['land_area'] ?? null,
+                'building_area' => $data['building_area'] ?? null,
                 'cep' => $data['cep'] ?? null,
                 'street' => $data['street'],
                 'number' => $data['number'],
                 'neighborhood' => $data['neighborhood'],
                 'complement' => $data['complement'] ?? null,
+                'status' => PropertyStatus::Active,
             ]);
         });
     }
@@ -41,11 +46,15 @@ class PropertyService
         return DB::transaction(function () use ($property, $data) {
             $property->update([
                 'person_id' => $data['person_id'],
+                'type' => $data['type'],
+                'land_area' => $data['land_area'] ?? null,
+                'building_area' => $data['building_area'] ?? null,
                 'cep' => $data['cep'] ?? null,
                 'street' => $data['street'],
                 'number' => $data['number'],
                 'neighborhood' => $data['neighborhood'],
                 'complement' => $data['complement'] ?? null,
+                // Situação não é alterada aqui — apenas via Averbações (Grupo 7).
             ]);
 
             return $property->fresh();

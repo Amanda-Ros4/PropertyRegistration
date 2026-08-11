@@ -48,6 +48,39 @@ export function blockNonDigitBeforeInput(event) {
 }
 
 /**
+ * Área em m²: apenas números com até 2 casas decimais (aceita vírgula ou ponto).
+ */
+export function formatAreaInput(value) {
+    let raw = String(value ?? '').replace(/[^\d.,]/g, '');
+    raw = raw.replace(',', '.');
+    const firstDot = raw.indexOf('.');
+    if (firstDot === -1) {
+        return raw;
+    }
+    const intPart = raw.slice(0, firstDot).replace(/\./g, '');
+    const decPart = raw.slice(firstDot + 1).replace(/\./g, '').slice(0, 2);
+    return decPart.length > 0 || raw.endsWith('.')
+        ? `${intPart}.${decPart}`
+        : intPart;
+}
+
+export function blockNonAreaKey(event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (NAVIGATION_KEYS.has(event.key)) return;
+    if (event.key.length === 1 && !/[\d.,]/.test(event.key)) {
+        event.preventDefault();
+    }
+}
+
+export function blockNonAreaBeforeInput(event) {
+    if (!event.data) return;
+    if (event.inputType === 'insertFromPaste' || event.inputType === 'insertFromDrop') return;
+    if (/[^\d.,]/.test(event.data)) {
+        event.preventDefault();
+    }
+}
+
+/**
  * Caracteres permitidos em campos de pesquisa:
  * letras, números, espaços e símbolos de sistemas métrico/imperial
  * e de topografia/geometria.
@@ -81,6 +114,40 @@ export function blockDisallowedSearchBeforeInput(event) {
     if (!event.data) return;
     if (event.inputType === 'insertFromPaste' || event.inputType === 'insertFromDrop') return;
     if (![...event.data].every(isAllowedSearchChar)) {
+        event.preventDefault();
+    }
+}
+
+/**
+ * Logradouro/bairro: letras, números, espaços e símbolos métricos/imperiais/topográficos.
+ * Bloqueia especiais como @ # $ %.
+ */
+const ADDRESS_ALLOWED_CHAR_PATTERN = /[\p{L}\p{N}\s°ºª′″'"/\\\-.,:()·×÷±²³µ∠△▲▼◆○●≈≠≤≥]/u;
+
+export function isAllowedAddressChar(char) {
+    return ADDRESS_ALLOWED_CHAR_PATTERN.test(char);
+}
+
+export function formatAddressInput(value) {
+    return String(value ?? '')
+        .split('')
+        .filter((char) => isAllowedAddressChar(char))
+        .join('')
+        .replace(/\s{2,}/g, ' ');
+}
+
+export function blockDisallowedAddressKey(event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (NAVIGATION_KEYS.has(event.key)) return;
+    if (event.key.length === 1 && !isAllowedAddressChar(event.key)) {
+        event.preventDefault();
+    }
+}
+
+export function blockDisallowedAddressBeforeInput(event) {
+    if (!event.data) return;
+    if (event.inputType === 'insertFromPaste' || event.inputType === 'insertFromDrop') return;
+    if (![...event.data].every(isAllowedAddressChar)) {
         event.preventDefault();
     }
 }

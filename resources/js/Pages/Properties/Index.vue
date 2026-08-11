@@ -10,6 +10,7 @@ import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
+import Tag from 'primevue/tag';
 import Paginator from 'primevue/paginator';
 import { formatCepDisplay, formatCpfDisplay } from '@/utils/formatting';
 
@@ -103,6 +104,19 @@ function onPageChange(event) {
                     <Column :header="trans('properties.fields.municipal_registration')" style="width: 80px">
                         <template #body="{ data }">
                             <span class="font-mono font-medium text-indigo-600 dark:text-indigo-400">#{{ data.id }}</span>
+                        </template>
+                    </Column>
+                    <Column :header="trans('properties.fields.type')" style="width: 120px">
+                        <template #body="{ data }">
+                            {{ data.type ? trans('properties.types.' + (data.type.value ?? data.type)) : '—' }}
+                        </template>
+                    </Column>
+                    <Column :header="trans('properties.fields.status')" style="width: 110px">
+                        <template #body="{ data }">
+                            <Tag
+                                :value="trans('properties.statuses.' + (data.status?.value ?? data.status))"
+                                :severity="(data.status?.value ?? data.status) === 'active' ? 'success' : 'secondary'"
+                            />
                         </template>
                     </Column>
                     <Column :header="trans('properties.fields.owner')">

@@ -11,6 +11,14 @@ import Select from 'primevue/select';
 import Button from 'primevue/button';
 import {
     CEP_INPUT_MAX_LENGTH,
+    blockDisallowedAddressBeforeInput,
+    blockDisallowedAddressKey,
+    blockNonAreaBeforeInput,
+    blockNonAreaKey,
+    blockNonDigitBeforeInput,
+    blockNonDigitKey,
+    formatAddressInput,
+    formatAreaInput,
     formatCepInput,
     formatCpfDisplay,
     stripNonDigits,
@@ -28,16 +36,24 @@ const peopleOptions = computed(() =>
     props.people.map(p => ({
         value: p.id,
         label: `${p.name} — ${formatCpfDisplay(p.cpf)}`,
-    }))
+    })),
 );
+
+const typeOptions = computed(() => [
+    { value: 'land', label: trans('properties.types.land') },
+    { value: 'house', label: trans('properties.types.house') },
+    { value: 'apartment', label: trans('properties.types.apartment') },
+]);
 
 const cepLookupError = ref('');
 const cepLoading = ref(false);
-/** Evita nova requisição ao ViaCEP para o mesmo CEP já consultado. */
 const lastFetchedCep = ref(null);
 
 const form = useForm({
     person_id: null,
+    type: null,
+    land_area: '',
+    building_area: '',
     cep: '',
     street: '',
     number: '',
@@ -47,8 +63,20 @@ const form = useForm({
 
 const cepErrorDisplay = computed(() => form.errors.cep || cepLookupError.value);
 
+function syncMasked(field, formatter, value) {
+    const formatted = formatter(value);
+    if (formatted === form[field]) {
+        form[field] = `${formatted}\u200b`;
+        queueMicrotask(() => {
+            form[field] = formatted;
+        });
+        return;
+    }
+    form[field] = formatted;
+}
+
 function onCepInput(value) {
-    form.cep = formatCepInput(value);
+    syncMasked('cep', formatCepInput, value);
     cepLookupError.value = '';
 
     const digits = stripNonDigits(form.cep, 8);
@@ -61,6 +89,30 @@ function onCepInput(value) {
     }
 
     lookupCepDigits(digits);
+}
+
+function onNumberInput(value) {
+    syncMasked('number', (v) => stripNonDigits(v), value);
+}
+
+function onLandAreaInput(value) {
+    syncMasked('land_area', formatAreaInput, value);
+}
+
+function onBuildingAreaInput(value) {
+    syncMasked('building_area', formatAreaInput, value);
+}
+
+function onStreetInput(value) {
+    syncMasked('street', formatAddressInput, value);
+}
+
+function onNeighborhoodInput(value) {
+    syncMasked('neighborhood', formatAddressInput, value);
+}
+
+function onComplementInput(value) {
+    syncMasked('complement', formatAddressInput, value);
 }
 
 async function lookupCepDigits(digits) {
@@ -83,13 +135,13 @@ async function lookupCepDigits(digits) {
 
     const { data } = result;
     if (data.logradouro) {
-        form.street = data.logradouro;
+        form.street = formatAddressInput(data.logradouro);
     }
     if (data.bairro) {
-        form.neighborhood = data.bairro;
+        form.neighborhood = formatAddressInput(data.bairro);
     }
     if (data.complemento && String(form.complement ?? '').trim() === '') {
-        form.complement = data.complemento;
+        form.complement = formatAddressInput(data.complemento);
     }
     form.clearErrors('cep');
     form.clearErrors('street');
@@ -97,9 +149,15 @@ async function lookupCepDigits(digits) {
 }
 
 function submit() {
-    form.post(route('properties.store'), {
-        onError: showValidationErrorToast,
-    });
+    form
+        .transform((data) => ({
+            ...data,
+            land_area: data.land_area === '' ? null : data.land_area,
+            building_area: data.building_area === '' ? null : data.building_area,
+        }))
+        .post(route('properties.store'), {
+            onError: showValidationErrorToast,
+        });
 }
 </script>
 
@@ -116,7 +174,6 @@ function submit() {
         <FormCard>
             <form @submit.prevent="submit" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Owner -->
                     <FormField
                         class="md:col-span-2"
                         :label="trans('properties.fields.owner')"
@@ -136,7 +193,63 @@ function submit() {
                         />
                     </FormField>
 
-                    <!-- CEP (ViaCEP — consulta ao completar 8 dígitos) -->
+                    <FormField
+                        :label="trans('properties.fields.type')"
+                        :error="form.errors.type"
+                        required
+                    >
+                        <Select
+                            v-model="form.type"
+                            :options="typeOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            :placeholder="trans('properties.placeholders.type')"
+                            :invalid="!!form.errors.type"
+                            class="w-full"
+                            @change="form.clearErrors('type')"
+                        />
+                    </FormField>
+
+                    <FormField
+                        :label="trans('properties.fields.land_area')"
+                        :error="form.errors.land_area"
+                    >
+                        <div
+                            @keydown.capture="blockNonAreaKey"
+                            @beforeinput.capture="blockNonAreaBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.land_area"
+                                inputmode="decimal"
+                                :placeholder="trans('properties.placeholders.land_area')"
+                                :invalid="!!form.errors.land_area"
+                                class="w-full font-mono"
+                                @update:model-value="onLandAreaInput"
+                                @change="form.clearErrors('land_area')"
+                            />
+                        </div>
+                    </FormField>
+
+                    <FormField
+                        :label="trans('properties.fields.building_area')"
+                        :error="form.errors.building_area"
+                    >
+                        <div
+                            @keydown.capture="blockNonAreaKey"
+                            @beforeinput.capture="blockNonAreaBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.building_area"
+                                inputmode="decimal"
+                                :placeholder="trans('properties.placeholders.building_area')"
+                                :invalid="!!form.errors.building_area"
+                                class="w-full font-mono"
+                                @update:model-value="onBuildingAreaInput"
+                                @change="form.clearErrors('building_area')"
+                            />
+                        </div>
+                    </FormField>
+
                     <FormField
                         class="md:col-span-2"
                         :label="trans('properties.fields.cep')"
@@ -154,7 +267,7 @@ function submit() {
                                 class="w-full font-mono pr-10"
                                 :maxlength="CEP_INPUT_MAX_LENGTH"
                                 :disabled="cepLoading"
-                                @input="onCepInput($event.target.value)"
+                                @update:model-value="onCepInput"
                                 @change="form.clearErrors('cep')"
                             />
                             <i
@@ -165,65 +278,86 @@ function submit() {
                         </div>
                     </FormField>
 
-                    <!-- Street -->
                     <FormField
                         class="md:col-span-2"
                         :label="trans('properties.fields.street')"
                         :error="form.errors.street"
                         required
                     >
-                        <InputText
-                            v-model="form.street"
-                            :placeholder="trans('properties.placeholders.street')"
-                            :invalid="!!form.errors.street"
-                            class="w-full"
-                            @change="form.clearErrors('street')"
-                        />
+                        <div
+                            @keydown.capture="blockDisallowedAddressKey"
+                            @beforeinput.capture="blockDisallowedAddressBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.street"
+                                :placeholder="trans('properties.placeholders.street')"
+                                :invalid="!!form.errors.street"
+                                class="w-full"
+                                @update:model-value="onStreetInput"
+                                @change="form.clearErrors('street')"
+                            />
+                        </div>
                     </FormField>
 
-                    <!-- Number -->
                     <FormField
                         :label="trans('properties.fields.number')"
                         :error="form.errors.number"
                         required
                     >
-                        <InputText
-                            v-model="form.number"
-                            :placeholder="trans('properties.placeholders.number')"
-                            :invalid="!!form.errors.number"
-                            class="w-full"
-                            @change="form.clearErrors('number')"
-                        />
+                        <div
+                            @keydown.capture="blockNonDigitKey"
+                            @beforeinput.capture="blockNonDigitBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.number"
+                                inputmode="numeric"
+                                :placeholder="trans('properties.placeholders.number')"
+                                :invalid="!!form.errors.number"
+                                class="w-full font-mono"
+                                @update:model-value="onNumberInput"
+                                @change="form.clearErrors('number')"
+                            />
+                        </div>
                     </FormField>
 
-                    <!-- Neighborhood -->
                     <FormField
                         :label="trans('properties.fields.neighborhood')"
                         :error="form.errors.neighborhood"
                         required
                     >
-                        <InputText
-                            v-model="form.neighborhood"
-                            :placeholder="trans('properties.placeholders.neighborhood')"
-                            :invalid="!!form.errors.neighborhood"
-                            class="w-full"
-                            @change="form.clearErrors('neighborhood')"
-                        />
+                        <div
+                            @keydown.capture="blockDisallowedAddressKey"
+                            @beforeinput.capture="blockDisallowedAddressBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.neighborhood"
+                                :placeholder="trans('properties.placeholders.neighborhood')"
+                                :invalid="!!form.errors.neighborhood"
+                                class="w-full"
+                                @update:model-value="onNeighborhoodInput"
+                                @change="form.clearErrors('neighborhood')"
+                            />
+                        </div>
                     </FormField>
 
-                    <!-- Complement -->
                     <FormField
                         class="md:col-span-2"
                         :label="trans('properties.fields.complement')"
                         :error="form.errors.complement"
                     >
-                        <InputText
-                            v-model="form.complement"
-                            :placeholder="trans('properties.placeholders.complement')"
-                            :invalid="!!form.errors.complement"
-                            class="w-full"
-                            @change="form.clearErrors('complement')"
-                        />
+                        <div
+                            @keydown.capture="blockDisallowedAddressKey"
+                            @beforeinput.capture="blockDisallowedAddressBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.complement"
+                                :placeholder="trans('properties.placeholders.complement')"
+                                :invalid="!!form.errors.complement"
+                                class="w-full"
+                                @update:model-value="onComplementInput"
+                                @change="form.clearErrors('complement')"
+                            />
+                        </div>
                     </FormField>
                 </div>
 

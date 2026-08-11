@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\PropertyStatus;
+use App\Enums\PropertyType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,11 +18,15 @@ class Property extends Model
     protected $fillable = [
         'user_id',
         'person_id',
+        'type',
+        'land_area',
+        'building_area',
         'cep',
         'street',
         'number',
         'neighborhood',
         'complement',
+        'status',
     ];
 
     protected function casts(): array
@@ -28,6 +34,10 @@ class Property extends Model
         return [
             'user_id' => 'integer',
             'person_id' => 'integer',
+            'type' => PropertyType::class,
+            'land_area' => 'decimal:2',
+            'building_area' => 'decimal:2',
+            'status' => PropertyStatus::class,
         ];
     }
 
