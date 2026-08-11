@@ -59,39 +59,80 @@ class Person extends Model
             return $query;
         }
 
-        $term = '%'.$search.'%';
-        $cpfDigits = preg_replace('/[^0-9]/', '', $search);
+        $raw = trim($search);
+        $term = '%'.$raw.'%';
+        $cpfDigits = preg_replace('/[^0-9]/', '', $raw);
+        $normalized = mb_strtolower($raw);
 
-        return $query->where(function (Builder $q) use ($term, $cpfDigits) {
+        $genderMatches = [];
+        foreach (Gender::cases() as $gender) {
+            $value = $gender->value;
+            $label = mb_strtolower((string) __('genders.'.$value));
+            if (
+                $normalized === $value
+                || $normalized === $label
+                || (
+                    mb_strlen($normalized) >= 3
+                    && (str_contains($label, $normalized) || str_contains($normalized, $label))
+                )
+            ) {
+                $genderMatches[] = $value;
+            }
+        }
+
+        $birthDates = $this->parseSearchBirthDates($raw);
+
+        return $query->where(function (Builder $q) use ($term, $cpfDigits, $genderMatches, $birthDates) {
             $q->where('name', 'like', $term)
                 ->orWhere('email', 'like', $term);
+
             if ($cpfDigits !== '') {
                 $q->orWhere('cpf', 'like', '%'.$cpfDigits.'%');
+            }
+
+            foreach ($birthDates as $date) {
+                $q->orWhereDate('birth_date', $date);
+            }
+
+            if ($genderMatches !== []) {
+                $q->orWhereIn('gender', array_values(array_unique($genderMatches)));
             }
         });
     }
 
+    /**
+     * Interpreta possíveis datas digitadas na busca (YYYY-MM-DD, MM/DD/YYYY, DD/MM/YYYY, MMDDYYYY).
+     *
+     * @return list<string>
+     */
+    private function parseSearchBirthDates(string $raw): array
+    {
+        $dates = [];
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw)) {
+            $dates[] = $raw;
+        }
+
+        if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $raw, $m)) {
+            $dates[] = sprintf('%s-%s-%s', $m[3], $m[1], $m[2]); // MM/DD/YYYY
+            $dates[] = sprintf('%s-%s-%s', $m[3], $m[2], $m[1]); // DD/MM/YYYY
+        }
+
+        $digits = preg_replace('/[^0-9]/', '', $raw);
+        if (strlen($digits) === 8) {
+            $dates[] = sprintf('%s-%s-%s', substr($digits, 4, 4), substr($digits, 0, 2), substr($digits, 2, 2)); // MMDDYYYY
+            $dates[] = sprintf('%s-%s-%s', substr($digits, 4, 4), substr($digits, 2, 2), substr($digits, 0, 2)); // DDMMYYYY
+        }
+
+        return array_values(array_unique(array_filter($dates, function (string $date) {
+            [$y, $m, $d] = array_map('intval', explode('-', $date));
+
+            return checkdate($m, $d, $y);
+        })));
+    }
+
     public function scopeFilter(Builder $query, array $filters): Builder
     {
-        if (! empty($filters['name'])) {
-            $query->where('name', 'like', '%'.$filters['name'].'%');
-        }
-
-        if (! empty($filters['cpf'])) {
-            $cpfDigits = preg_replace('/[^0-9]/', '', (string) $filters['cpf']);
-            if ($cpfDigits !== '') {
-                $query->where('cpf', 'like', '%'.$cpfDigits.'%');
-            }
-        }
-
-        if (! empty($filters['birth_date'])) {
-            $query->whereDate('birth_date', $filters['birth_date']);
-        }
-
-        if (! empty($filters['gender'])) {
-            $query->where('gender', $filters['gender']);
-        }
-
         if (! empty($filters['search'])) {
             $query->search($filters['search']);
         }

@@ -18,7 +18,7 @@ class PersonController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only(['search', 'name', 'cpf', 'birth_date', 'gender']);
+        $filters = $request->only(['search']);
 
         $people = $this->personService->listForUser(
             $request->user(),

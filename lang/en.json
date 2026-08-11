@@ -107,7 +107,7 @@
     "people.edit": "Edit Person",
     "people.empty": "No people registered",
     "people.empty_description": "Start by registering a new person.",
-    "people.search_placeholder": "Search by name, CPF or email...",
+    "people.search_placeholder": "Search by name, CPF, birth date or gender...",
     "people.fields.name": "Full Name",
     "people.fields.birth_date": "Birth Date",
     "people.fields.cpf": "CPF",
