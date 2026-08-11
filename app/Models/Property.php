@@ -77,9 +77,55 @@ class Property extends Model
 
             if ($digits !== '') {
                 $q->orWhere('cep', 'like', '%'.$digits.'%')
-                    ->orWhere('number', 'like', '%'.$digits.'%');
+                    ->orWhere('number', 'like', '%'.$digits.'%')
+                    ->orWhere('id', $digits);
             }
         });
+    }
+
+    public function scopeFilterById(Builder $query, ?int $id): Builder
+    {
+        if (! $id) {
+            return $query;
+        }
+
+        return $query->where('id', $id);
+    }
+
+    public function scopeFilterByType(Builder $query, ?string $type): Builder
+    {
+        if (! $type) {
+            return $query;
+        }
+
+        return $query->where('type', $type);
+    }
+
+    public function scopeFilterByStreet(Builder $query, ?string $street): Builder
+    {
+        if (! $street) {
+            return $query;
+        }
+
+        return $query->where('street', 'like', '%'.$street.'%');
+    }
+
+    public function scopeFilterByNumber(Builder $query, ?string $number): Builder
+    {
+        if (! $number) {
+            return $query;
+        }
+
+        return $query->where('number', 'like', '%'.$number.'%');
+    }
+
+    public function scopeFilterByNeighborhood(Builder $query, ?string $neighborhood): Builder
+    {
+        if (! $neighborhood) {
+            return $query;
+        }
+
+        return $query->where('neighborhood', 'like', '%'.$neighborhood.'%');
     }
 
     public function scopeFilterByPerson(Builder $query, ?int $personId): Builder
@@ -89,5 +135,14 @@ class Property extends Model
         }
 
         return $query->where('person_id', $personId);
+    }
+
+    public function scopeFilterByStatus(Builder $query, ?string $status): Builder
+    {
+        if (! $status) {
+            return $query;
+        }
+
+        return $query->where('status', $status);
     }
 }

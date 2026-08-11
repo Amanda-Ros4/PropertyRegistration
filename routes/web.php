@@ -38,6 +38,7 @@ Route::middleware([
         Route::post('/', [PropertyController::class, 'store'])->name('properties.store')->middleware(Precognition::class);
         Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
         Route::match(['put', 'patch'], '/{property}', [PropertyController::class, 'update'])->name('properties.update')->middleware(Precognition::class);
+        Route::patch('/{property}/status', [PropertyController::class, 'updateStatus'])->name('properties.status.update');
         Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
     });
 });

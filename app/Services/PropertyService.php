@@ -15,8 +15,13 @@ class PropertyService
         return Property::query()
             ->with('person:id,name,cpf')
             ->forUser($user->id)
-            ->search($filters['search'] ?? null)
+            ->filterById(isset($filters['id']) ? (int) $filters['id'] : null)
+            ->filterByType($filters['type'] ?? null)
+            ->filterByStreet($filters['street'] ?? null)
+            ->filterByNumber($filters['number'] ?? null)
+            ->filterByNeighborhood($filters['neighborhood'] ?? null)
             ->filterByPerson(isset($filters['person_id']) ? (int) $filters['person_id'] : null)
+            ->filterByStatus($filters['status'] ?? null)
             ->orderBy('id', 'desc')
             ->paginate($perPage)
             ->withQueryString();
@@ -54,7 +59,17 @@ class PropertyService
                 'number' => $data['number'],
                 'neighborhood' => $data['neighborhood'],
                 'complement' => $data['complement'] ?? null,
-                // Situação não é alterada aqui — apenas via Averbações (Grupo 7).
+            ]);
+
+            return $property->fresh();
+        });
+    }
+
+    public function updateStatus(Property $property, PropertyStatus $status): Property
+    {
+        return DB::transaction(function () use ($property, $status) {
+            $property->update([
+                'status' => $status,
             ]);
 
             return $property->fresh();

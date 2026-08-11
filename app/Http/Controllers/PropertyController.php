@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Properties\StorePropertyRequest;
 use App\Http\Requests\Properties\UpdatePropertyRequest;
+use App\Http\Requests\Properties\UpdatePropertyStatusRequest;
+use App\Enums\PropertyStatus;
+use App\Enums\PropertyType;
 use App\Models\Property;
 use App\Services\PersonService;
 use App\Services\PropertyService;
-use App\Support\SearchInput;
+use App\Support\AddressInput;
+use App\Support\Digits;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,9 +26,19 @@ class PropertyController extends Controller
 
     public function index(Request $request): Response
     {
+        $idDigits = Digits::only($request->input('id'));
+        $numberDigits = Digits::only($request->input('number'));
+        $type = $request->input('type');
+        $status = $request->input('status');
+
         $filters = [
-            'search' => SearchInput::sanitize($request->input('search')),
-            'person_id' => $request->input('person_id'),
+            'id' => $idDigits !== '' ? $idDigits : null,
+            'type' => is_string($type) && in_array($type, PropertyType::values(), true) ? $type : null,
+            'street' => AddressInput::sanitize($request->input('street')),
+            'number' => $numberDigits !== '' ? $numberDigits : null,
+            'neighborhood' => AddressInput::sanitize($request->input('neighborhood')),
+            'person_id' => $request->filled('person_id') ? (int) $request->input('person_id') : null,
+            'status' => is_string($status) && in_array($status, PropertyStatus::values(), true) ? $status : null,
         ];
 
         $properties = $this->propertyService->listForUser(
@@ -84,6 +98,24 @@ class PropertyController extends Controller
             ->with('flash', [
                 'type' => 'success',
                 'message' => __('properties.updated'),
+            ]);
+    }
+
+    public function updateStatus(UpdatePropertyStatusRequest $request, Property $property): RedirectResponse
+    {
+        $this->authorize('update', $property);
+
+        $status = PropertyStatus::from($request->validated('status'));
+        $this->propertyService->updateStatus($property, $status);
+
+        $message = $status === PropertyStatus::Active
+            ? __('properties.status_activated')
+            : __('properties.status_deactivated');
+
+        return redirect()->back()
+            ->with('flash', [
+                'type' => 'success',
+                'message' => $message,
             ]);
     }
 
