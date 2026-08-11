@@ -71,6 +71,34 @@ class Person extends Model
         });
     }
 
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        if (! empty($filters['name'])) {
+            $query->where('name', 'like', '%'.$filters['name'].'%');
+        }
+
+        if (! empty($filters['cpf'])) {
+            $cpfDigits = preg_replace('/[^0-9]/', '', (string) $filters['cpf']);
+            if ($cpfDigits !== '') {
+                $query->where('cpf', 'like', '%'.$cpfDigits.'%');
+            }
+        }
+
+        if (! empty($filters['birth_date'])) {
+            $query->whereDate('birth_date', $filters['birth_date']);
+        }
+
+        if (! empty($filters['gender'])) {
+            $query->where('gender', $filters['gender']);
+        }
+
+        if (! empty($filters['search'])) {
+            $query->search($filters['search']);
+        }
+
+        return $query;
+    }
+
     // ─── Helpers ────────────────────────────────────────────────────────────────
 
     public function hasActiveProperties(): bool

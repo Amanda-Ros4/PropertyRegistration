@@ -17,7 +17,7 @@ class PersonService
     {
         return Person::query()
             ->forUser($user->id)
-            ->search($filters['search'] ?? null)
+            ->filter($filters)
             ->orderBy('name')
             ->paginate($perPage)
             ->withQueryString();

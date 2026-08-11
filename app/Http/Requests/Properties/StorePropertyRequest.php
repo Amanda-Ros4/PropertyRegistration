@@ -34,7 +34,7 @@ class StorePropertyRequest extends FormRequest
             ],
             'cep' => ['nullable', 'string', 'size:8', 'regex:/^[0-9]{8}$/'],
             'street' => ['required', 'string', 'max:255'],
-            'numerical_number' => ['required', 'string', 'max:20'],
+            'number' => ['required', 'string', 'max:20'],
             'neighborhood' => ['required', 'string', 'max:255'],
             'complement' => ['nullable', 'string', 'max:255'],
         ];
