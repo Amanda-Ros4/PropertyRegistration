@@ -114,7 +114,7 @@
     "people.fields.phone": "Telefone",
     "people.fields.email": "E-mail",
     "people.placeholders.name": "Digite o nome completo",
-    "people.placeholders.birth_date": "Selecione a data de nascimento",
+    "people.placeholders.birth_date": "MM/DD/YYYY",
     "people.placeholders.cpf": "000.000.000-00",
     "people.placeholders.gender": "Selecione o gênero",
     "people.placeholders.phone": "(00) 00000-0000",

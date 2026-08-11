@@ -37,12 +37,12 @@ export function blockNonDigitKey(event) {
 }
 
 /**
- * Bloqueia teclas inválidas em data digitada (permite dígitos e "/").
+ * beforeinput: impede digitar não-dígitos (colar fica a cargo do formatador).
  */
-export function blockDateInputKey(event) {
-    if (event.ctrlKey || event.metaKey || event.altKey) return;
-    if (NAVIGATION_KEYS.has(event.key)) return;
-    if (event.key.length === 1 && !/^[\d/]$/.test(event.key)) {
+export function blockNonDigitBeforeInput(event) {
+    if (!event.data) return;
+    if (event.inputType === 'insertFromPaste' || event.inputType === 'insertFromDrop') return;
+    if (/\D/.test(event.data)) {
         event.preventDefault();
     }
 }
@@ -54,6 +54,17 @@ export function blockNonLetterNameKey(event) {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (NAVIGATION_KEYS.has(event.key)) return;
     if (event.key.length === 1 && !/^[\p{L} ]$/u.test(event.key)) {
+        event.preventDefault();
+    }
+}
+
+/**
+ * beforeinput: impede digitar o que não for letra/acento/espaço (colar é limpo pelo formatador).
+ */
+export function blockNonLetterNameBeforeInput(event) {
+    if (!event.data) return;
+    if (event.inputType === 'insertFromPaste' || event.inputType === 'insertFromDrop') return;
+    if (/[^\p{L} ]/u.test(event.data)) {
         event.preventDefault();
     }
 }
@@ -148,16 +159,86 @@ export function formatCepDisplay(cep) {
     return String(cep);
 }
 
-// ─── Data (DatePicker → API) ─────────────────────────────────────────────────
+// ─── Data (máscara MM/DD/YYYY → API) ─────────────────────────────────────────
+
+/** 8 dígitos: MMDDYYYY */
+export const BIRTH_DATE_MAX_DIGITS = 8;
+
+/** Com máscara MM/DD/YYYY */
+export const BIRTH_DATE_INPUT_MAX_LENGTH = 10;
 
 /**
- * Converte valor do PrimeVue DatePicker para string YYYY-MM-DD.
+ * Máscara durante digitação: até 8 dígitos → MM/DD/YYYY
+ */
+export function formatBirthDateInput(value) {
+    const d = stripNonDigits(value, BIRTH_DATE_MAX_DIGITS);
+    if (d.length <= 2) return d;
+    if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`;
+    return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+}
+
+/**
+ * Converte ISO YYYY-MM-DD (ou Date) para máscara MM/DD/YYYY.
+ */
+export function toBirthDateInputValue(value) {
+    if (!value) return '';
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        const m = String(value.getMonth() + 1).padStart(2, '0');
+        const d = String(value.getDate()).padStart(2, '0');
+        const y = String(value.getFullYear());
+        return `${m}/${d}/${y}`;
+    }
+    const str = String(value);
+    const iso = str.substring(0, 10);
+    const [y, m, d] = iso.split('-');
+    if (!y || !m || !d) return formatBirthDateInput(str);
+    return `${m}/${d}/${y}`;
+}
+
+/**
+ * Interpreta máscara MM/DD/YYYY (ou dígitos) como Date local válida, ou null.
+ */
+export function parseBirthDateInput(value) {
+    const digits = stripNonDigits(value, BIRTH_DATE_MAX_DIGITS);
+    if (digits.length !== 8) return null;
+    const month = Number(digits.slice(0, 2));
+    const day = Number(digits.slice(2, 4));
+    const year = Number(digits.slice(4, 8));
+    const date = new Date(year, month - 1, day);
+    if (
+        date.getFullYear() !== year
+        || date.getMonth() !== month - 1
+        || date.getDate() !== day
+    ) {
+        return null;
+    }
+    return date;
+}
+
+/**
+ * Converte valor do PrimeVue DatePicker ou Date para string YYYY-MM-DD.
  */
 export function formatDateForSubmit(date) {
     if (!date) return null;
-    if (typeof date === 'string') return date;
+    if (typeof date === 'string') {
+        const parsed = parseBirthDateInput(date);
+        if (!parsed) {
+            // já pode ser YYYY-MM-DD
+            return /^\d{4}-\d{2}-\d{2}$/.test(date.substring(0, 10))
+                ? date.substring(0, 10)
+                : null;
+        }
+        return formatDateForSubmit(parsed);
+    }
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+}
+
+/**
+ * Converte campo mascarado MM/DD/YYYY para YYYY-MM-DD (API).
+ */
+export function formatBirthDateForSubmit(value) {
+    return formatDateForSubmit(parseBirthDateInput(value));
 }

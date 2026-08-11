@@ -6,17 +6,18 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FormCard from '@/Components/FormCard.vue';
 import FormField from '@/Components/FormField.vue';
+import BirthDateInput from '@/Components/BirthDateInput.vue';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
-import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
 import {
     CPF_INPUT_MAX_LENGTH,
-    blockDateInputKey,
-    blockNonLetterNameKey,
+    blockNonDigitBeforeInput,
     blockNonDigitKey,
+    blockNonLetterNameBeforeInput,
+    blockNonLetterNameKey,
+    formatBirthDateForSubmit,
     formatCpfInput,
-    formatDateForSubmit,
     formatPersonNameInput,
     formatPhoneInput,
     PHONE_BR_INPUT_MAX_LENGTH,
@@ -34,7 +35,7 @@ const genderOptions = computed(() => [
 
 const form = useForm({
     name: '',
-    birth_date: null,
+    birth_date: '',
     cpf: '',
     gender: null,
     phone: '',
@@ -69,7 +70,7 @@ function submit() {
     form
         .transform(data => ({
             ...data,
-            birth_date: formatDateForSubmit(data.birth_date),
+            birth_date: formatBirthDateForSubmit(data.birth_date),
         }))
         .post(route('people.store'), {
             onError: showValidationErrorToast,
@@ -97,15 +98,20 @@ function submit() {
                         :error="form.errors.name"
                         required
                     >
-                        <InputText
-                            :modelValue="form.name"
-                            :placeholder="trans('people.placeholders.name')"
-                            :invalid="!!form.errors.name"
+                        <div
                             class="w-full"
-                            :pt="{ root: { onKeydown: blockNonLetterNameKey } }"
-                            @update:model-value="onNameInput"
-                            @change="form.clearErrors('name')"
-                        />
+                            @keydown.capture="blockNonLetterNameKey"
+                            @beforeinput.capture="blockNonLetterNameBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.name"
+                                :placeholder="trans('people.placeholders.name')"
+                                :invalid="!!form.errors.name"
+                                class="w-full"
+                                @update:model-value="onNameInput"
+                                @change="form.clearErrors('name')"
+                            />
+                        </div>
                     </FormField>
 
                     <!-- CPF -->
@@ -114,17 +120,22 @@ function submit() {
                         :error="form.errors.cpf"
                         required
                     >
-                        <InputText
-                            :modelValue="form.cpf"
-                            :placeholder="trans('people.placeholders.cpf')"
-                            :invalid="!!form.errors.cpf"
-                            class="w-full font-mono"
-                            inputmode="numeric"
-                            :maxlength="CPF_INPUT_MAX_LENGTH"
-                            :pt="{ root: { onKeydown: blockNonDigitKey } }"
-                            @update:model-value="onCpfInput"
-                            @change="form.clearErrors('cpf')"
-                        />
+                        <div
+                            class="w-full"
+                            @keydown.capture="blockNonDigitKey"
+                            @beforeinput.capture="blockNonDigitBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.cpf"
+                                :placeholder="trans('people.placeholders.cpf')"
+                                :invalid="!!form.errors.cpf"
+                                class="w-full font-mono"
+                                inputmode="numeric"
+                                :maxlength="CPF_INPUT_MAX_LENGTH"
+                                @update:model-value="onCpfInput"
+                                @change="form.clearErrors('cpf')"
+                            />
+                        </div>
                     </FormField>
 
                     <!-- Gender -->
@@ -151,17 +162,11 @@ function submit() {
                         :error="form.errors.birth_date"
                         required
                     >
-                        <DatePicker
+                        <BirthDateInput
                             v-model="form.birth_date"
                             :placeholder="trans('people.placeholders.birth_date')"
                             :invalid="!!form.errors.birth_date"
-                            :maxDate="new Date()"
-                            :manualInput="true"
-                            showIcon
-                            dateFormat="dd/mm/yy"
-                            class="w-full"
-                            :pt="{ pcInputText: { root: { onKeydown: blockDateInputKey, inputmode: 'numeric' } } }"
-                            @change="form.clearErrors('birth_date')"
+                            @update:model-value="form.clearErrors('birth_date')"
                         />
                     </FormField>
 
@@ -170,17 +175,22 @@ function submit() {
                         :label="trans('people.fields.phone')"
                         :error="form.errors.phone"
                     >
-                        <InputText
-                            :modelValue="form.phone"
-                            :placeholder="trans('people.placeholders.phone')"
-                            :invalid="!!form.errors.phone"
+                        <div
                             class="w-full"
-                            inputmode="numeric"
-                            :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
-                            :pt="{ root: { onKeydown: blockNonDigitKey } }"
-                            @update:model-value="onPhoneInput"
-                            @change="form.clearErrors('phone')"
-                        />
+                            @keydown.capture="blockNonDigitKey"
+                            @beforeinput.capture="blockNonDigitBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.phone"
+                                :placeholder="trans('people.placeholders.phone')"
+                                :invalid="!!form.errors.phone"
+                                class="w-full"
+                                inputmode="numeric"
+                                :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
+                                @update:model-value="onPhoneInput"
+                                @change="form.clearErrors('phone')"
+                            />
+                        </div>
                     </FormField>
 
                     <!-- Email -->

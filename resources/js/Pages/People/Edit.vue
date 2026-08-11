@@ -6,17 +6,19 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FormCard from '@/Components/FormCard.vue';
 import FormField from '@/Components/FormField.vue';
+import BirthDateInput from '@/Components/BirthDateInput.vue';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
-import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
 import {
-    blockDateInputKey,
-    blockNonLetterNameKey,
+    blockNonDigitBeforeInput,
     blockNonDigitKey,
-    formatDateForSubmit,
+    blockNonLetterNameBeforeInput,
+    blockNonLetterNameKey,
+    formatBirthDateForSubmit,
     formatPersonNameInput,
     formatPhoneInput,
+    toBirthDateInputValue,
     PHONE_BR_INPUT_MAX_LENGTH,
 } from '@/utils/formatting';
 import { useAppToast } from '@/composables/useAppToast';
@@ -34,18 +36,9 @@ const genderOptions = computed(() => [
     { value: 'prefer_not_to_say', label: trans('genders.prefer_not_to_say') },
 ]);
 
-function parseBirthDate(dateStr) {
-    if (!dateStr) return null;
-    const str = String(dateStr);
-    const datePart = str.substring(0, 10);
-    const [y, m, d] = datePart.split('-');
-    if (!y || !m || !d) return null;
-    return new Date(Number(y), Number(m) - 1, Number(d));
-}
-
 const form = useForm({
     name: props.person.name,
-    birth_date: parseBirthDate(props.person.birth_date),
+    birth_date: toBirthDateInputValue(props.person.birth_date),
     cpf: props.person.cpf,
     gender: props.person.gender,
     phone: props.person.phone ?? '',
@@ -76,7 +69,7 @@ function submit() {
     form
         .transform(data => ({
             name: data.name,
-            birth_date: formatDateForSubmit(data.birth_date),
+            birth_date: formatBirthDateForSubmit(data.birth_date),
             gender: data.gender,
             phone: data.phone,
             email: data.email,
@@ -100,15 +93,20 @@ function submit() {
                     <!-- Name -->
                     <FormField class="md:col-span-2" :label="trans('people.fields.name')" :error="form.errors.name"
                         required>
-                        <InputText
-                            :modelValue="form.name"
-                            :placeholder="trans('people.placeholders.name')"
-                            :invalid="!!form.errors.name"
+                        <div
                             class="w-full"
-                            :pt="{ root: { onKeydown: blockNonLetterNameKey } }"
-                            @update:model-value="onNameInput"
-                            @change="form.clearErrors('name')"
-                        />
+                            @keydown.capture="blockNonLetterNameKey"
+                            @beforeinput.capture="blockNonLetterNameBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.name"
+                                :placeholder="trans('people.placeholders.name')"
+                                :invalid="!!form.errors.name"
+                                class="w-full"
+                                @update:model-value="onNameInput"
+                                @change="form.clearErrors('name')"
+                            />
+                        </div>
                     </FormField>
 
                     <!-- CPF -->
@@ -126,33 +124,32 @@ function submit() {
 
                     <!-- Birth Date -->
                     <FormField :label="trans('people.fields.birth_date')" :error="form.errors.birth_date" required>
-                        <DatePicker
+                        <BirthDateInput
                             v-model="form.birth_date"
                             :placeholder="trans('people.placeholders.birth_date')"
                             :invalid="!!form.errors.birth_date"
-                            :maxDate="new Date()"
-                            :manualInput="true"
-                            showIcon
-                            dateFormat="dd/mm/yy"
-                            class="w-full"
-                            :pt="{ pcInputText: { root: { onKeydown: blockDateInputKey, inputmode: 'numeric' } } }"
-                            @change="form.clearErrors('birth_date')"
+                            @update:model-value="form.clearErrors('birth_date')"
                         />
                     </FormField>
 
                     <!-- Phone -->
                     <FormField :label="trans('people.fields.phone')" :error="form.errors.phone">
-                        <InputText
-                            :modelValue="form.phone"
-                            :placeholder="trans('people.placeholders.phone')"
-                            :invalid="!!form.errors.phone"
+                        <div
                             class="w-full"
-                            inputmode="numeric"
-                            :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
-                            :pt="{ root: { onKeydown: blockNonDigitKey } }"
-                            @update:model-value="onPhoneInput"
-                            @change="form.clearErrors('phone')"
-                        />
+                            @keydown.capture="blockNonDigitKey"
+                            @beforeinput.capture="blockNonDigitBeforeInput"
+                        >
+                            <InputText
+                                :modelValue="form.phone"
+                                :placeholder="trans('people.placeholders.phone')"
+                                :invalid="!!form.errors.phone"
+                                class="w-full"
+                                inputmode="numeric"
+                                :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
+                                @update:model-value="onPhoneInput"
+                                @change="form.clearErrors('phone')"
+                            />
+                        </div>
                     </FormField>
 
                     <!-- Email -->
