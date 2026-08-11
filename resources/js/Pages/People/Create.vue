@@ -12,8 +12,12 @@ import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
 import {
     CPF_INPUT_MAX_LENGTH,
+    blockDateInputKey,
+    blockNonLetterNameKey,
+    blockNonDigitKey,
     formatCpfInput,
     formatDateForSubmit,
+    formatPersonNameInput,
     formatPhoneInput,
     PHONE_BR_INPUT_MAX_LENGTH,
 } from '@/utils/formatting';
@@ -37,12 +41,28 @@ const form = useForm({
     email: '',
 });
 
+function syncMaskedField(field, formatter, value) {
+    const formatted = formatter(value);
+    if (formatted === form[field]) {
+        form[field] = `${formatted}\u200b`;
+        queueMicrotask(() => {
+            form[field] = formatted;
+        });
+        return;
+    }
+    form[field] = formatted;
+}
+
+function onNameInput(value) {
+    syncMaskedField('name', formatPersonNameInput, value);
+}
+
 function onCpfInput(value) {
-    form.cpf = formatCpfInput(value);
+    syncMaskedField('cpf', formatCpfInput, value);
 }
 
 function onPhoneInput(value) {
-    form.phone = formatPhoneInput(value);
+    syncMaskedField('phone', formatPhoneInput, value);
 }
 
 function submit() {
@@ -78,10 +98,12 @@ function submit() {
                         required
                     >
                         <InputText
-                            v-model="form.name"
+                            :modelValue="form.name"
                             :placeholder="trans('people.placeholders.name')"
                             :invalid="!!form.errors.name"
                             class="w-full"
+                            :pt="{ root: { onKeydown: blockNonLetterNameKey } }"
+                            @update:model-value="onNameInput"
                             @change="form.clearErrors('name')"
                         />
                     </FormField>
@@ -97,8 +119,10 @@ function submit() {
                             :placeholder="trans('people.placeholders.cpf')"
                             :invalid="!!form.errors.cpf"
                             class="w-full font-mono"
+                            inputmode="numeric"
                             :maxlength="CPF_INPUT_MAX_LENGTH"
-                            @input="onCpfInput($event.target.value)"
+                            :pt="{ root: { onKeydown: blockNonDigitKey } }"
+                            @update:model-value="onCpfInput"
                             @change="form.clearErrors('cpf')"
                         />
                     </FormField>
@@ -132,9 +156,11 @@ function submit() {
                             :placeholder="trans('people.placeholders.birth_date')"
                             :invalid="!!form.errors.birth_date"
                             :maxDate="new Date()"
+                            :manualInput="true"
                             showIcon
                             dateFormat="dd/mm/yy"
                             class="w-full"
+                            :pt="{ pcInputText: { root: { onKeydown: blockDateInputKey, inputmode: 'numeric' } } }"
                             @change="form.clearErrors('birth_date')"
                         />
                     </FormField>
@@ -149,8 +175,10 @@ function submit() {
                             :placeholder="trans('people.placeholders.phone')"
                             :invalid="!!form.errors.phone"
                             class="w-full"
+                            inputmode="numeric"
                             :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
-                            @input="onPhoneInput($event.target.value)"
+                            :pt="{ root: { onKeydown: blockNonDigitKey } }"
+                            @update:model-value="onPhoneInput"
                             @change="form.clearErrors('phone')"
                         />
                     </FormField>

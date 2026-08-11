@@ -11,6 +11,62 @@ export function stripNonDigits(value, maxLength) {
     return maxLength != null ? digits.slice(0, maxLength) : digits;
 }
 
+const NAVIGATION_KEYS = new Set([
+    'Backspace',
+    'Delete',
+    'Tab',
+    'Escape',
+    'Enter',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+    'Home',
+    'End',
+]);
+
+/**
+ * Bloqueia teclas que não sejam dígitos (mantém navegação e atalhos Ctrl/Cmd/Alt).
+ */
+export function blockNonDigitKey(event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (NAVIGATION_KEYS.has(event.key)) return;
+    if (event.key.length === 1 && !/\d/.test(event.key)) {
+        event.preventDefault();
+    }
+}
+
+/**
+ * Bloqueia teclas inválidas em data digitada (permite dígitos e "/").
+ */
+export function blockDateInputKey(event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (NAVIGATION_KEYS.has(event.key)) return;
+    if (event.key.length === 1 && !/^[\d/]$/.test(event.key)) {
+        event.preventDefault();
+    }
+}
+
+/**
+ * Bloqueia tudo que não for letra (inclui acentos) ou espaço.
+ */
+export function blockNonLetterNameKey(event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (NAVIGATION_KEYS.has(event.key)) return;
+    if (event.key.length === 1 && !/^[\p{L} ]$/u.test(event.key)) {
+        event.preventDefault();
+    }
+}
+
+/**
+ * Mantém apenas letras (com acentos) e espaços no nome.
+ */
+export function formatPersonNameInput(value) {
+    return String(value ?? '')
+        .replace(/[^\p{L} ]+/gu, '')
+        .replace(/\s{2,}/g, ' ');
+}
+
 // ─── CPF ─────────────────────────────────────────────────────────────────────
 
 /**

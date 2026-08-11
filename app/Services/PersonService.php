@@ -75,7 +75,6 @@ class PersonService
             $person->update([
                 'name' => $data['name'],
                 'birth_date' => $data['birth_date'],
-                'cpf' => Digits::only($data['cpf']),
                 'gender' => $data['gender'],
                 'phone' => Digits::onlyOrNull($data['phone'] ?? null),
                 'email' => $data['email'] ?? null,

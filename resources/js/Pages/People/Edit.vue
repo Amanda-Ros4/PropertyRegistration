@@ -11,9 +11,11 @@ import Select from 'primevue/select';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
 import {
-    CPF_INPUT_MAX_LENGTH,
-    formatCpfInput,
+    blockDateInputKey,
+    blockNonLetterNameKey,
+    blockNonDigitKey,
     formatDateForSubmit,
+    formatPersonNameInput,
     formatPhoneInput,
     PHONE_BR_INPUT_MAX_LENGTH,
 } from '@/utils/formatting';
@@ -50,19 +52,34 @@ const form = useForm({
     email: props.person.email ?? '',
 });
 
-function onCpfInput(value) {
-    form.cpf = formatCpfInput(value);
+function syncMaskedField(field, formatter, value) {
+    const formatted = formatter(value);
+    if (formatted === form[field]) {
+        form[field] = `${formatted}\u200b`;
+        queueMicrotask(() => {
+            form[field] = formatted;
+        });
+        return;
+    }
+    form[field] = formatted;
+}
+
+function onNameInput(value) {
+    syncMaskedField('name', formatPersonNameInput, value);
 }
 
 function onPhoneInput(value) {
-    form.phone = formatPhoneInput(value);
+    syncMaskedField('phone', formatPhoneInput, value);
 }
 
 function submit() {
     form
         .transform(data => ({
-            ...data,
+            name: data.name,
             birth_date: formatDateForSubmit(data.birth_date),
+            gender: data.gender,
+            phone: data.phone,
+            email: data.email,
         }))
         .put(route('people.update', props.person.id), {
             onError: showValidationErrorToast,
@@ -72,132 +89,83 @@ function submit() {
 
 <template>
     <AppLayout :title="trans('people.edit')">
+
         <Head :title="trans('people.edit')" />
 
-        <PageHeader
-            :title="trans('people.edit')"
-            backRoute="people.index"
-            :backLabel="trans('common.back')"
-        />
+        <PageHeader :title="trans('people.edit')" backRoute="people.index" :backLabel="trans('common.back')" />
 
         <FormCard>
             <form @submit.prevent="submit" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Name -->
-                    <FormField
-                        class="md:col-span-2"
-                        :label="trans('people.fields.name')"
-                        :error="form.errors.name"
-                        required
-                    >
+                    <FormField class="md:col-span-2" :label="trans('people.fields.name')" :error="form.errors.name"
+                        required>
                         <InputText
-                            v-model="form.name"
+                            :modelValue="form.name"
                             :placeholder="trans('people.placeholders.name')"
                             :invalid="!!form.errors.name"
                             class="w-full"
+                            :pt="{ root: { onKeydown: blockNonLetterNameKey } }"
+                            @update:model-value="onNameInput"
                             @change="form.clearErrors('name')"
                         />
                     </FormField>
 
                     <!-- CPF -->
-                    <FormField
-                        :label="trans('people.fields.cpf')"
-                        :error="form.errors.cpf"
-                        required
-                    >
-                        <InputText
-                            :modelValue="form.cpf"
-                            :placeholder="trans('people.placeholders.cpf')"
-                            :invalid="!!form.errors.cpf"
-                            class="w-full font-mono"
-                            :maxlength="CPF_INPUT_MAX_LENGTH"
-                            @input="onCpfInput($event.target.value)"
-                            @change="form.clearErrors('cpf')"
-                        />
+                    <FormField :label="trans('people.fields.cpf')" :error="form.errors.cpf" required>
+                        <InputText :modelValue="form.cpf" :placeholder="trans('people.placeholders.cpf')"
+                            class="w-full font-mono" :disabled="true" />
                     </FormField>
 
                     <!-- Gender -->
-                    <FormField
-                        :label="trans('people.fields.gender')"
-                        :error="form.errors.gender"
-                        required
-                    >
-                        <Select
-                            v-model="form.gender"
-                            :options="genderOptions"
-                            optionLabel="label"
-                            optionValue="value"
-                            :placeholder="trans('people.placeholders.gender')"
-                            :invalid="!!form.errors.gender"
-                            class="w-full"
-                            @change="form.clearErrors('gender')"
-                        />
+                    <FormField :label="trans('people.fields.gender')" :error="form.errors.gender" required>
+                        <Select v-model="form.gender" :options="genderOptions" optionLabel="label" optionValue="value"
+                            :placeholder="trans('people.placeholders.gender')" :invalid="!!form.errors.gender"
+                            class="w-full" @change="form.clearErrors('gender')" />
                     </FormField>
 
                     <!-- Birth Date -->
-                    <FormField
-                        :label="trans('people.fields.birth_date')"
-                        :error="form.errors.birth_date"
-                        required
-                    >
+                    <FormField :label="trans('people.fields.birth_date')" :error="form.errors.birth_date" required>
                         <DatePicker
                             v-model="form.birth_date"
                             :placeholder="trans('people.placeholders.birth_date')"
                             :invalid="!!form.errors.birth_date"
                             :maxDate="new Date()"
+                            :manualInput="true"
                             showIcon
                             dateFormat="dd/mm/yy"
                             class="w-full"
+                            :pt="{ pcInputText: { root: { onKeydown: blockDateInputKey, inputmode: 'numeric' } } }"
                             @change="form.clearErrors('birth_date')"
                         />
                     </FormField>
 
                     <!-- Phone -->
-                    <FormField
-                        :label="trans('people.fields.phone')"
-                        :error="form.errors.phone"
-                    >
+                    <FormField :label="trans('people.fields.phone')" :error="form.errors.phone">
                         <InputText
                             :modelValue="form.phone"
                             :placeholder="trans('people.placeholders.phone')"
                             :invalid="!!form.errors.phone"
                             class="w-full"
+                            inputmode="numeric"
                             :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
-                            @input="onPhoneInput($event.target.value)"
+                            :pt="{ root: { onKeydown: blockNonDigitKey } }"
+                            @update:model-value="onPhoneInput"
                             @change="form.clearErrors('phone')"
                         />
                     </FormField>
 
                     <!-- Email -->
-                    <FormField
-                        :label="trans('people.fields.email')"
-                        :error="form.errors.email"
-                    >
-                        <InputText
-                            v-model="form.email"
-                            type="email"
-                            :placeholder="trans('people.placeholders.email')"
-                            :invalid="!!form.errors.email"
-                            class="w-full"
-                            @change="form.clearErrors('email')"
-                        />
+                    <FormField :label="trans('people.fields.email')" :error="form.errors.email">
+                        <InputText v-model="form.email" type="email" :placeholder="trans('people.placeholders.email')"
+                            :invalid="!!form.errors.email" class="w-full" @change="form.clearErrors('email')" />
                     </FormField>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <Button
-                        type="button"
-                        :label="trans('common.cancel')"
-                        severity="secondary"
-                        outlined
-                        @click="router.visit(route('people.index'))"
-                    />
-                    <Button
-                        type="submit"
-                        :label="trans('common.save')"
-                        icon="pi pi-check"
-                        :loading="form.processing"
-                    />
+                    <Button type="button" :label="trans('common.cancel')" severity="secondary" outlined
+                        @click="router.visit(route('people.index'))" />
+                    <Button type="submit" :label="trans('common.save')" icon="pi pi-check" :loading="form.processing" />
                 </div>
             </form>
         </FormCard>
