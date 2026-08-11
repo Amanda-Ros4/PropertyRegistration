@@ -57,12 +57,18 @@ class Property extends Model
         }
 
         $term = '%'.$search.'%';
+        $digits = preg_replace('/[^0-9]/', '', $search) ?? '';
 
-        return $query->where(function (Builder $q) use ($term) {
+        return $query->where(function (Builder $q) use ($term, $digits) {
             $q->where('street', 'like', $term)
                 ->orWhere('number', 'like', $term)
                 ->orWhere('neighborhood', 'like', $term)
-                ->orWhere('cep', 'like', $term);
+                ->orWhere('complement', 'like', $term);
+
+            if ($digits !== '') {
+                $q->orWhere('cep', 'like', '%'.$digits.'%')
+                    ->orWhere('number', 'like', '%'.$digits.'%');
+            }
         });
     }
 

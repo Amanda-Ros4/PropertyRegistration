@@ -12,6 +12,11 @@ class PersonPolicy
         return (int) $user->id === (int) $person->user_id;
     }
 
+    public function create(User $user): bool
+    {
+        return true;
+    }
+
     public function update(User $user, Person $person): bool
     {
         return (int) $user->id === (int) $person->user_id;

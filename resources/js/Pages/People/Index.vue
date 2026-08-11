@@ -12,7 +12,7 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Paginator from 'primevue/paginator';
-import { formatCpfDisplay, formatPhoneDisplay } from '@/utils/formatting';
+import { formatCpfDisplay, formatDateDisplay, formatPhoneDisplay } from '@/utils/formatting';
 
 const props = defineProps({
     people: { type: Object, required: true },
@@ -48,11 +48,6 @@ function onPageChange(event) {
         preserveState: true,
         preserveScroll: true,
     });
-}
-
-function formatDate(dateStr) {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString();
 }
 </script>
 
@@ -117,7 +112,7 @@ function formatDate(dateStr) {
                     </Column>
                     <Column :header="trans('people.fields.birth_date')">
                         <template #body="{ data }">
-                            {{ formatDate(data.birth_date) }}
+                            {{ formatDateDisplay(data.birth_date) }}
                         </template>
                     </Column>
                     <Column :header="trans('people.fields.phone')">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Properties;
 
+use App\Models\Property;
 use App\Support\Digits;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,7 +11,7 @@ class StorePropertyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', Property::class) ?? false;
     }
 
     protected function prepareForValidation(): void

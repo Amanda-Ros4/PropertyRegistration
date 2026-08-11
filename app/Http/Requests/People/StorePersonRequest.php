@@ -3,6 +3,7 @@
 namespace App\Http\Requests\People;
 
 use App\Enums\Gender;
+use App\Models\Person;
 use App\Rules\ValidCpf;
 use App\Support\Digits;
 use Illuminate\Foundation\Http\FormRequest;
@@ -13,7 +14,7 @@ class StorePersonRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', Person::class) ?? false;
     }
 
     protected function prepareForValidation(): void

@@ -12,6 +12,11 @@ class PropertyPolicy
         return (int) $user->id === (int) $property->user_id;
     }
 
+    public function create(User $user): bool
+    {
+        return true;
+    }
+
     public function update(User $user, Property $property): bool
     {
         return (int) $user->id === (int) $property->user_id;

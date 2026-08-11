@@ -61,37 +61,74 @@ class Person extends Model
 
         $raw = trim($search);
         $term = '%'.$raw.'%';
-        $cpfDigits = preg_replace('/[^0-9]/', '', $raw);
+        $digits = preg_replace('/[^0-9]/', '', $raw) ?? '';
         $normalized = mb_strtolower($raw);
 
         $genderMatches = [];
         foreach (Gender::cases() as $gender) {
             $value = $gender->value;
             $label = mb_strtolower((string) __('genders.'.$value));
-            if (
-                $normalized === $value
-                || $normalized === $label
-                || (
-                    mb_strlen($normalized) >= 3
-                    && (str_contains($label, $normalized) || str_contains($normalized, $label))
-                )
-            ) {
+            if ($normalized === $value || $normalized === $label) {
+                $genderMatches[] = $value;
+
+                continue;
+            }
+
+            // Evita match frouxo com 1 letra (ex.: "a" em "Masculino"/"Feminino").
+            if (mb_strlen($normalized) >= 2 && str_contains($label, $normalized)) {
                 $genderMatches[] = $value;
             }
         }
 
-        $birthDates = $this->parseSearchBirthDates($raw);
+        $birthCriteria = $this->parseSearchBirthDateCriteria($raw);
 
-        return $query->where(function (Builder $q) use ($term, $cpfDigits, $genderMatches, $birthDates) {
+        return $query->where(function (Builder $q) use ($term, $digits, $genderMatches, $birthCriteria) {
             $q->where('name', 'like', $term)
                 ->orWhere('email', 'like', $term);
 
-            if ($cpfDigits !== '') {
-                $q->orWhere('cpf', 'like', '%'.$cpfDigits.'%');
+            if ($digits !== '') {
+                $q->orWhere('cpf', 'like', '%'.$digits.'%')
+                    ->orWhere('phone', 'like', '%'.$digits.'%');
             }
 
-            foreach ($birthDates as $date) {
+            foreach ($birthCriteria['exact'] as $date) {
                 $q->orWhereDate('birth_date', $date);
+            }
+
+            foreach ($birthCriteria['years'] as $year) {
+                $q->orWhereYear('birth_date', $year);
+            }
+
+            foreach ($birthCriteria['year_ranges'] as $range) {
+                $q->orWhere(function (Builder $dateQuery) use ($range) {
+                    $dateQuery
+                        ->whereDate('birth_date', '>=', sprintf('%04d-01-01', $range['start']))
+                        ->whereDate('birth_date', '<=', sprintf('%04d-12-31', $range['end']));
+                });
+            }
+
+            foreach ($birthCriteria['months'] as $month) {
+                $q->orWhereMonth('birth_date', $month);
+            }
+
+            foreach ($birthCriteria['days'] as $day) {
+                $q->orWhereDay('birth_date', $day);
+            }
+
+            foreach ($birthCriteria['day_months'] as $dayMonth) {
+                $q->orWhere(function (Builder $dateQuery) use ($dayMonth) {
+                    $dateQuery
+                        ->whereDay('birth_date', $dayMonth['day'])
+                        ->whereMonth('birth_date', $dayMonth['month']);
+                });
+            }
+
+            foreach ($birthCriteria['month_years'] as $monthYear) {
+                $q->orWhere(function (Builder $dateQuery) use ($monthYear) {
+                    $dateQuery
+                        ->whereMonth('birth_date', $monthYear['month'])
+                        ->whereYear('birth_date', $monthYear['year']);
+                });
             }
 
             if ($genderMatches !== []) {
@@ -101,34 +138,149 @@ class Person extends Model
     }
 
     /**
-     * Interpreta possíveis datas digitadas na busca (YYYY-MM-DD, MM/DD/YYYY, DD/MM/YYYY, MMDDYYYY).
+     * Interpreta datas completas ou parciais na busca (padrão BR: DD/MM/YYYY).
+     * Exemplos: 30081996, 30/08/1996, 1996, 08, 30, 3008, 199.
      *
-     * @return list<string>
+     * @return array{
+     *     exact: list<string>,
+     *     years: list<int>,
+     *     year_ranges: list<array{start:int, end:int}>,
+     *     months: list<int>,
+     *     days: list<int>,
+     *     day_months: list<array{day:int, month:int}>,
+     *     month_years: list<array{month:int, year:int}>
+     * }
      */
-    private function parseSearchBirthDates(string $raw): array
+    private function parseSearchBirthDateCriteria(string $raw): array
     {
-        $dates = [];
+        $criteria = [
+            'exact' => [],
+            'years' => [],
+            'year_ranges' => [],
+            'months' => [],
+            'days' => [],
+            'day_months' => [],
+            'month_years' => [],
+        ];
+
+        // Só interpreta como data se o termo for numérico / formato de data.
+        if (! preg_match('/^[\d\/\-.]+$/', $raw)) {
+            return $criteria;
+        }
 
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw)) {
-            $dates[] = $raw;
+            $criteria['exact'][] = $raw;
         }
 
-        if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $raw, $m)) {
-            $dates[] = sprintf('%s-%s-%s', $m[3], $m[1], $m[2]); // MM/DD/YYYY
-            $dates[] = sprintf('%s-%s-%s', $m[3], $m[2], $m[1]); // DD/MM/YYYY
+        if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $raw, $m)) {
+            // Preferência BR: DD/MM/YYYY; também tenta MM/DD/YYYY.
+            $criteria['exact'][] = sprintf('%04d-%02d-%02d', (int) $m[3], (int) $m[2], (int) $m[1]);
+            $criteria['exact'][] = sprintf('%04d-%02d-%02d', (int) $m[3], (int) $m[1], (int) $m[2]);
         }
 
-        $digits = preg_replace('/[^0-9]/', '', $raw);
-        if (strlen($digits) === 8) {
-            $dates[] = sprintf('%s-%s-%s', substr($digits, 4, 4), substr($digits, 0, 2), substr($digits, 2, 2)); // MMDDYYYY
-            $dates[] = sprintf('%s-%s-%s', substr($digits, 4, 4), substr($digits, 2, 2), substr($digits, 0, 2)); // DDMMYYYY
+        if (preg_match('/^(\d{1,2})\/(\d{4})$/', $raw, $m)) {
+            $month = (int) $m[1];
+            $year = (int) $m[2];
+            if ($month >= 1 && $month <= 12 && $year >= 1900 && $year <= 2100) {
+                $criteria['month_years'][] = ['month' => $month, 'year' => $year];
+            }
         }
 
-        return array_values(array_unique(array_filter($dates, function (string $date) {
-            [$y, $m, $d] = array_map('intval', explode('-', $date));
+        if (preg_match('/^(\d{4})$/', $raw, $m)) {
+            $year = (int) $m[1];
+            if ($year >= 1900 && $year <= 2100) {
+                $criteria['years'][] = $year;
+            }
+        }
 
-            return checkdate($m, $d, $y);
-        })));
+        $digits = preg_replace('/[^0-9]/', '', $raw) ?? '';
+        $length = strlen($digits);
+
+        // 1 dígito: não filtra por data (muito amplo); fica com CPF/telefone/nome.
+        if ($length === 2) {
+            $value = (int) $digits;
+            if ($value >= 1 && $value <= 31) {
+                $criteria['days'][] = $value;
+            }
+            if ($value >= 1 && $value <= 12) {
+                $criteria['months'][] = $value;
+            }
+        }
+
+        // Ano parcial portátil (ex.: 199 → 1990..1999)
+        if ($length === 3) {
+            $prefix = (int) $digits;
+            $start = $prefix * 10;
+            $end = $start + 9;
+            if ($start >= 1900 && $end <= 2100) {
+                $criteria['year_ranges'][] = ['start' => $start, 'end' => $end];
+            }
+        }
+
+        if ($length === 4) {
+            $asYear = (int) $digits;
+            if ($asYear >= 1900 && $asYear <= 2100) {
+                $criteria['years'][] = $asYear;
+            }
+
+            $day = (int) substr($digits, 0, 2);
+            $month = (int) substr($digits, 2, 2);
+            if ($day >= 1 && $day <= 31 && $month >= 1 && $month <= 12) {
+                $criteria['day_months'][] = ['day' => $day, 'month' => $month]; // DDMM
+            }
+        }
+
+        if ($length === 6) {
+            $day = (int) substr($digits, 0, 2);
+            $month = (int) substr($digits, 2, 2);
+            $yearShort = (int) substr($digits, 4, 2);
+
+            foreach ([1900 + $yearShort, 2000 + $yearShort] as $year) {
+                if ($year >= 1900 && $year <= 2100 && checkdate($month, $day, $year)) {
+                    $criteria['exact'][] = sprintf('%04d-%02d-%02d', $year, $month, $day); // DDMMYY
+                }
+            }
+
+            $monthYearMonth = (int) substr($digits, 0, 2);
+            $monthYearYear = (int) substr($digits, 2, 4);
+            if ($monthYearMonth >= 1 && $monthYearMonth <= 12 && $monthYearYear >= 1900 && $monthYearYear <= 2100) {
+                $criteria['month_years'][] = ['month' => $monthYearMonth, 'year' => $monthYearYear]; // MMYYYY
+            }
+        }
+
+        if ($length === 8) {
+            // Preferência BR: DDMMYYYY (ex.: 30081996 = 30/08/1996)
+            $criteria['exact'][] = sprintf(
+                '%s-%s-%s',
+                substr($digits, 4, 4),
+                substr($digits, 2, 2),
+                substr($digits, 0, 2)
+            );
+            // Fallback MM/DD/YYYY
+            $criteria['exact'][] = sprintf(
+                '%s-%s-%s',
+                substr($digits, 4, 4),
+                substr($digits, 0, 2),
+                substr($digits, 2, 2)
+            );
+        }
+
+        $criteria['exact'] = array_values(array_unique(array_filter(
+            $criteria['exact'],
+            function (string $date) {
+                [$y, $m, $d] = array_map('intval', explode('-', $date));
+
+                return checkdate($m, $d, $y);
+            }
+        )));
+        $criteria['years'] = array_values(array_unique($criteria['years']));
+        $criteria['year_ranges'] = array_values(array_unique($criteria['year_ranges'], SORT_REGULAR));
+        $criteria['months'] = array_values(array_unique($criteria['months']));
+        $criteria['days'] = array_values(array_unique($criteria['days']));
+        $criteria['day_months'] = array_values(array_unique($criteria['day_months'], SORT_REGULAR));
+        $criteria['month_years'] = array_values(array_unique($criteria['month_years'], SORT_REGULAR));
+
+        return $criteria;
     }
 
     public function scopeFilter(Builder $query, array $filters): Builder

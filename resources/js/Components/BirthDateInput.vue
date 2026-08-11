@@ -58,7 +58,7 @@ function onPicked(date) {
             :manualInput="false"
             showIcon
             iconDisplay="button"
-            dateFormat="mm/dd/yy"
+            dateFormat="dd/mm/yy"
             class="birth-date-single-picker"
             @update:model-value="onPicked"
         />

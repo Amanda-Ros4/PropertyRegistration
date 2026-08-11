@@ -7,12 +7,17 @@ import Select from 'primevue/select';
 import Button from 'primevue/button';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
+import {
+    blockDisallowedSearchBeforeInput,
+    blockDisallowedSearchKey,
+    formatSearchInput,
+} from '@/utils/formatting';
 
 const props = defineProps({
     routeName: { type: String, required: true },
     searchPlaceholder: { type: String, default: '' },
     initialSearch: { type: String, default: '' },
-    selectOptions: { type: Array, default: null },  // [{ value, label }]
+    selectOptions: { type: Array, default: null },
     selectOptionLabel: { type: String, default: 'label' },
     selectOptionValue: { type: String, default: 'value' },
     selectPlaceholder: { type: String, default: '' },
@@ -20,20 +25,33 @@ const props = defineProps({
     selectFilterKey: { type: String, default: 'person_id' },
 });
 
-const search = ref(props.initialSearch ?? '');
+const search = ref(formatSearchInput(props.initialSearch ?? ''));
 const selectedFilter = ref(props.initialSelectValue ?? null);
 let debounceTimer = null;
 
-watch(search, (value) => {
+watch(search, () => {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => applyFilters(), 400);
+    debounceTimer = setTimeout(() => applyFilters(), 180);
 });
 
 watch(selectedFilter, () => applyFilters());
 
+function onSearchInput(value) {
+    const sanitized = formatSearchInput(value);
+    if (sanitized === search.value) {
+        search.value = `${sanitized}\u200b`;
+        queueMicrotask(() => {
+            search.value = sanitized;
+        });
+        return;
+    }
+    search.value = sanitized;
+}
+
 function applyFilters() {
     const params = {};
-    if (search.value) params.search = search.value;
+    const term = formatSearchInput(search.value).trim();
+    if (term) params.search = term;
     if (selectedFilter.value) params[props.selectFilterKey] = selectedFilter.value;
 
     router.get(route(props.routeName), params, {
@@ -58,14 +76,21 @@ const hasActiveFilters = () => search.value || selectedFilter.value;
 
 <template>
     <div class="flex flex-col sm:flex-row gap-3 mb-6">
-        <IconField class="flex-1">
-            <InputIcon class="pi pi-search" />
-            <InputText
-                v-model="search"
-                :placeholder="searchPlaceholder"
-                class="w-full"
-            />
-        </IconField>
+        <div
+            class="flex-1"
+            @keydown.capture="blockDisallowedSearchKey"
+            @beforeinput.capture="blockDisallowedSearchBeforeInput"
+        >
+            <IconField class="w-full">
+                <InputIcon class="pi pi-search" />
+                <InputText
+                    :modelValue="search"
+                    :placeholder="searchPlaceholder"
+                    class="w-full"
+                    @update:model-value="onSearchInput"
+                />
+            </IconField>
+        </div>
 
         <Select
             v-if="selectOptions"

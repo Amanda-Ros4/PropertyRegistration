@@ -16,6 +16,7 @@ import {
     blockNonLetterNameBeforeInput,
     blockNonLetterNameKey,
     formatBirthDateForSubmit,
+    formatCpfDisplay,
     formatPersonNameInput,
     formatPhoneInput,
     toBirthDateInputValue,
@@ -39,9 +40,9 @@ const genderOptions = computed(() => [
 const form = useForm({
     name: props.person.name,
     birth_date: toBirthDateInputValue(props.person.birth_date),
-    cpf: props.person.cpf,
+    cpf: formatCpfDisplay(props.person.cpf),
     gender: props.person.gender,
-    phone: props.person.phone ?? '',
+    phone: formatPhoneInput(props.person.phone ?? ''),
     email: props.person.email ?? '',
 });
 

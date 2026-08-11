@@ -7,6 +7,7 @@ use App\Http\Requests\Properties\UpdatePropertyRequest;
 use App\Models\Property;
 use App\Services\PersonService;
 use App\Services\PropertyService;
+use App\Support\SearchInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,7 +22,10 @@ class PropertyController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only(['search', 'person_id']);
+        $filters = [
+            'search' => SearchInput::sanitize($request->input('search')),
+            'person_id' => $request->input('person_id'),
+        ];
 
         $properties = $this->propertyService->listForUser(
             $request->user(),

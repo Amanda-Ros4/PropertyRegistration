@@ -10,7 +10,7 @@ class UpdatePropertyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', $this->route('property')) ?? false;
     }
 
     protected function prepareForValidation(): void

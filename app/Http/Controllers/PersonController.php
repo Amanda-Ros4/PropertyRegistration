@@ -6,6 +6,7 @@ use App\Http\Requests\People\StorePersonRequest;
 use App\Http\Requests\People\UpdatePersonRequest;
 use App\Models\Person;
 use App\Services\PersonService;
+use App\Support\SearchInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,7 +19,9 @@ class PersonController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only(['search']);
+        $filters = [
+            'search' => SearchInput::sanitize($request->input('search')),
+        ];
 
         $people = $this->personService->listForUser(
             $request->user(),

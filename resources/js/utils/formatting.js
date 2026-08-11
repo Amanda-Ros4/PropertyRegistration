@@ -48,6 +48,44 @@ export function blockNonDigitBeforeInput(event) {
 }
 
 /**
+ * Caracteres permitidos em campos de pesquisa:
+ * letras, números, espaços e símbolos de sistemas métrico/imperial
+ * e de topografia/geometria.
+ */
+const SEARCH_ALLOWED_CHAR_PATTERN = /[\p{L}\p{N}\s°′″'"/\\\-.,:()·×÷±²³µ%‰∠△▲▼◆○●≈≠≤≥]/u;
+
+export function isAllowedSearchChar(char) {
+    return SEARCH_ALLOWED_CHAR_PATTERN.test(char);
+}
+
+/**
+ * Remove caracteres especiais não permitidos da pesquisa.
+ */
+export function formatSearchInput(value) {
+    return String(value ?? '')
+        .split('')
+        .filter((char) => isAllowedSearchChar(char))
+        .join('')
+        .replace(/\s{2,}/g, ' ');
+}
+
+export function blockDisallowedSearchKey(event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (NAVIGATION_KEYS.has(event.key)) return;
+    if (event.key.length === 1 && !isAllowedSearchChar(event.key)) {
+        event.preventDefault();
+    }
+}
+
+export function blockDisallowedSearchBeforeInput(event) {
+    if (!event.data) return;
+    if (event.inputType === 'insertFromPaste' || event.inputType === 'insertFromDrop') return;
+    if (![...event.data].every(isAllowedSearchChar)) {
+        event.preventDefault();
+    }
+}
+
+/**
  * Bloqueia tudo que não for letra (inclui acentos) ou espaço.
  */
 export function blockNonLetterNameKey(event) {
@@ -159,16 +197,16 @@ export function formatCepDisplay(cep) {
     return String(cep);
 }
 
-// ─── Data (máscara MM/DD/YYYY → API) ─────────────────────────────────────────
+// ─── Data (máscara DD/MM/YYYY → API) ─────────────────────────────────────────
 
-/** 8 dígitos: MMDDYYYY */
+/** 8 dígitos: DDMMYYYY */
 export const BIRTH_DATE_MAX_DIGITS = 8;
 
-/** Com máscara MM/DD/YYYY */
+/** Com máscara DD/MM/YYYY */
 export const BIRTH_DATE_INPUT_MAX_LENGTH = 10;
 
 /**
- * Máscara durante digitação: até 8 dígitos → MM/DD/YYYY
+ * Máscara durante digitação: até 8 dígitos → DD/MM/YYYY
  */
 export function formatBirthDateInput(value) {
     const d = stripNonDigits(value, BIRTH_DATE_MAX_DIGITS);
@@ -178,31 +216,31 @@ export function formatBirthDateInput(value) {
 }
 
 /**
- * Converte ISO YYYY-MM-DD (ou Date) para máscara MM/DD/YYYY.
+ * Converte ISO YYYY-MM-DD (ou Date) para máscara DD/MM/YYYY.
  */
 export function toBirthDateInputValue(value) {
     if (!value) return '';
     if (value instanceof Date && !Number.isNaN(value.getTime())) {
-        const m = String(value.getMonth() + 1).padStart(2, '0');
-        const d = String(value.getDate()).padStart(2, '0');
-        const y = String(value.getFullYear());
-        return `${m}/${d}/${y}`;
+        const day = String(value.getDate()).padStart(2, '0');
+        const month = String(value.getMonth() + 1).padStart(2, '0');
+        const year = String(value.getFullYear());
+        return `${day}/${month}/${year}`;
     }
     const str = String(value);
     const iso = str.substring(0, 10);
     const [y, m, d] = iso.split('-');
     if (!y || !m || !d) return formatBirthDateInput(str);
-    return `${m}/${d}/${y}`;
+    return `${d}/${m}/${y}`;
 }
 
 /**
- * Interpreta máscara MM/DD/YYYY (ou dígitos) como Date local válida, ou null.
+ * Interpreta máscara DD/MM/YYYY (ou dígitos) como Date local válida, ou null.
  */
 export function parseBirthDateInput(value) {
     const digits = stripNonDigits(value, BIRTH_DATE_MAX_DIGITS);
     if (digits.length !== 8) return null;
-    const month = Number(digits.slice(0, 2));
-    const day = Number(digits.slice(2, 4));
+    const day = Number(digits.slice(0, 2));
+    const month = Number(digits.slice(2, 4));
     const year = Number(digits.slice(4, 8));
     const date = new Date(year, month - 1, day);
     if (
@@ -213,6 +251,20 @@ export function parseBirthDateInput(value) {
         return null;
     }
     return date;
+}
+
+/**
+ * Exibe data ISO YYYY-MM-DD sem deslocar o fuso (lista/tabelas).
+ */
+export function formatDateDisplay(value) {
+    if (!value) return '—';
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return toBirthDateInputValue(value);
+    }
+    const iso = String(value).substring(0, 10);
+    const [y, m, d] = iso.split('-');
+    if (!y || !m || !d) return String(value);
+    return `${d}/${m}/${y}`;
 }
 
 /**
