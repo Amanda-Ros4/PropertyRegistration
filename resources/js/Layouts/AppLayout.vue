@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { usePrimeVue } from 'primevue/config';
@@ -23,31 +23,76 @@ const { currentLocale, setLocale } = useLocale();
 const mobileMenuOpen = ref(false);
 const userMenuRef = ref(null);
 const langMenuRef = ref(null);
+const lastFlashId = ref(null);
 
 // ─── Flash messages ──────────────────────────────────────────────────────────
 
-watch(() => page.props.flash, (flash) => {
+function showFlashToast(flash) {
     if (!flash?.message) {
         return;
     }
+
+    const flashId = flash.id ?? `${flash.type}:${flash.message}`;
+    if (flashId === lastFlashId.value) {
+        return;
+    }
+    lastFlashId.value = flashId;
+
     if (flash.type === 'error') {
         toast.add({
             severity: 'error',
-            summary: trans('errors.server'),
+            summary: trans('toast.error_summary'),
             detail: flash.message,
             life: 6500,
             closable: true,
         });
-    } else {
+        return;
+    }
+
+    if (flash.type === 'warn' || flash.type === 'warning') {
         toast.add({
-            severity: 'success',
-            summary: trans('toast.success_summary'),
+            severity: 'warn',
+            summary: trans('toast.warn_summary'),
+            detail: flash.message,
+            life: 5500,
+            closable: true,
+        });
+        return;
+    }
+
+    if (flash.type === 'info') {
+        toast.add({
+            severity: 'info',
+            summary: trans('toast.info_summary'),
             detail: flash.message,
             life: 4500,
             closable: true,
         });
+        return;
     }
-}, { immediate: true, deep: true });
+
+    toast.add({
+        severity: 'success',
+        summary: trans('toast.success_summary'),
+        detail: flash.message,
+        life: 4500,
+        closable: true,
+    });
+}
+
+let removeInertiaSuccessListener = null;
+
+onMounted(() => {
+    showFlashToast(page.props.flash);
+
+    removeInertiaSuccessListener = router.on('success', (event) => {
+        showFlashToast(event.detail.page.props.flash);
+    });
+});
+
+onUnmounted(() => {
+    removeInertiaSuccessListener?.();
+});
 
 // ─── Locale sync ─────────────────────────────────────────────────────────────
 
@@ -114,7 +159,7 @@ function isActiveRoute(routeName) {
     <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
         <Head :title="title" />
 
-        <Toast position="top-right" class="app-toast" :pt="{ root: { class: 'app-toast-root' } }" />
+        <Toast position="top-right" class="app-toast" :pt="{ root: { class: 'app-toast-root' } }" :baseZIndex="1200" />
         <ConfirmDialog />
 
 

@@ -2,6 +2,7 @@ import { useToast } from 'primevue/usetoast';
 import { trans } from 'laravel-vue-i18n';
 
 const DEFAULT_SUCCESS_LIFE = 4500;
+const DEFAULT_WARN_LIFE = 5500;
 const DEFAULT_ERROR_LIFE = 6500;
 
 export function useAppToast() {
@@ -10,9 +11,19 @@ export function useAppToast() {
     function addErrorToast(detail, summary = null) {
         toast.add({
             severity: 'error',
-            summary: summary ?? trans('errors.server'),
+            summary: summary ?? trans('toast.error_summary'),
             detail,
             life: DEFAULT_ERROR_LIFE,
+            closable: true,
+        });
+    }
+
+    function addWarnToast(detail, summary = null) {
+        toast.add({
+            severity: 'warn',
+            summary: summary ?? trans('toast.warn_summary'),
+            detail,
+            life: DEFAULT_WARN_LIFE,
             closable: true,
         });
     }
@@ -38,5 +49,10 @@ export function useAppToast() {
         addErrorToast(msg, trans('toast.validation_summary'));
     }
 
-    return { addErrorToast, addSuccessToast, showValidationErrorToast };
+    return {
+        addErrorToast,
+        addWarnToast,
+        addSuccessToast,
+        showValidationErrorToast,
+    };
 }

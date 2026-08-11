@@ -4,7 +4,7 @@ import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
-import FilterBar from '@/Components/FilterBar.vue';
+import PropertyFilters from '@/Components/PropertyFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import DataTable from 'primevue/datatable';
@@ -30,6 +30,18 @@ const peopleOptions = computed(() =>
     }))
 );
 
+const hasActiveFilters = computed(() =>
+    Boolean(
+        props.filters.id
+        || props.filters.type
+        || props.filters.street
+        || props.filters.number
+        || props.filters.neighborhood
+        || props.filters.person_id
+        || props.filters.status,
+    ),
+);
+
 function confirmDelete(property) {
     propertyToDelete.value = property;
     deleteConfirmRef.value.open();
@@ -43,7 +55,9 @@ function deleteProperty() {
 
 function onPageChange(event) {
     router.get(route('properties.index'), {
-        ...props.filters,
+        ...Object.fromEntries(
+            Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
+        ),
         page: event.page + 1,
     }, {
         preserveState: true,
@@ -63,16 +77,9 @@ function onPageChange(event) {
             :createLabel="trans('properties.create')"
         />
 
-        <FilterBar
-            routeName="properties.index"
-            :searchPlaceholder="trans('properties.search_placeholder')"
-            :initialSearch="filters.search"
-            :selectOptions="peopleOptions"
-            selectOptionLabel="label"
-            selectOptionValue="value"
-            :selectPlaceholder="trans('properties.filter_owner')"
-            :initialSelectValue="filters.person_id ? Number(filters.person_id) : null"
-            selectFilterKey="person_id"
+        <PropertyFilters
+            :filters="filters"
+            :peopleOptions="peopleOptions"
         />
 
         <DeleteConfirmation
@@ -88,10 +95,10 @@ function onPageChange(event) {
             <EmptyState
                 v-if="properties.data.length === 0"
                 icon="pi pi-building"
-                :title="trans('properties.empty')"
-                :description="trans('properties.empty_description')"
-                :actionLabel="trans('properties.create')"
-                actionRoute="properties.create"
+                :title="hasActiveFilters ? trans('properties.empty_filtered') : trans('properties.empty')"
+                :description="hasActiveFilters ? trans('properties.empty_filtered_description') : trans('properties.empty_description')"
+                :actionLabel="hasActiveFilters ? null : trans('properties.create')"
+                :actionRoute="hasActiveFilters ? null : 'properties.create'"
             />
 
             <template v-else>

@@ -29,10 +29,23 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'locale' => app()->getLocale(),
-            'flash' => fn () => [
-                'type' => $request->session()->get('flash.type'),
-                'message' => $request->session()->get('flash.message'),
-            ],
+            'flash' => function () use ($request) {
+                $flash = $request->session()->get('flash');
+
+                if (! is_array($flash)) {
+                    return [
+                        'type' => null,
+                        'message' => null,
+                        'id' => null,
+                    ];
+                }
+
+                return [
+                    'type' => $flash['type'] ?? null,
+                    'message' => $flash['message'] ?? null,
+                    'id' => $flash['id'] ?? null,
+                ];
+            },
         ];
     }
 }

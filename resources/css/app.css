@@ -26,9 +26,10 @@ html.dark input.jetstream-text-input:-webkit-autofill:active {
     transition: background-color 99999s ease-out;
 }
 
-/* PrimeVue Toast — painel com vidro fosco e hierarquia de texto (erro / sucesso) */
+/* PrimeVue Toast — painel com vidro fosco e hierarquia de texto */
 .app-toast-root.p-toast {
     max-width: min(24rem, calc(100vw - 2rem));
+    z-index: 1200 !important;
 }
 
 .app-toast-root .p-toast-message {
@@ -58,6 +59,22 @@ html.dark input.jetstream-text-input:-webkit-autofill:active {
     color: #334155;
 }
 
+.app-toast-root .p-toast-message-warn .p-toast-summary {
+    color: #b45309;
+}
+
+.app-toast-root .p-toast-message-warn .p-toast-detail {
+    color: #334155;
+}
+
+.app-toast-root .p-toast-message-info .p-toast-summary {
+    color: #1d4ed8;
+}
+
+.app-toast-root .p-toast-message-info .p-toast-detail {
+    color: #334155;
+}
+
 html.dark .app-toast-root .p-toast-message {
     background: rgba(15, 23, 42, 0.78);
     border-color: rgba(148, 163, 184, 0.18);
@@ -76,5 +93,21 @@ html.dark .app-toast-root .p-toast-message-success .p-toast-summary {
 }
 
 html.dark .app-toast-root .p-toast-message-success .p-toast-detail {
+    color: #e2e8f0;
+}
+
+html.dark .app-toast-root .p-toast-message-warn .p-toast-summary {
+    color: #fbbf24;
+}
+
+html.dark .app-toast-root .p-toast-message-warn .p-toast-detail {
+    color: #e2e8f0;
+}
+
+html.dark .app-toast-root .p-toast-message-info .p-toast-summary {
+    color: #60a5fa;
+}
+
+html.dark .app-toast-root .p-toast-message-info .p-toast-detail {
     color: #e2e8f0;
 }

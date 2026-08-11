@@ -6,6 +6,7 @@ use App\Http\Requests\People\StorePersonRequest;
 use App\Http\Requests\People\UpdatePersonRequest;
 use App\Models\Person;
 use App\Services\PersonService;
+use App\Support\Flash;
 use App\Support\SearchInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,10 +46,7 @@ class PersonController extends Controller
         $this->personService->create($request->user(), $request->validated());
 
         return redirect()->route('people.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => __('people.created'),
-            ]);
+            ->with('flash', Flash::success(__('people.created')));
     }
 
     public function edit(Person $person): Response
@@ -67,10 +65,7 @@ class PersonController extends Controller
         $this->personService->update($person, $request->validated());
 
         return redirect()->route('people.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => __('people.updated'),
-            ]);
+            ->with('flash', Flash::success(__('people.updated')));
     }
 
     public function destroy(Request $request, Person $person): RedirectResponse
@@ -81,16 +76,10 @@ class PersonController extends Controller
             $this->personService->delete($person);
         } catch (RuntimeException $e) {
             return redirect()->route('people.index')
-                ->with('flash', [
-                    'type' => 'error',
-                    'message' => $e->getMessage(),
-                ]);
+                ->with('flash', Flash::error($e->getMessage()));
         }
 
         return redirect()->route('people.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => __('people.deleted'),
-            ]);
+            ->with('flash', Flash::success(__('people.deleted')));
     }
 }

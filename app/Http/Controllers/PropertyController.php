@@ -12,6 +12,7 @@ use App\Services\PersonService;
 use App\Services\PropertyService;
 use App\Support\AddressInput;
 use App\Support\Digits;
+use App\Support\Flash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -70,10 +71,7 @@ class PropertyController extends Controller
         $this->propertyService->create($request->user(), $request->validated());
 
         return redirect()->route('properties.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => __('properties.created'),
-            ]);
+            ->with('flash', Flash::success(__('properties.created')));
     }
 
     public function edit(Request $request, Property $property): Response
@@ -95,10 +93,7 @@ class PropertyController extends Controller
         $this->propertyService->update($property, $request->validated());
 
         return redirect()->route('properties.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => __('properties.updated'),
-            ]);
+            ->with('flash', Flash::success(__('properties.updated')));
     }
 
     public function updateStatus(UpdatePropertyStatusRequest $request, Property $property): RedirectResponse
@@ -113,10 +108,7 @@ class PropertyController extends Controller
             : __('properties.status_deactivated');
 
         return redirect()->back()
-            ->with('flash', [
-                'type' => 'success',
-                'message' => $message,
-            ]);
+            ->with('flash', Flash::success($message));
     }
 
     public function destroy(Request $request, Property $property): RedirectResponse
@@ -126,9 +118,6 @@ class PropertyController extends Controller
         $this->propertyService->delete($property);
 
         return redirect()->route('properties.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => __('properties.deleted'),
-            ]);
+            ->with('flash', Flash::success(__('properties.deleted')));
     }
 }
