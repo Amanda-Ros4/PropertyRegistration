@@ -28,6 +28,7 @@ import {
 import { fetchAddressByCep } from '@/utils/viacep';
 import { useAppToast } from '@/composables/useAppToast';
 import { usePropertyTypeAreas } from '@/composables/usePropertyTypeAreas';
+import PropertyDocumentsField from '@/Components/PropertyDocumentsField.vue';
 
 const { showValidationErrorToast } = useAppToast();
 
@@ -467,6 +468,11 @@ function submit() {
                             />
                         </div>
                     </FormField>
+
+                    <PropertyDocumentsField
+                        :property-id="property.id"
+                        :documents="property.documents ?? []"
+                    />
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">

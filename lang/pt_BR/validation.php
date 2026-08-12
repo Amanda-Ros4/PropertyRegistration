@@ -25,6 +25,11 @@ return [
     'building_area_required' => 'A área da edificação é obrigatória para os tipos Casa e Apartamento.',
     'building_area_gt' => 'A área da edificação deve ser maior que zero.',
     'building_area_must_be_zero' => 'Para terreno, a área da edificação deve ser zero.',
+    'property_documents_required' => 'Selecione ao menos um documento.',
+    'property_documents_max' => 'O imóvel pode ter no máximo :max documentos.',
+    'property_documents_mimes' => 'Os documentos devem ser JPG, JPEG, PNG ou PDF.',
+    'property_documents_size' => 'Cada documento deve ter no máximo 3 MB.',
+    'property_documents_store_failed' => 'Não foi possível salvar o documento. Tente novamente.',
     'attributes' => [
         'name' => 'Nome Completo',
         'birth_date' => 'Data de Nascimento',
@@ -37,5 +42,8 @@ return [
         'number' => 'Número',
         'neighborhood' => 'Bairro',
         'complement' => 'Complemento',
+        'documents' => 'Documentos',
+        'code' => 'Código',
+        'recovery_code' => 'Código de recuperação',
     ],
 ];

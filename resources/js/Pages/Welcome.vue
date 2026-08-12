@@ -1,12 +1,9 @@
 <script setup>
-import { computed, ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import Button from 'primevue/button';
-import Menu from 'primevue/menu';
 import AppBrandMark from '@/Components/AppBrandMark.vue';
-import { useTheme } from '@/composables/useTheme';
-import { useLocale, SUPPORTED_LOCALES } from '@/composables/useLocale';
+import LocaleThemeControls from '@/Components/LocaleThemeControls.vue';
 
 defineProps({
     canLogin: {
@@ -24,10 +21,6 @@ defineProps({
         required: true,
     },
 });
-
-const { isDark, toggleTheme } = useTheme();
-const { currentLocale, setLocale } = useLocale();
-const langMenuRef = ref(null);
 
 const featureCards = [
     {
@@ -52,28 +45,6 @@ const featureCards = [
         description: () => trans('welcome.security_description'),
     },
 ];
-
-const langMenuItems = ref(
-    SUPPORTED_LOCALES.map((locale) => ({
-        label: locale.label,
-        command: () => changeLocale(locale.code),
-    }))
-);
-
-const currentLocaleLabel = computed(
-    () => SUPPORTED_LOCALES.find((locale) => locale.code === currentLocale.value)?.label ?? currentLocale.value
-);
-
-async function changeLocale(locale) {
-    await setLocale(locale);
-    router.reload({
-        preserveState: true,
-        preserveScroll: true,
-        headers: {
-            'X-Locale': locale,
-        },
-    });
-}
 </script>
 
 <template>
@@ -95,50 +66,7 @@ async function changeLocale(locale) {
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            <Button
-                                icon="pi pi-language"
-                                text
-                                rounded
-                                :label="currentLocaleLabel"
-                                class="!text-slate-600 dark:!text-slate-400"
-                                :aria-label="trans('language.label')"
-                                @click="(e) => langMenuRef.toggle(e)"
-                            />
-                            <Menu ref="langMenuRef" :model="langMenuItems" :popup="true" />
-
-                            <Button
-                                :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-                                text
-                                rounded
-                                :aria-label="trans('theme.toggle')"
-                                class="!text-slate-600 dark:!text-slate-400"
-                                @click="toggleTheme"
-                            />
-
-                            <template v-if="canLogin">
-                                <Link
-                                    v-if="$page.props.auth.user"
-                                    :href="route('dashboard')"
-                                >
-                                    <Button :label="trans('nav.dashboard')" size="small" />
-                                </Link>
-
-                                <template v-else>
-                                    <Link :href="route('login')">
-                                        <Button
-                                            :label="trans('auth.login')"
-                                            size="small"
-                                            outlined
-                                            severity="secondary"
-                                        />
-                                    </Link>
-                                    <Link v-if="canRegister" :href="route('register')">
-                                        <Button :label="trans('auth.register')" size="small" />
-                                    </Link>
-                                </template>
-                            </template>
-                        </div>
+                        <LocaleThemeControls />
                     </div>
                 </div>
             </nav>

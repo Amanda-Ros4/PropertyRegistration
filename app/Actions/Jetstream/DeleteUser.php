@@ -5,6 +5,7 @@ namespace App\Actions\Jetstream;
 use App\Models\Person;
 use App\Models\Property;
 use App\Models\User;
+use App\Services\PropertyDocumentService;
 use Illuminate\Support\Facades\DB;
 use Laravel\Jetstream\Contracts\DeletesUsers;
 
@@ -17,6 +18,11 @@ class DeleteUser implements DeletesUsers
     {
         DB::transaction(function () use ($user) {
             $userId = $user->id;
+            $documentService = app(PropertyDocumentService::class);
+
+            Property::withTrashed()->where('user_id', $userId)->get()->each(
+                fn (Property $property) => $documentService->deleteAllForProperty($property),
+            );
 
             Property::withTrashed()->where('user_id', $userId)->forceDelete();
             Person::withTrashed()->where('user_id', $userId)->forceDelete();

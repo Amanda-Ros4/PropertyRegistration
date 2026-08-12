@@ -11,6 +11,8 @@ export function stripNonDigits(value, maxLength) {
     return maxLength != null ? digits.slice(0, maxLength) : digits;
 }
 
+export const AUTHENTICATOR_CODE_LENGTH = 6;
+
 const NAVIGATION_KEYS = new Set([
     'Backspace',
     'Delete',

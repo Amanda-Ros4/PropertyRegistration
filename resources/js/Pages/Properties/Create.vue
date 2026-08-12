@@ -26,6 +26,7 @@ import {
 import { fetchAddressByCep } from '@/utils/viacep';
 import { useAppToast } from '@/composables/useAppToast';
 import { usePropertyTypeAreas } from '@/composables/usePropertyTypeAreas';
+import PropertyDocumentsField from '@/Components/PropertyDocumentsField.vue';
 
 const { showValidationErrorToast } = useAppToast();
 
@@ -61,6 +62,8 @@ const form = useForm({
     neighborhood: '',
     complement: '',
 });
+
+const pendingDocuments = ref([]);
 
 const {
     landAreaRequired,
@@ -165,8 +168,10 @@ function submit() {
         .transform((data) => ({
             ...data,
             ...areasForSubmit(data),
+            documents: pendingDocuments.value.map((item) => item.file),
         }))
         .post(route('properties.store'), {
+            forceFormData: true,
             onError: showValidationErrorToast,
         });
 }
@@ -376,6 +381,11 @@ function submit() {
                             />
                         </div>
                     </FormField>
+
+                    <PropertyDocumentsField
+                        v-model="pendingDocuments"
+                        :errors="form.errors"
+                    />
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">

@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\PropertyDocumentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests as Precognition;
@@ -41,6 +42,9 @@ Route::middleware([
         Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
         Route::match(['put', 'patch'], '/{property}', [PropertyController::class, 'update'])->name('properties.update')->middleware(Precognition::class);
         Route::patch('/{property}/status', [PropertyController::class, 'updateStatus'])->name('properties.status.update');
+        Route::post('/{property}/documents', [PropertyDocumentController::class, 'store'])->name('properties.documents.store');
+        Route::get('/{property}/documents/{document}', [PropertyDocumentController::class, 'show'])->name('properties.documents.show');
+        Route::delete('/{property}/documents/{document}', [PropertyDocumentController::class, 'destroy'])->name('properties.documents.destroy');
         Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
     });
 });

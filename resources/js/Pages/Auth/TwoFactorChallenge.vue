@@ -1,103 +1,125 @@
 <script setup>
 import { nextTick, ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
+import Button from 'primevue/button';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import {
+    AUTHENTICATOR_CODE_LENGTH,
+    blockNonDigitBeforeInput,
+    blockNonDigitKey,
+    stripNonDigits,
+} from '@/utils/formatting';
 
 const recovery = ref(false);
+const recoveryCodeInput = ref(null);
+const codeInput = ref(null);
 
 const form = useForm({
     code: '',
     recovery_code: '',
 });
 
-const recoveryCodeInput = ref(null);
-const codeInput = ref(null);
+function onCodeInput(value) {
+    form.code = stripNonDigits(value, AUTHENTICATOR_CODE_LENGTH);
+}
 
-const toggleRecovery = async () => {
-    recovery.value ^= true;
-
+async function toggleRecovery() {
+    recovery.value = !recovery.value;
     await nextTick();
 
     if (recovery.value) {
-        recoveryCodeInput.value.focus();
         form.code = '';
-    } else {
-        codeInput.value.focus();
-        form.recovery_code = '';
+        recoveryCodeInput.value?.focus();
+        return;
     }
-};
 
-const submit = () => {
+    form.recovery_code = '';
+    codeInput.value?.focus();
+}
+
+function submit() {
+    if (!recovery.value) {
+        form.code = stripNonDigits(form.code, AUTHENTICATOR_CODE_LENGTH);
+    }
+
     form.post(route('two-factor.login'));
-};
+}
 </script>
 
 <template>
-    <Head title="Two-factor Confirmation" />
+    <Head :title="trans('auth.two_factor.title')" />
 
     <AuthenticationCard>
         <template #logo>
             <AuthenticationCardLogo />
         </template>
 
-        <div class="mb-4 text-sm text-gray-600">
-            <template v-if="! recovery">
-                Please confirm access to your account by entering the authentication code provided by your authenticator application.
-            </template>
+        <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            {{ trans('auth.two_factor.title') }}
+        </h1>
 
-            <template v-else>
-                Please confirm access to your account by entering one of your emergency recovery codes.
-            </template>
-        </div>
+        <p class="mb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            {{ recovery ? trans('auth.two_factor.recovery_prompt') : trans('auth.two_factor.code_prompt') }}
+        </p>
 
-        <form @submit.prevent="submit">
-            <div v-if="! recovery">
-                <InputLabel for="code" value="Code" />
-                <TextInput
-                    id="code"
-                    ref="codeInput"
-                    v-model="form.code"
-                    type="text"
-                    inputmode="numeric"
-                    class="mt-1 block w-full"
-                    autofocus
-                    autocomplete="one-time-code"
-                />
+        <form @submit.prevent="submit" class="space-y-4">
+            <div v-if="!recovery">
+                <InputLabel for="code" :value="trans('auth.two_factor.code')" />
+                <div
+                    @keydown.capture="blockNonDigitKey"
+                    @beforeinput.capture="blockNonDigitBeforeInput"
+                >
+                    <TextInput
+                        id="code"
+                        ref="codeInput"
+                        :model-value="form.code"
+                        type="text"
+                        inputmode="numeric"
+                        :maxlength="AUTHENTICATOR_CODE_LENGTH"
+                        class="mt-1 block w-full font-mono tracking-widest"
+                        autofocus
+                        autocomplete="one-time-code"
+                        @update:model-value="onCodeInput"
+                    />
+                </div>
                 <InputError class="mt-2" :message="form.errors.code" />
             </div>
 
             <div v-else>
-                <InputLabel for="recovery_code" value="Recovery Code" />
+                <InputLabel for="recovery_code" :value="trans('auth.two_factor.recovery_code')" />
                 <TextInput
                     id="recovery_code"
                     ref="recoveryCodeInput"
                     v-model="form.recovery_code"
                     type="text"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full font-mono"
                     autocomplete="one-time-code"
                 />
                 <InputError class="mt-2" :message="form.errors.recovery_code" />
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <button type="button" class="text-sm text-gray-600 hover:text-gray-900 underline cursor-pointer" @click.prevent="toggleRecovery">
-                    <template v-if="! recovery">
-                        Use a recovery code
-                    </template>
-
-                    <template v-else>
-                        Use an authentication code
-                    </template>
+            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+                <button
+                    type="button"
+                    class="text-sm text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 underline-offset-2 hover:underline text-left"
+                    @click="toggleRecovery"
+                >
+                    {{ recovery ? trans('auth.two_factor.use_code') : trans('auth.two_factor.use_recovery') }}
                 </button>
 
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Log in
-                </PrimaryButton>
+                <Button
+                    type="submit"
+                    :label="trans('auth.login')"
+                    icon="pi pi-sign-in"
+                    :loading="form.processing"
+                    :disabled="form.processing"
+                    class="w-full sm:w-auto"
+                />
             </div>
         </form>
     </AuthenticationCard>

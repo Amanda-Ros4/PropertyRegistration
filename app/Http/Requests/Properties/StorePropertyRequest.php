@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Properties;
 
 use App\Models\Property;
+use App\Support\PropertyDocuments;
 
 class StorePropertyRequest extends PropertyFormRequest
 {
@@ -14,5 +15,20 @@ class StorePropertyRequest extends PropertyFormRequest
     protected function prepareForValidation(): void
     {
         $this->preparePropertyPayload();
+    }
+
+    public function rules(): array
+    {
+        return array_merge(parent::rules(), PropertyDocuments::uploadRules(0));
+    }
+
+    public function messages(): array
+    {
+        return array_merge(parent::messages(), PropertyDocuments::messages());
+    }
+
+    public function attributes(): array
+    {
+        return array_merge(parent::attributes(), PropertyDocuments::attributes());
     }
 }

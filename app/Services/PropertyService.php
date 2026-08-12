@@ -7,10 +7,15 @@ use App\Enums\PropertyType;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class PropertyService
 {
+    public function __construct(
+        private readonly PropertyDocumentService $documentService,
+    ) {}
+
     public function listForUser(User $user, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         return Property::query()
@@ -31,7 +36,7 @@ class PropertyService
     public function create(User $user, array $data): Property
     {
         return DB::transaction(function () use ($user, $data) {
-            return Property::create([
+            $property = Property::create([
                 'user_id' => $user->id,
                 'person_id' => $data['person_id'],
                 'type' => $data['type'],
@@ -44,6 +49,10 @@ class PropertyService
                 'complement' => $data['complement'] ?? null,
                 'status' => PropertyStatus::Active,
             ]);
+
+            $this->documentService->storeMany($property, $this->uploadedDocuments($data));
+
+            return $property;
         });
     }
 
@@ -79,7 +88,26 @@ class PropertyService
 
     public function delete(Property $property): void
     {
+        $this->documentService->deleteAllForProperty($property);
         $property->delete();
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<int, UploadedFile>
+     */
+    private function uploadedDocuments(array $data): array
+    {
+        $documents = $data['documents'] ?? [];
+
+        if (! is_array($documents)) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $documents,
+            fn (mixed $file): bool => $file instanceof UploadedFile,
+        ));
     }
 
     private function typeValue(array $data): ?string

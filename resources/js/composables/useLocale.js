@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { loadLanguageAsync } from 'laravel-vue-i18n';
-import { storeLocale } from '@/plugins/i18n';
+import { getStoredLocale, storeLocale } from '@/plugins/i18n';
 
 export const SUPPORTED_LOCALES = [
     { code: 'en', label: 'English' },
@@ -236,9 +236,7 @@ export const primeVueLocales = {
 
 export function useLocale() {
     const currentLocale = ref(
-        typeof window !== 'undefined'
-            ? (localStorage.getItem('app_locale') || 'en')
-            : 'en'
+        typeof window !== 'undefined' ? getStoredLocale() : 'pt_BR'
     );
 
     async function setLocale(locale) {

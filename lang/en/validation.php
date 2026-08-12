@@ -25,6 +25,11 @@ return [
     'building_area_required' => 'Building area is required for the House and Apartment types.',
     'building_area_gt' => 'Building area must be greater than zero.',
     'building_area_must_be_zero' => 'For land, the building area must be zero.',
+    'property_documents_required' => 'Select at least one document.',
+    'property_documents_max' => 'A property can have at most :max documents.',
+    'property_documents_mimes' => 'Documents must be JPG, JPEG, PNG or PDF.',
+    'property_documents_size' => 'Each document must be at most 3 MB.',
+    'property_documents_store_failed' => 'The document could not be saved. Please try again.',
     'attributes' => [
         'name' => 'Full Name',
         'birth_date' => 'Birth Date',
@@ -37,5 +42,8 @@ return [
         'number' => 'Number',
         'neighborhood' => 'Neighborhood',
         'complement' => 'Complement',
+        'documents' => 'Documents',
+        'code' => 'Code',
+        'recovery_code' => 'Recovery code',
     ],
 ];
