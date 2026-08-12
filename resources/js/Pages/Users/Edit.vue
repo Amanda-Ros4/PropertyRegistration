@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -9,6 +9,7 @@ import FormField from '@/Components/FormField.vue';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Select from 'primevue/select';
+import Tag from 'primevue/tag';
 import Button from 'primevue/button';
 import {
     blockNonLetterNameBeforeInput,
@@ -23,6 +24,8 @@ const props = defineProps({
     user: { type: Object, required: true },
     profileOptions: { type: Array, default: () => [] },
     canUpdate: { type: Boolean, default: false },
+    canChangeProfile: { type: Boolean, default: false },
+    isSelf: { type: Boolean, default: false },
 });
 
 const { showValidationErrorToast } = useAppToast();
@@ -38,10 +41,45 @@ const profileSelectOptions = computed(() =>
     })),
 );
 
-const activeOptions = computed(() => [
-    { value: 'S', label: trans('users.active_status.active') },
-    { value: 'N', label: trans('users.active_status.inactive') },
-]);
+const activeValue = computed(() => props.user.active);
+const activeLabel = computed(() =>
+    trans(activeValue.value === 'S' ? 'users.active_status.active' : 'users.active_status.inactive'),
+);
+const activeSeverity = computed(() =>
+    activeValue.value === 'S' ? 'success' : 'secondary',
+);
+
+const activeUpdating = ref(false);
+const nextActive = computed(() => (activeValue.value === 'S' ? 'N' : 'S'));
+const activeActionLabel = computed(() =>
+    activeValue.value === 'S'
+        ? trans('users.actions.deactivate')
+        : trans('users.actions.activate'),
+);
+const activeActionSeverity = computed(() =>
+    activeValue.value === 'S' ? 'secondary' : 'success',
+);
+const activeActionIcon = computed(() =>
+    activeValue.value === 'S' ? 'pi pi-ban' : 'pi pi-check-circle',
+);
+
+function toggleActive() {
+    if (activeUpdating.value || !props.canUpdate || props.isSelf) {
+        return;
+    }
+
+    activeUpdating.value = true;
+    router.patch(
+        route('users.active.update', props.user.id),
+        { active: nextActive.value },
+        {
+            preserveScroll: true,
+            onFinish: () => {
+                activeUpdating.value = false;
+            },
+        },
+    );
+}
 
 const profileLabelKey = {
     T: 'users.profiles.ti_admin',
@@ -54,7 +92,6 @@ const { form, validateField } = usePrecognitiveForm('put', route('users.update',
     password: '',
     password_confirmation: '',
     profile: props.user.profile,
-    active: props.user.active,
 });
 
 function syncMaskedField(field, formatter, value) {
@@ -98,6 +135,38 @@ function submit() {
         />
 
         <FormCard>
+            <div
+                class="mb-6 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-slate-200 dark:border-slate-800"
+            >
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide mb-2">
+                    {{ trans('users.fields.active') }}
+                </p>
+                <div class="flex flex-wrap items-center gap-3">
+                    <Tag :value="activeLabel" :severity="activeSeverity" />
+                    <Button
+                        v-if="canUpdate && !isSelf"
+                        type="button"
+                        :label="activeActionLabel"
+                        :icon="activeActionIcon"
+                        :severity="activeActionSeverity"
+                        size="small"
+                        outlined
+                        :loading="activeUpdating"
+                        :disabled="activeUpdating"
+                        @click="toggleActive"
+                    />
+                </div>
+                <p class="text-xs text-slate-400 mt-2">
+                    {{
+                        isSelf
+                            ? trans('users.hint_cannot_deactivate_self')
+                            : canUpdate
+                              ? trans('users.hint_active_toggle')
+                              : trans('users.hint_active_readonly')
+                    }}
+                </p>
+            </div>
+
             <form @submit.prevent="submit" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
@@ -161,10 +230,11 @@ function submit() {
                     <FormField
                         :label="trans('users.fields.profile')"
                         :error="form.errors.profile"
-                        :required="canUpdate"
+                        :required="canChangeProfile"
+                        :hint="isSelf && canUpdate && !canChangeProfile ? trans('users.hint_profile_self_readonly') : null"
                     >
                         <Select
-                            v-if="canUpdate"
+                            v-if="canChangeProfile"
                             v-model="form.profile"
                             :options="profileSelectOptions"
                             optionLabel="label"
@@ -177,31 +247,6 @@ function submit() {
                         <InputText
                             v-else
                             :modelValue="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
-                            class="w-full"
-                            disabled
-                            readonly
-                        />
-                    </FormField>
-
-                    <FormField
-                        :label="trans('users.fields.active')"
-                        :error="form.errors.active"
-                        :required="canUpdate"
-                    >
-                        <Select
-                            v-if="canUpdate"
-                            v-model="form.active"
-                            :options="activeOptions"
-                            optionLabel="label"
-                            optionValue="value"
-                            :placeholder="trans('users.placeholders.active')"
-                            :invalid="!!form.errors.active"
-                            class="w-full"
-                            @change="validateField('active')"
-                        />
-                        <InputText
-                            v-else
-                            :modelValue="trans(user.active === 'S' ? 'users.active_status.active' : 'users.active_status.inactive')"
                             class="w-full"
                             disabled
                             readonly

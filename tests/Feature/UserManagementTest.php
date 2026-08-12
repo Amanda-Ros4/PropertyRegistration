@@ -133,7 +133,6 @@ class UserManagementTest extends TestCase
                 'email' => 'novo@example.com',
                 'cpf' => '39053344705',
                 'profile' => UserProfile::Attendant->value,
-                'active' => ActiveStatus::Inactive->value,
             ])
             ->assertRedirect(route('users.index'));
 
@@ -142,7 +141,22 @@ class UserManagementTest extends TestCase
         $this->assertSame('Nome Atualizado', $attendant->name);
         $this->assertSame('original@example.com', $attendant->email);
         $this->assertSame('52998224725', $attendant->cpf);
-        $this->assertSame(ActiveStatus::Inactive, $attendant->active);
+        $this->assertSame(ActiveStatus::Active, $attendant->active);
+    }
+
+    public function test_ti_admin_can_change_user_profile(): void
+    {
+        $tiAdmin = User::factory()->tiAdmin()->create();
+        $attendant = User::factory()->attendant()->create();
+
+        $this->actingAs($tiAdmin)
+            ->put(route('users.update', $attendant), [
+                'name' => $attendant->name,
+                'profile' => UserProfile::SystemAdmin->value,
+            ])
+            ->assertRedirect(route('users.index'));
+
+        $this->assertSame(UserProfile::SystemAdmin, $attendant->fresh()->profile);
     }
 
     public function test_inactive_user_cannot_login(): void
@@ -194,5 +208,34 @@ class UserManagementTest extends TestCase
                 'profile' => UserProfile::Attendant->value,
             ])
             ->assertSessionHasErrors('id');
+    }
+
+    public function test_ti_admin_can_deactivate_user_via_active_endpoint(): void
+    {
+        $tiAdmin = User::factory()->tiAdmin()->create();
+        $attendant = User::factory()->attendant()->create();
+
+        $this->actingAs($tiAdmin)
+            ->from(route('users.edit', $attendant))
+            ->patch(route('users.active.update', $attendant), [
+                'active' => ActiveStatus::Inactive->value,
+            ])
+            ->assertRedirect(route('users.edit', $attendant));
+
+        $this->assertSame(ActiveStatus::Inactive, $attendant->fresh()->active);
+    }
+
+    public function test_user_cannot_deactivate_self_via_active_endpoint(): void
+    {
+        $tiAdmin = User::factory()->tiAdmin()->create();
+
+        $this->actingAs($tiAdmin)
+            ->from(route('users.edit', $tiAdmin))
+            ->patch(route('users.active.update', $tiAdmin), [
+                'active' => ActiveStatus::Inactive->value,
+            ])
+            ->assertSessionHasErrors('active');
+
+        $this->assertSame(ActiveStatus::Active, $tiAdmin->fresh()->active);
     }
 }

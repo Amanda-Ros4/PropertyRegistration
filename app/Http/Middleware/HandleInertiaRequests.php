@@ -49,6 +49,7 @@ class HandleInertiaRequests extends Middleware
             'permissions' => fn () => [
                 'canManageUsers' => $request->user()?->canManageUsers() ?? false,
                 'canViewAudit' => $request->user()?->canViewAudit() ?? false,
+                'isTiAdmin' => $request->user()?->isTiAdmin() ?? false,
             ],
         ];
     }

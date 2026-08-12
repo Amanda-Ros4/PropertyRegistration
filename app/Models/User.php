@@ -66,17 +66,29 @@ class User extends Authenticatable
 
     public function isTiAdmin(): bool
     {
-        return $this->profile === UserProfile::TiAdmin;
+        if ($this->profile === UserProfile::TiAdmin) {
+            return true;
+        }
+
+        return $this->getRawOriginal('profile') === UserProfile::TiAdmin->value;
     }
 
     public function isSystemAdmin(): bool
     {
-        return $this->profile === UserProfile::SystemAdmin;
+        if ($this->profile === UserProfile::SystemAdmin) {
+            return true;
+        }
+
+        return $this->getRawOriginal('profile') === UserProfile::SystemAdmin->value;
     }
 
     public function isAttendant(): bool
     {
-        return $this->profile === UserProfile::Attendant;
+        if ($this->profile === UserProfile::Attendant) {
+            return true;
+        }
+
+        return $this->getRawOriginal('profile') === UserProfile::Attendant->value;
     }
 
     public function isActive(): bool
@@ -92,6 +104,15 @@ class User extends Authenticatable
     public function canViewAudit(): bool
     {
         return ! $this->isAttendant();
+    }
+
+    public function canAssignProfile(UserProfile $profile): bool
+    {
+        if ($this->isTiAdmin()) {
+            return true;
+        }
+
+        return $this->isSystemAdmin() && $profile === UserProfile::Attendant;
     }
 
     /**

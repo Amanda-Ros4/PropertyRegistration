@@ -42,11 +42,7 @@ class UserPolicy
 
     public function assignProfile(User $user, UserProfile $profile): bool
     {
-        if ($user->isTiAdmin()) {
-            return true;
-        }
-
-        return $user->isSystemAdmin() && $profile === UserProfile::Attendant;
+        return $user->canAssignProfile($profile);
     }
 
     public function viewAudit(User $user): bool

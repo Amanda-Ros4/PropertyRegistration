@@ -15,7 +15,7 @@ class UpdateUserRequest extends UserFormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->replace($this->except(['email', 'cpf']));
+        $this->replace($this->except(['email', 'cpf', 'active']));
     }
 
     /**
@@ -31,7 +31,7 @@ class UpdateUserRequest extends UserFormRequest
             'name' => $this->nameRules(),
             'password' => ['nullable', 'string', Password::default(), 'confirmed'],
             'profile' => $this->profileRules(),
-            'active' => $this->activeRules(),
+            'active' => $this->lockedOnUpdateRules(),
         ];
     }
 }

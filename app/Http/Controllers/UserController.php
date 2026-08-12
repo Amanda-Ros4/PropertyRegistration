@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ActiveStatus;
 use App\Http\Requests\Users\StoreUserRequest;
+use App\Http\Requests\Users\UpdateUserActiveRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\Models\User;
 use App\Services\UserService;
@@ -74,6 +76,8 @@ class UserController extends Controller
             ],
             'profileOptions' => $this->userService->profileOptionsFor($request->user()),
             'canUpdate' => $request->user()->can('update', $user),
+            'canChangeProfile' => $this->userService->canChangeProfile($request->user(), $user),
+            'isSelf' => (int) $request->user()->id === (int) $user->id,
         ]);
     }
 
@@ -85,5 +89,20 @@ class UserController extends Controller
 
         return redirect()->route('users.index')
             ->with('flash', Flash::success(__('users.updated')));
+    }
+
+    public function updateActive(UpdateUserActiveRequest $request, User $user): RedirectResponse
+    {
+        $this->authorize('update', $user);
+
+        $active = ActiveStatus::from($request->validated('active'));
+        $this->userService->updateActive($request->user(), $user, $active);
+
+        $message = $active === ActiveStatus::Active
+            ? __('users.status_activated')
+            : __('users.status_deactivated');
+
+        return redirect()->back()
+            ->with('flash', Flash::success($message));
     }
 }

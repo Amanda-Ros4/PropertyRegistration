@@ -109,16 +109,16 @@ function onPageChange(event) {
                             />
                         </template>
                     </Column>
-                    <Column :header="trans('common.actions')" style="width: 80px">
+                    <Column :header="trans('common.actions')" style="width: 100px">
                         <template #body="{ data }">
                             <Button
-                                icon="pi pi-eye"
+                                :icon="data.can_update ? 'pi pi-pencil' : 'pi pi-eye'"
                                 text
                                 rounded
                                 size="small"
                                 severity="secondary"
-                                :aria-label="trans('common.view')"
-                                :title="trans('common.view')"
+                                :aria-label="data.can_update ? trans('common.edit') : trans('common.view')"
+                                :title="data.can_update ? trans('common.edit') : trans('common.view')"
                                 @click="router.visit(route('users.edit', data.id))"
                             />
                         </template>

@@ -51,11 +51,28 @@ class UserService
         );
     }
 
+    public function canChangeProfile(User $actor, User $target): bool
+    {
+        if (! $actor->can('update', $target)) {
+            return false;
+        }
+
+        if ($actor->isTiAdmin()) {
+            return true;
+        }
+
+        if ((int) $actor->id === (int) $target->id) {
+            return false;
+        }
+
+        return $actor->isSystemAdmin() && $target->isAttendant();
+    }
+
     public function create(User $actor, array $data): User
     {
         $profile = UserProfile::from($data['profile']);
 
-        if (! $actor->can('assignProfile', $profile)) {
+        if (! $actor->canAssignProfile($profile)) {
             throw ValidationException::withMessages([
                 'profile' => [__('validation.user_profile_not_allowed')],
             ]);
@@ -78,29 +95,28 @@ class UserService
         return DB::transaction(function () use ($actor, $user, $data) {
             $profile = UserProfile::from($data['profile']);
 
-            if (! $actor->can('assignProfile', $profile)) {
+            if (! $actor->canAssignProfile($profile)) {
                 throw ValidationException::withMessages([
                     'profile' => [__('validation.user_profile_not_allowed')],
                 ]);
             }
 
-            if ((int) $actor->id === (int) $user->id && $profile !== $user->profile) {
+            if ((int) $actor->id === (int) $user->id && $profile !== $user->profile && ! $actor->isTiAdmin()) {
                 throw ValidationException::withMessages([
                     'profile' => [__('validation.user_profile_self_change')],
+                ]);
+            }
+
+            if (! $this->canChangeProfile($actor, $user) && $profile !== $user->profile) {
+                throw ValidationException::withMessages([
+                    'profile' => [__('validation.user_profile_not_allowed')],
                 ]);
             }
 
             $payload = [
                 'name' => $data['name'],
                 'profile' => $profile,
-                'active' => ActiveStatus::from($data['active']),
             ];
-
-            if ((int) $actor->id === (int) $user->id && $payload['active'] === ActiveStatus::Inactive) {
-                throw ValidationException::withMessages([
-                    'active' => [__('validation.user_cannot_deactivate_self')],
-                ]);
-            }
 
             if (! empty($data['password'])) {
                 $payload['password'] = Hash::make($data['password']);
@@ -110,5 +126,18 @@ class UserService
 
             return $user->fresh();
         });
+    }
+
+    public function updateActive(User $actor, User $user, ActiveStatus $active): User
+    {
+        if ((int) $actor->id === (int) $user->id && $active === ActiveStatus::Inactive) {
+            throw ValidationException::withMessages([
+                'active' => [__('validation.user_cannot_deactivate_self')],
+            ]);
+        }
+
+        $user->update(['active' => $active]);
+
+        return $user->fresh();
     }
 }

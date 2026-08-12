@@ -28,6 +28,7 @@ Route::middleware([
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store')->middleware(Precognition::class);
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::patch('/users/{user}/active', [UserController::class, 'updateActive'])->name('users.active.update');
     Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update'])->name('users.update')->middleware(Precognition::class);
 
     Route::prefix('people')->group(function () {
