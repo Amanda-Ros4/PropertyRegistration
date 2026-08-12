@@ -25,7 +25,7 @@ import {
 } from '@/utils/formatting';
 import { fetchAddressByCep } from '@/utils/viacep';
 import { useAppToast } from '@/composables/useAppToast';
-import { useLandTypeAreas } from '@/composables/useLandTypeAreas';
+import { usePropertyTypeAreas } from '@/composables/usePropertyTypeAreas';
 
 const { showValidationErrorToast } = useAppToast();
 
@@ -62,7 +62,16 @@ const form = useForm({
     complement: '',
 });
 
-const { isLand, onTypeChange } = useLandTypeAreas(form);
+const {
+    landAreaRequired,
+    buildingAreaRequired,
+    landAreaLocked,
+    buildingAreaLocked,
+    onTypeChange,
+    onLandAreaInput: applyLandAreaInput,
+    onBuildingAreaInput: applyBuildingAreaInput,
+    areasForSubmit,
+} = usePropertyTypeAreas(form);
 
 const cepErrorDisplay = computed(() => form.errors.cep || cepLookupError.value);
 
@@ -99,15 +108,11 @@ function onNumberInput(value) {
 }
 
 function onLandAreaInput(value) {
-    syncMasked('land_area', formatAreaInput, value);
+    applyLandAreaInput(syncMasked, formatAreaInput, value);
 }
 
 function onBuildingAreaInput(value) {
-    if (isLand.value) {
-        form.building_area = '0.00';
-        return;
-    }
-    syncMasked('building_area', formatAreaInput, value);
+    applyBuildingAreaInput(syncMasked, formatAreaInput, value);
 }
 
 function onStreetInput(value) {
@@ -159,10 +164,7 @@ function submit() {
     form
         .transform((data) => ({
             ...data,
-            land_area: data.land_area === '' ? null : data.land_area,
-            building_area: data.type === 'land'
-                ? 0
-                : (data.building_area === '' ? null : data.building_area),
+            ...areasForSubmit(data),
         }))
         .post(route('properties.store'), {
             onError: showValidationErrorToast,
@@ -222,7 +224,8 @@ function submit() {
                     <FormField
                         :label="trans('properties.fields.land_area')"
                         :error="form.errors.land_area"
-                        :required="isLand"
+                        :required="landAreaRequired"
+                        :hint="landAreaLocked ? trans('properties.hint_land_area_apartment') : null"
                     >
                         <div
                             @keydown.capture="blockNonAreaKey"
@@ -234,6 +237,7 @@ function submit() {
                                 :placeholder="trans('properties.placeholders.land_area')"
                                 :invalid="!!form.errors.land_area"
                                 class="w-full font-mono"
+                                :disabled="landAreaLocked"
                                 @update:model-value="onLandAreaInput"
                                 @change="form.clearErrors('land_area')"
                             />
@@ -243,7 +247,8 @@ function submit() {
                     <FormField
                         :label="trans('properties.fields.building_area')"
                         :error="form.errors.building_area"
-                        :hint="isLand ? trans('properties.hint_building_area_land') : null"
+                        :required="buildingAreaRequired"
+                        :hint="buildingAreaLocked ? trans('properties.hint_building_area_land') : null"
                     >
                         <div
                             @keydown.capture="blockNonAreaKey"
@@ -255,7 +260,7 @@ function submit() {
                                 :placeholder="trans('properties.placeholders.building_area')"
                                 :invalid="!!form.errors.building_area"
                                 class="w-full font-mono"
-                                :disabled="isLand"
+                                :disabled="buildingAreaLocked"
                                 @update:model-value="onBuildingAreaInput"
                                 @change="form.clearErrors('building_area')"
                             />

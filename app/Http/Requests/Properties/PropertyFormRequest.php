@@ -5,6 +5,7 @@ namespace App\Http\Requests\Properties;
 use App\Enums\PropertyType;
 use App\Support\AddressInput;
 use App\Support\Digits;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -15,9 +16,6 @@ abstract class PropertyFormRequest extends FormRequest
     {
         $cep = Digits::only($this->input('cep'));
         $number = Digits::only($this->input('number'));
-        $buildingArea = $this->isLand()
-            ? 0
-            : $this->normalizeArea($this->input('building_area'));
 
         $this->merge([
             'cep' => $cep === '' ? null : $cep,
@@ -25,8 +23,12 @@ abstract class PropertyFormRequest extends FormRequest
             'street' => AddressInput::sanitize($this->input('street')),
             'neighborhood' => AddressInput::sanitize($this->input('neighborhood')),
             'complement' => AddressInput::sanitize($this->input('complement')),
-            'land_area' => $this->normalizeArea($this->input('land_area')),
-            'building_area' => $buildingArea,
+            'land_area' => $this->isApartment()
+                ? 0
+                : $this->normalizeArea($this->input('land_area')),
+            'building_area' => $this->isLand()
+                ? 0
+                : $this->normalizeArea($this->input('building_area')),
         ]);
     }
 
@@ -58,16 +60,24 @@ abstract class PropertyFormRequest extends FormRequest
      */
     protected function landAreaRules(): array
     {
-        $rules = [
-            Rule::requiredIf(fn () => $this->isLand()),
+        if ($this->isApartment()) {
+            return [
+                'required',
+                'numeric',
+                'decimal:0,2',
+                $this->mustBeZero(__('validation.land_area_must_be_zero')),
+            ];
+        }
+
+        $required = $this->isLand() || $this->isHouse();
+
+        return [
+            Rule::requiredIf(fn () => $required),
             'nullable',
             'numeric',
             'decimal:0,2',
+            $required ? 'gt:0' : 'min:0',
         ];
-
-        $rules[] = $this->isLand() ? 'gt:0' : 'min:0';
-
-        return $rules;
     }
 
     /**
@@ -80,15 +90,19 @@ abstract class PropertyFormRequest extends FormRequest
                 'required',
                 'numeric',
                 'decimal:0,2',
-                function (string $attribute, mixed $value, \Closure $fail): void {
-                    if ((float) $value !== 0.0) {
-                        $fail(__('validation.building_area_must_be_zero'));
-                    }
-                },
+                $this->mustBeZero(__('validation.building_area_must_be_zero')),
             ];
         }
 
-        return ['nullable', 'numeric', 'min:0', 'decimal:0,2'];
+        $required = $this->isHouse() || $this->isApartment();
+
+        return [
+            Rule::requiredIf(fn () => $required),
+            'nullable',
+            'numeric',
+            'decimal:0,2',
+            $required ? 'gt:0' : 'min:0',
+        ];
     }
 
     public function attributes(): array
@@ -111,12 +125,33 @@ abstract class PropertyFormRequest extends FormRequest
         return [
             'land_area.required' => __('validation.land_area_required'),
             'land_area.gt' => __('validation.land_area_gt'),
+            'building_area.required' => __('validation.building_area_required'),
+            'building_area.gt' => __('validation.building_area_gt'),
         ];
     }
 
     protected function isLand(): bool
     {
         return $this->input('type') === PropertyType::Land->value;
+    }
+
+    protected function isHouse(): bool
+    {
+        return $this->input('type') === PropertyType::House->value;
+    }
+
+    protected function isApartment(): bool
+    {
+        return $this->input('type') === PropertyType::Apartment->value;
+    }
+
+    protected function mustBeZero(string $message): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) use ($message): void {
+            if ((float) $value !== 0.0) {
+                $fail($message);
+            }
+        };
     }
 
     protected function normalizeArea(mixed $value): mixed

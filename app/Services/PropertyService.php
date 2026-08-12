@@ -35,7 +35,7 @@ class PropertyService
                 'user_id' => $user->id,
                 'person_id' => $data['person_id'],
                 'type' => $data['type'],
-                'land_area' => $data['land_area'] ?? null,
+                'land_area' => $this->landAreaForType($data),
                 'building_area' => $this->buildingAreaForType($data),
                 'cep' => $data['cep'] ?? null,
                 'street' => $data['street'],
@@ -53,7 +53,7 @@ class PropertyService
             $property->update([
                 'person_id' => $data['person_id'],
                 'type' => $data['type'],
-                'land_area' => $data['land_area'] ?? null,
+                'land_area' => $this->landAreaForType($data),
                 'building_area' => $this->buildingAreaForType($data),
                 'cep' => $data['cep'] ?? null,
                 'street' => $data['street'],
@@ -82,11 +82,28 @@ class PropertyService
         $property->delete();
     }
 
-    private function buildingAreaForType(array $data): mixed
+    private function typeValue(array $data): ?string
     {
         $type = $data['type'] ?? null;
-        $isLand = $type === PropertyType::Land || $type === PropertyType::Land->value;
 
-        return $isLand ? 0 : ($data['building_area'] ?? null);
+        if ($type instanceof PropertyType) {
+            return $type->value;
+        }
+
+        return is_string($type) ? $type : null;
+    }
+
+    private function landAreaForType(array $data): mixed
+    {
+        return $this->typeValue($data) === PropertyType::Apartment->value
+            ? 0
+            : ($data['land_area'] ?? null);
+    }
+
+    private function buildingAreaForType(array $data): mixed
+    {
+        return $this->typeValue($data) === PropertyType::Land->value
+            ? 0
+            : ($data['building_area'] ?? null);
     }
 }

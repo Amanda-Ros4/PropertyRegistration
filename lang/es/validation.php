@@ -19,8 +19,11 @@ return [
     'email_taken' => 'Este correo ya está registrado.',
     'invalid_phone' => 'Ingrese un teléfono válido en el formato (99) 99999-9999.',
     'must_be_adult' => 'El contribuyente debe tener al menos :age años de edad.',
-    'land_area_required' => 'El área del terreno es obligatoria para el tipo Terreno.',
+    'land_area_required' => 'El área del terreno es obligatoria para los tipos Terreno y Casa.',
     'land_area_gt' => 'El área del terreno debe ser mayor que cero.',
+    'land_area_must_be_zero' => 'Para apartamento, el área del terreno debe ser cero.',
+    'building_area_required' => 'El área de la edificación es obligatoria para los tipos Casa y Apartamento.',
+    'building_area_gt' => 'El área de la edificación debe ser mayor que cero.',
     'building_area_must_be_zero' => 'Para terreno, el área de la edificación debe ser cero.',
     'attributes' => [
         'name' => 'Nombre Completo',
