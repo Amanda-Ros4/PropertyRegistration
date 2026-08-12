@@ -14,6 +14,11 @@ return [
         'string' => 'El campo :attribute no debe tener más de :max caracteres.',
     ],
     'invalid_cpf' => 'El CPF proporcionado no es válido.',
+    'cpf_taken' => 'Este CPF ya está registrado.',
+    'email_invalid' => 'Por favor, ingrese una dirección de correo válida.',
+    'email_taken' => 'Este correo ya está registrado.',
+    'invalid_phone' => 'Ingrese un teléfono válido en el formato (99) 99999-9999.',
+    'must_be_adult' => 'El contribuyente debe tener al menos :age años de edad.',
     'attributes' => [
         'name' => 'Nombre Completo',
         'birth_date' => 'Fecha de Nacimiento',

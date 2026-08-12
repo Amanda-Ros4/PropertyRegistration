@@ -5,8 +5,11 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import { client } from 'laravel-precognition-vue-inertia';
 import { installPrimeVue } from '@/plugins/primevue';
 import { installI18n, getStoredLocale, storeLocale } from '@/plugins/i18n';
+
+client.use(window.axios);
 
 const appNames = {
     en: 'Property Registration',
@@ -40,6 +43,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         const locale = getStoredLocale();
         storeLocale(locale);
+        window.axios.defaults.headers.common['X-Locale'] = locale;
         const app = createApp({ render: () => h(App, props) });
 
         app.use(plugin);

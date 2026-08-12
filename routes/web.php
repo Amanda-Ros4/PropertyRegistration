@@ -3,10 +3,11 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests as Precognition;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests as Precognition;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -22,6 +23,7 @@ Route::middleware([
     config('jetstream.auth_session'),
 ])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
 
     Route::prefix('people')->group(function () {
         Route::get('/', [PersonController::class, 'index'])->name('people.index');

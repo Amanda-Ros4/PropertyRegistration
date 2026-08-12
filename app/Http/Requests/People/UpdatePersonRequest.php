@@ -2,12 +2,7 @@
 
 namespace App\Http\Requests\People;
 
-use App\Enums\Gender;
-use App\Support\Digits;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
-
-class UpdatePersonRequest extends FormRequest
+class UpdatePersonRequest extends PersonFormRequest
 {
     public function authorize(): bool
     {
@@ -16,30 +11,19 @@ class UpdatePersonRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            'phone' => Digits::onlyOrNull($this->input('phone')),
-        ]);
+        $this->preparePersonPayload(includeCpf: false);
     }
 
     public function rules(): array
     {
-        return [
-            'name' => ['required', 'string', 'max:255'],
-            'birth_date' => ['required', 'date', 'before_or_equal:today'],
-            'gender' => ['required', new Enum(Gender::class)],
-            'phone' => ['nullable', 'string', 'max:11'],
-            'email' => ['nullable', 'email', 'max:255'],
-        ];
-    }
+        $personId = $this->route('person')?->id;
 
-    public function attributes(): array
-    {
         return [
-            'name' => __('people.fields.name'),
-            'birth_date' => __('people.fields.birth_date'),
-            'gender' => __('people.fields.gender'),
-            'phone' => __('people.fields.phone'),
-            'email' => __('people.fields.email'),
+            'name' => $this->nameRules(),
+            'birth_date' => $this->birthDateRules(),
+            'gender' => $this->genderRules(),
+            'phone' => $this->phoneRules(),
+            'email' => $this->emailRules($personId),
         ];
     }
 }

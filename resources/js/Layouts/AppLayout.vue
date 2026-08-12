@@ -20,7 +20,7 @@ const primeVue = usePrimeVue();
 const { isDark, toggleTheme } = useTheme();
 const { currentLocale, setLocale } = useLocale();
 
-const mobileMenuOpen = ref(false);
+const sidebarOpen = ref(true);
 const userMenuRef = ref(null);
 const langMenuRef = ref(null);
 const lastFlashId = ref(null);
@@ -120,9 +120,11 @@ async function changeLocale(locale) {
 // ─── Navigation ──────────────────────────────────────────────────────────────
 
 const navLinks = [
-    { label: () => trans('nav.dashboard'), route: 'dashboard', icon: 'pi pi-home' },
+    { label: () => trans('nav.home'), route: 'dashboard', icon: 'pi pi-home' },
     { label: () => trans('nav.people'), route: 'people.index', icon: 'pi pi-users' },
     { label: () => trans('nav.properties'), route: 'properties.index', icon: 'pi pi-building' },
+    { label: () => trans('nav.users'), route: 'users.index', icon: 'pi pi-user' },
+    { label: () => trans('nav.settings'), route: 'profile.show', icon: 'pi pi-cog' },
 ];
 
 const userMenuItems = ref([
@@ -148,7 +150,19 @@ const langMenuItems = ref(
 
 function isActiveRoute(routeName) {
     try {
-        return route().current(routeName) || route().current(routeName + '.*');
+        if (routeName === 'people.index') {
+            return route().current('people.*');
+        }
+        if (routeName === 'properties.index') {
+            return route().current('properties.*');
+        }
+        if (routeName === 'users.index') {
+            return route().current('users.*');
+        }
+        if (routeName === 'profile.show') {
+            return route().current('profile.*');
+        }
+        return route().current(routeName);
     } catch {
         return false;
     }
@@ -156,183 +170,93 @@ function isActiveRoute(routeName) {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div class="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
         <Head :title="title" />
 
         <Toast position="top-right" class="app-toast" :pt="{ root: { class: 'app-toast-root' } }" :baseZIndex="1200" />
         <ConfirmDialog />
 
-
-        <nav class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-14 min-h-14">
-
-                    <!-- Logo + Nav Links (desktop) -->
-                    <div class="flex items-center gap-6 min-w-0">
-                        <Link :href="route('dashboard')" class="flex items-center gap-3 text-lg shrink-0 min-w-0">
-                            <AppBrandMark class="h-10 w-10 shrink-0" />
-                            <div class="hidden sm:flex min-w-0 flex-col">
-                                <span class="truncate font-bold leading-tight text-slate-800 dark:text-slate-100">{{ trans('site.name') }}</span>
-                                <span class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ trans('site.context_short') }}</span>
-                            </div>
-                        </Link>
-
-                        <div class="hidden sm:flex items-center gap-1">
-                            <Link
-                                v-for="link in navLinks"
-                                :key="link.route"
-                                :href="route(link.route)"
-                                :class="[
-                                    'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
-                                    isActiveRoute(link.route)
-                                        ? 'bg-green-700 text-green-50 dark:bg-green-800 dark:text-green-100'
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                ]"
-                            >
-                                <i :class="link.icon" />
-                                {{ link.label() }}
-                            </Link>
-                        </div>
+        <aside
+            v-if="sidebarOpen"
+            class="w-64 min-h-screen sticky top-0 shrink-0 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800"
+        >
+            <div class="h-14 px-4 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800">
+                <Link :href="route('dashboard')" class="flex items-center gap-3 min-w-0">
+                    <AppBrandMark class="h-9 w-9 shrink-0" />
+                    <div class="min-w-0 flex flex-col">
+                        <span class="truncate font-bold leading-tight text-sm text-slate-800 dark:text-slate-100">
+                            {{ trans('site.name') }}
+                        </span>
+                        <span class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">
+                            {{ trans('site.context_short') }}
+                        </span>
                     </div>
-
-                    <!-- Desktop: theme, language, user -->
-                    <div class="hidden sm:flex items-center gap-1 shrink-0">
-                        <Button
-                            :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-                            text
-                            rounded
-                            :aria-label="trans('theme.toggle')"
-                            @click="toggleTheme"
-                            class="!text-slate-600 dark:!text-slate-400"
-                        />
-                        <Button
-                            icon="pi pi-language"
-                            text
-                            rounded
-                            :aria-label="trans('language.label')"
-                            @click="(e) => langMenuRef.toggle(e)"
-                            class="!text-slate-600 dark:!text-slate-400"
-                        />
-                        <Menu ref="langMenuRef" :model="langMenuItems" :popup="true" />
-                        <Button
-                            :label="$page.props.auth.user.name"
-                            icon="pi pi-chevron-down"
-                            iconPos="right"
-                            text
-                            size="small"
-                            @click="(e) => userMenuRef.toggle(e)"
-                            class="!text-slate-700 dark:!text-slate-300 whitespace-nowrap"
-                        />
-                        <Menu ref="userMenuRef" :model="userMenuItems" :popup="true" />
-                    </div>
-
-                    <!-- Mobile only: hamburger (hidden on sm+) -->
-                    <div class="flex shrink-0 sm:!hidden">
-                        <Button
-                            :icon="mobileMenuOpen ? 'pi pi-times' : 'pi pi-bars'"
-                            text
-                            rounded
-                            class="!text-slate-600 dark:!text-slate-400"
-                            :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
-                            @click="mobileMenuOpen = !mobileMenuOpen"
-                        />
-                    </div>
-                </div>
+                </Link>
             </div>
 
-            <!-- Mobile menu (hamburger content) -->
-            <Transition
-                enter-active-class="transition ease-out duration-200"
-                enter-from-class="opacity-0 -translate-y-2"
-                enter-to-class="opacity-100 translate-y-0"
-                leave-active-class="transition ease-in duration-150"
-                leave-from-class="opacity-100 translate-y-0"
-                leave-to-class="opacity-0 -translate-y-2"
-            >
-                <div v-show="mobileMenuOpen" class="sm:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-                    <div class="px-4 py-4 space-y-1">
-                        <!-- Nav links -->
-                        <Link
-                            v-for="link in navLinks"
-                            :key="link.route"
-                            :href="route(link.route)"
-                            :class="[
-                                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                                isActiveRoute(link.route)
-                                    ? 'bg-green-700 text-green-50 dark:bg-green-800 dark:text-green-100'
-                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                            ]"
-                            @click="mobileMenuOpen = false"
-                        >
-                            <i :class="link.icon" class="w-5 text-center" />
-                            {{ link.label() }}
-                        </Link>
+            <nav class="flex-1 p-3 space-y-1">
+                <Link
+                    v-for="link in navLinks"
+                    :key="link.route"
+                    :href="route(link.route)"
+                    :class="[
+                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                        isActiveRoute(link.route)
+                            ? 'bg-green-700 text-green-50 dark:bg-green-800 dark:text-green-100'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ]"
+                >
+                    <i :class="link.icon" class="w-5 text-center" />
+                    {{ link.label() }}
+                </Link>
+            </nav>
+        </aside>
 
-                        <div class="border-t border-slate-100 dark:border-slate-800 my-3" />
+        <div class="flex-1 min-w-0 flex flex-col">
+            <header class="h-14 shrink-0 flex items-center justify-between px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                <Button
+                    :icon="sidebarOpen ? 'pi pi-times' : 'pi pi-bars'"
+                    text
+                    rounded
+                    :aria-label="trans('nav.toggle_sidebar')"
+                    @click="sidebarOpen = !sidebarOpen"
+                    class="!text-slate-600 dark:!text-slate-400"
+                />
 
-                        <!-- Theme toggle -->
-                        <button
-                            type="button"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                            @click="toggleTheme"
-                        >
-                            <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" class="w-5 text-center" />
-                            {{ isDark ? trans('theme.light') : trans('theme.dark') }}
-                        </button>
-
-                        <!-- Language -->
-                        <div class="px-3 py-2">
-                            <p class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">{{ trans('language.label') }}</p>
-                            <div class="flex flex-wrap gap-2">
-                                <button
-                                    v-for="loc in SUPPORTED_LOCALES"
-                                    :key="loc.code"
-                                    type="button"
-                                    :class="[
-                                        'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
-                                        currentLocale === loc.code
-                                            ? 'bg-green-700 text-green-50 dark:bg-green-800 dark:text-green-100'
-                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                    ]"
-                                    @click="changeLocale(loc.code); mobileMenuOpen = false"
-                                >
-                                    {{ loc.label }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="border-t border-slate-100 dark:border-slate-800 my-3" />
-
-                        <!-- User section -->
-                        <div class="px-3 py-2">
-                            <p class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">{{ $page.props.auth.user.name }}</p>
-                            <div class="space-y-1">
-                                <Link
-                                    :href="route('profile.show')"
-                                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                    @click="mobileMenuOpen = false"
-                                >
-                                    <i class="pi pi-user w-5 text-center" />
-                                    {{ trans('common.profile') }}
-                                </Link>
-                                <button
-                                    type="button"
-                                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                    @click="router.post(route('logout')); mobileMenuOpen = false"
-                                >
-                                    <i class="pi pi-sign-out w-5 text-center" />
-                                    {{ trans('common.logout') }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="flex items-center gap-1">
+                    <Button
+                        :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
+                        text
+                        rounded
+                        :aria-label="trans('theme.toggle')"
+                        @click="toggleTheme"
+                        class="!text-slate-600 dark:!text-slate-400"
+                    />
+                    <Button
+                        icon="pi pi-language"
+                        text
+                        rounded
+                        :aria-label="trans('language.label')"
+                        @click="(e) => langMenuRef.toggle(e)"
+                        class="!text-slate-600 dark:!text-slate-400"
+                    />
+                    <Menu ref="langMenuRef" :model="langMenuItems" :popup="true" />
+                    <Button
+                        :label="$page.props.auth.user.name"
+                        icon="pi pi-chevron-down"
+                        iconPos="right"
+                        text
+                        size="small"
+                        @click="(e) => userMenuRef.toggle(e)"
+                        class="!text-slate-700 dark:!text-slate-300 whitespace-nowrap"
+                    />
+                    <Menu ref="userMenuRef" :model="userMenuItems" :popup="true" />
                 </div>
-            </Transition>
-        </nav>
+            </header>
 
-        <!-- ─── Page Content ───────────────────────────────────────────────── -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <slot />
-        </main>
+            <main class="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 py-8">
+                <slot />
+            </main>
+        </div>
     </div>
 </template>

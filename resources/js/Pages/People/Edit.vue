@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
@@ -15,13 +15,14 @@ import {
     blockNonDigitKey,
     blockNonLetterNameBeforeInput,
     blockNonLetterNameKey,
-    formatBirthDateForSubmit,
     formatCpfDisplay,
     formatPersonNameInput,
     formatPhoneInput,
     toBirthDateInputValue,
+    stripNonDigits,
     PHONE_BR_INPUT_MAX_LENGTH,
 } from '@/utils/formatting';
+import { usePrecognitiveForm } from '@/composables/usePrecognitiveForm';
 import { useAppToast } from '@/composables/useAppToast';
 
 const { showValidationErrorToast } = useAppToast();
@@ -37,11 +38,10 @@ const genderOptions = computed(() => [
     { value: 'prefer_not_to_say', label: trans('genders.prefer_not_to_say') },
 ]);
 
-const form = useForm({
+const { form, validateField } = usePrecognitiveForm('put', route('people.update', props.person.id), {
     name: props.person.name,
     birth_date: toBirthDateInputValue(props.person.birth_date),
-    cpf: formatCpfDisplay(props.person.cpf),
-    gender: props.person.gender,
+    gender: props.person.gender?.value ?? props.person.gender,
     phone: formatPhoneInput(props.person.phone ?? ''),
     email: props.person.email ?? '',
 });
@@ -64,26 +64,26 @@ function onNameInput(value) {
 
 function onPhoneInput(value) {
     syncMaskedField('phone', formatPhoneInput, value);
+    if (stripNonDigits(form.phone).length === 11) {
+        validateField('phone');
+    }
+}
+
+function onBirthDateInput(value) {
+    if (stripNonDigits(value).length === 8) {
+        validateField('birth_date');
+    }
 }
 
 function submit() {
-    form
-        .transform(data => ({
-            name: data.name,
-            birth_date: formatBirthDateForSubmit(data.birth_date),
-            gender: data.gender,
-            phone: data.phone,
-            email: data.email,
-        }))
-        .put(route('people.update', props.person.id), {
-            onError: showValidationErrorToast,
-        });
+    form.submit({
+        onError: showValidationErrorToast,
+    });
 }
 </script>
 
 <template>
     <AppLayout :title="trans('people.edit')">
-
         <Head :title="trans('people.edit')" />
 
         <PageHeader :title="trans('people.edit')" backRoute="people.index" :backLabel="trans('common.back')" />
@@ -91,9 +91,7 @@ function submit() {
         <FormCard>
             <form @submit.prevent="submit" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Name -->
-                    <FormField class="md:col-span-2" :label="trans('people.fields.name')" :error="form.errors.name"
-                        required>
+                    <FormField class="md:col-span-2" :label="trans('people.fields.name')" :error="form.errors.name" required>
                         <div
                             class="w-full"
                             @keydown.capture="blockNonLetterNameKey"
@@ -105,35 +103,43 @@ function submit() {
                                 :invalid="!!form.errors.name"
                                 class="w-full"
                                 @update:model-value="onNameInput"
-                                @change="form.clearErrors('name')"
+                                @blur="validateField('name')"
                             />
                         </div>
                     </FormField>
 
-                    <!-- CPF -->
-                    <FormField :label="trans('people.fields.cpf')" :error="form.errors.cpf" required>
-                        <InputText :modelValue="form.cpf" :placeholder="trans('people.placeholders.cpf')"
-                            class="w-full font-mono" :disabled="true" />
+                    <FormField :label="trans('people.fields.cpf')" required>
+                        <InputText
+                            :modelValue="formatCpfDisplay(person.cpf)"
+                            :placeholder="trans('people.placeholders.cpf')"
+                            class="w-full font-mono"
+                            disabled
+                        />
                     </FormField>
 
-                    <!-- Gender -->
                     <FormField :label="trans('people.fields.gender')" :error="form.errors.gender" required>
-                        <Select v-model="form.gender" :options="genderOptions" optionLabel="label" optionValue="value"
-                            :placeholder="trans('people.placeholders.gender')" :invalid="!!form.errors.gender"
-                            class="w-full" @change="form.clearErrors('gender')" />
+                        <Select
+                            v-model="form.gender"
+                            :options="genderOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            :placeholder="trans('people.placeholders.gender')"
+                            :invalid="!!form.errors.gender"
+                            class="w-full"
+                            @change="validateField('gender')"
+                        />
                     </FormField>
 
-                    <!-- Birth Date -->
                     <FormField :label="trans('people.fields.birth_date')" :error="form.errors.birth_date" required>
                         <BirthDateInput
                             v-model="form.birth_date"
                             :placeholder="trans('people.placeholders.birth_date')"
                             :invalid="!!form.errors.birth_date"
-                            @update:model-value="form.clearErrors('birth_date')"
+                            @update:model-value="onBirthDateInput"
+                            @blur="validateField('birth_date')"
                         />
                     </FormField>
 
-                    <!-- Phone -->
                     <FormField :label="trans('people.fields.phone')" :error="form.errors.phone">
                         <div
                             class="w-full"
@@ -148,22 +154,37 @@ function submit() {
                                 inputmode="numeric"
                                 :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
                                 @update:model-value="onPhoneInput"
-                                @change="form.clearErrors('phone')"
+                                @blur="validateField('phone')"
                             />
                         </div>
                     </FormField>
 
-                    <!-- Email -->
                     <FormField :label="trans('people.fields.email')" :error="form.errors.email">
-                        <InputText v-model="form.email" type="email" :placeholder="trans('people.placeholders.email')"
-                            :invalid="!!form.errors.email" class="w-full" @change="form.clearErrors('email')" />
+                        <InputText
+                            v-model="form.email"
+                            type="email"
+                            :placeholder="trans('people.placeholders.email')"
+                            :invalid="!!form.errors.email"
+                            class="w-full"
+                            @blur="validateField('email')"
+                        />
                     </FormField>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <Button type="button" :label="trans('common.cancel')" severity="secondary" outlined
-                        @click="router.visit(route('people.index'))" />
-                    <Button type="submit" :label="trans('common.save')" icon="pi pi-check" :loading="form.processing" />
+                    <Button
+                        type="button"
+                        :label="trans('common.cancel')"
+                        severity="secondary"
+                        outlined
+                        @click="router.visit(route('people.index'))"
+                    />
+                    <Button
+                        type="submit"
+                        :label="trans('common.save')"
+                        icon="pi pi-check"
+                        :loading="form.processing || form.validating"
+                    />
                 </div>
             </form>
         </FormCard>

@@ -64,7 +64,7 @@ class PersonService
                 'cpf' => $cpf,
                 'gender' => $data['gender'],
                 'phone' => Digits::onlyOrNull($data['phone'] ?? null),
-                'email' => $data['email'] ?? null,
+                'email' => $this->normalizeEmail($data['email'] ?? null),
             ]);
         });
     }
@@ -77,11 +77,18 @@ class PersonService
                 'birth_date' => $data['birth_date'],
                 'gender' => $data['gender'],
                 'phone' => Digits::onlyOrNull($data['phone'] ?? null),
-                'email' => $data['email'] ?? null,
+                'email' => $this->normalizeEmail($data['email'] ?? null),
             ]);
 
             return $person->fresh();
         });
+    }
+
+    private function normalizeEmail(mixed $email): ?string
+    {
+        $value = trim((string) ($email ?? ''));
+
+        return $value === '' ? null : mb_strtolower($value);
     }
 
     /**

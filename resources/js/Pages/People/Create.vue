@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
@@ -16,12 +16,13 @@ import {
     blockNonDigitKey,
     blockNonLetterNameBeforeInput,
     blockNonLetterNameKey,
-    formatBirthDateForSubmit,
     formatCpfInput,
     formatPersonNameInput,
     formatPhoneInput,
+    stripNonDigits,
     PHONE_BR_INPUT_MAX_LENGTH,
 } from '@/utils/formatting';
+import { usePrecognitiveForm } from '@/composables/usePrecognitiveForm';
 import { useAppToast } from '@/composables/useAppToast';
 
 const { showValidationErrorToast } = useAppToast();
@@ -33,7 +34,7 @@ const genderOptions = computed(() => [
     { value: 'prefer_not_to_say', label: trans('genders.prefer_not_to_say') },
 ]);
 
-const form = useForm({
+const { form, validateField } = usePrecognitiveForm('post', route('people.store'), {
     name: '',
     birth_date: '',
     cpf: '',
@@ -60,21 +61,28 @@ function onNameInput(value) {
 
 function onCpfInput(value) {
     syncMaskedField('cpf', formatCpfInput, value);
+    if (stripNonDigits(form.cpf).length === 11) {
+        validateField('cpf');
+    }
 }
 
 function onPhoneInput(value) {
     syncMaskedField('phone', formatPhoneInput, value);
+    if (stripNonDigits(form.phone).length === 11) {
+        validateField('phone');
+    }
+}
+
+function onBirthDateInput(value) {
+    if (stripNonDigits(value).length === 8) {
+        validateField('birth_date');
+    }
 }
 
 function submit() {
-    form
-        .transform(data => ({
-            ...data,
-            birth_date: formatBirthDateForSubmit(data.birth_date),
-        }))
-        .post(route('people.store'), {
-            onError: showValidationErrorToast,
-        });
+    form.submit({
+        onError: showValidationErrorToast,
+    });
 }
 </script>
 
@@ -91,7 +99,6 @@ function submit() {
         <FormCard>
             <form @submit.prevent="submit" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Name -->
                     <FormField
                         class="md:col-span-2"
                         :label="trans('people.fields.name')"
@@ -109,12 +116,11 @@ function submit() {
                                 :invalid="!!form.errors.name"
                                 class="w-full"
                                 @update:model-value="onNameInput"
-                                @change="form.clearErrors('name')"
+                                @blur="validateField('name')"
                             />
                         </div>
                     </FormField>
 
-                    <!-- CPF -->
                     <FormField
                         :label="trans('people.fields.cpf')"
                         :error="form.errors.cpf"
@@ -133,12 +139,11 @@ function submit() {
                                 inputmode="numeric"
                                 :maxlength="CPF_INPUT_MAX_LENGTH"
                                 @update:model-value="onCpfInput"
-                                @change="form.clearErrors('cpf')"
+                                @blur="validateField('cpf')"
                             />
                         </div>
                     </FormField>
 
-                    <!-- Gender -->
                     <FormField
                         :label="trans('people.fields.gender')"
                         :error="form.errors.gender"
@@ -152,11 +157,10 @@ function submit() {
                             :placeholder="trans('people.placeholders.gender')"
                             :invalid="!!form.errors.gender"
                             class="w-full"
-                            @change="form.clearErrors('gender')"
+                            @change="validateField('gender')"
                         />
                     </FormField>
 
-                    <!-- Birth Date -->
                     <FormField
                         :label="trans('people.fields.birth_date')"
                         :error="form.errors.birth_date"
@@ -166,11 +170,11 @@ function submit() {
                             v-model="form.birth_date"
                             :placeholder="trans('people.placeholders.birth_date')"
                             :invalid="!!form.errors.birth_date"
-                            @update:model-value="form.clearErrors('birth_date')"
+                            @update:model-value="onBirthDateInput"
+                            @blur="validateField('birth_date')"
                         />
                     </FormField>
 
-                    <!-- Phone -->
                     <FormField
                         :label="trans('people.fields.phone')"
                         :error="form.errors.phone"
@@ -188,12 +192,11 @@ function submit() {
                                 inputmode="numeric"
                                 :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
                                 @update:model-value="onPhoneInput"
-                                @change="form.clearErrors('phone')"
+                                @blur="validateField('phone')"
                             />
                         </div>
                     </FormField>
 
-                    <!-- Email -->
                     <FormField
                         :label="trans('people.fields.email')"
                         :error="form.errors.email"
@@ -204,7 +207,7 @@ function submit() {
                             :placeholder="trans('people.placeholders.email')"
                             :invalid="!!form.errors.email"
                             class="w-full"
-                            @change="form.clearErrors('email')"
+                            @blur="validateField('email')"
                         />
                     </FormField>
                 </div>
@@ -215,13 +218,13 @@ function submit() {
                         :label="trans('common.cancel')"
                         severity="secondary"
                         outlined
-                        @click="$inertia.visit(route('people.index'))"
+                        @click="router.visit(route('people.index'))"
                     />
                     <Button
                         type="submit"
                         :label="trans('common.save')"
                         icon="pi pi-check"
-                        :loading="form.processing"
+                        :loading="form.processing || form.validating"
                     />
                 </div>
             </form>

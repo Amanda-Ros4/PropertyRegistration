@@ -18,6 +18,8 @@ defineProps({
     placeholder: { type: String, default: '' },
 });
 
+defineEmits(['blur']);
+
 const pickerValue = computed(() => parseBirthDateInput(model.value));
 
 function syncMasked(value) {
@@ -51,6 +53,7 @@ function onPicked(date) {
             inputmode="numeric"
             :maxlength="BIRTH_DATE_INPUT_MAX_LENGTH"
             @update:model-value="syncMasked"
+            @blur="$emit('blur')"
         />
         <DatePicker
             :modelValue="pickerValue"
