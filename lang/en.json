@@ -221,6 +221,7 @@
     "users.subtitle": "Register and manage staff and interns with system access",
     "users.create": "New user",
     "users.edit": "Edit user",
+    "users.view": "View user",
     "users.created": "User registered successfully.",
     "users.updated": "User updated successfully.",
     "users.deleted": "User deleted successfully.",

@@ -37,15 +37,7 @@ class UserPolicy
 
     public function delete(User $user, User $model): bool
     {
-        if ((int) $user->id === (int) $model->id) {
-            return false;
-        }
-
-        if ($user->isTiAdmin()) {
-            return true;
-        }
-
-        return $user->isSystemAdmin() && $model->isAttendant();
+        return false;
     }
 
     public function assignProfile(User $user, UserProfile $profile): bool

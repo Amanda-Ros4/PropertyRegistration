@@ -1,12 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import PropertyFilters from '@/Components/PropertyFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
-import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
@@ -19,9 +18,6 @@ const props = defineProps({
     people: { type: Array, default: () => [] },
     filters: { type: Object, default: () => ({}) },
 });
-
-const deleteConfirmRef = ref(null);
-const propertyToDelete = ref(null);
 
 const peopleOptions = computed(() =>
     props.people.map(p => ({
@@ -41,17 +37,6 @@ const hasActiveFilters = computed(() =>
         || props.filters.status,
     ),
 );
-
-function confirmDelete(property) {
-    propertyToDelete.value = property;
-    deleteConfirmRef.value.open();
-}
-
-function deleteProperty() {
-    router.delete(route('properties.destroy', propertyToDelete.value.id), {
-        preserveScroll: true,
-    });
-}
 
 function onPageChange(event) {
     router.get(route('properties.index'), {
@@ -80,15 +65,6 @@ function onPageChange(event) {
         <PropertyFilters
             :filters="filters"
             :peopleOptions="peopleOptions"
-        />
-
-        <DeleteConfirmation
-            ref="deleteConfirmRef"
-            :title="trans('properties.delete_confirm_title')"
-            :message="trans('properties.delete_confirm_message')"
-            :acceptLabel="trans('common.delete')"
-            :rejectLabel="trans('common.cancel')"
-            @confirm="deleteProperty"
         />
 
         <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
@@ -148,28 +124,17 @@ function onPageChange(event) {
                             {{ data.complement || '—' }}
                         </template>
                     </Column>
-                    <Column :header="trans('common.actions')" style="width: 120px">
+                    <Column :header="trans('common.actions')" style="width: 80px">
                         <template #body="{ data }">
-                            <div class="flex items-center gap-1">
-                                <Button
-                                    icon="pi pi-pencil"
-                                    text
-                                    rounded
-                                    size="small"
-                                    severity="secondary"
-                                    :aria-label="trans('common.edit')"
-                                    @click="router.visit(route('properties.edit', data.id))"
-                                />
-                                <Button
-                                    icon="pi pi-trash"
-                                    text
-                                    rounded
-                                    size="small"
-                                    severity="danger"
-                                    :aria-label="trans('common.delete')"
-                                    @click="confirmDelete(data)"
-                                />
-                            </div>
+                            <Button
+                                icon="pi pi-pencil"
+                                text
+                                rounded
+                                size="small"
+                                severity="secondary"
+                                :aria-label="trans('common.edit')"
+                                @click="router.visit(route('properties.edit', data.id))"
+                            />
                         </template>
                     </Column>
                 </DataTable>

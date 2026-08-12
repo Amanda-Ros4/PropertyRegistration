@@ -24,6 +24,6 @@ class PersonPolicy
 
     public function delete(User $user, Person $person): bool
     {
-        return (int) $user->id === (int) $person->user_id;
+        return false;
     }
 }

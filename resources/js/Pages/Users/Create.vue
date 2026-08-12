@@ -36,11 +36,6 @@ const profileSelectOptions = computed(() =>
     })),
 );
 
-const activeOptions = computed(() => [
-    { value: 'S', label: trans('users.active_status.active') },
-    { value: 'N', label: trans('users.active_status.inactive') },
-]);
-
 const { form, validateField } = usePrecognitiveForm('post', route('users.store'), {
     name: '',
     email: '',
@@ -48,7 +43,6 @@ const { form, validateField } = usePrecognitiveForm('post', route('users.store')
     password: '',
     password_confirmation: '',
     profile: profileSelectOptions.value[0]?.value ?? 'A',
-    active: 'S',
 });
 
 function syncMaskedField(field, formatter, value) {
@@ -168,23 +162,6 @@ function submit() {
                             :invalid="!!form.errors.profile"
                             class="w-full"
                             @change="validateField('profile')"
-                        />
-                    </FormField>
-
-                    <FormField
-                        :label="trans('users.fields.active')"
-                        :error="form.errors.active"
-                        required
-                    >
-                        <Select
-                            v-model="form.active"
-                            :options="activeOptions"
-                            optionLabel="label"
-                            optionValue="value"
-                            :placeholder="trans('users.placeholders.active')"
-                            :invalid="!!form.errors.active"
-                            class="w-full"
-                            @change="validateField('active')"
                         />
                     </FormField>
 

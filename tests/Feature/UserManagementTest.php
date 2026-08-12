@@ -30,7 +30,7 @@ class UserManagementTest extends TestCase
             ->assertOk();
     }
 
-    public function test_system_admin_can_create_attendant(): void
+    public function test_system_admin_can_create_attendant_with_active_status(): void
     {
         $admin = User::factory()->systemAdmin()->create();
 
@@ -42,13 +42,13 @@ class UserManagementTest extends TestCase
                 'password' => 'password',
                 'password_confirmation' => 'password',
                 'profile' => UserProfile::Attendant->value,
-                'active' => ActiveStatus::Active->value,
             ])
             ->assertRedirect(route('users.index'));
 
         $this->assertDatabaseHas('users', [
             'email' => 'novo.atendente@example.com',
             'profile' => UserProfile::Attendant->value,
+            'active' => ActiveStatus::Active->value,
         ]);
     }
 
@@ -64,7 +64,6 @@ class UserManagementTest extends TestCase
                 'password' => 'password',
                 'password_confirmation' => 'password',
                 'profile' => UserProfile::TiAdmin->value,
-                'active' => ActiveStatus::Active->value,
             ])
             ->assertSessionHasErrors('profile');
     }
@@ -81,7 +80,6 @@ class UserManagementTest extends TestCase
                 'password' => 'password',
                 'password_confirmation' => 'password',
                 'profile' => UserProfile::SystemAdmin->value,
-                'active' => ActiveStatus::Active->value,
             ])
             ->assertRedirect(route('users.index'));
 
@@ -91,14 +89,60 @@ class UserManagementTest extends TestCase
         ]);
     }
 
-    public function test_system_admin_cannot_edit_ti_admin(): void
+    public function test_system_admin_can_view_but_not_update_ti_admin(): void
     {
         $admin = User::factory()->systemAdmin()->create();
         $tiUser = User::factory()->tiAdmin()->create();
 
         $this->actingAs($admin)
             ->get(route('users.edit', $tiUser))
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->put(route('users.update', $tiUser), [
+                'name' => 'Nome Alterado',
+                'profile' => UserProfile::TiAdmin->value,
+                'active' => ActiveStatus::Active->value,
+            ])
             ->assertForbidden();
+    }
+
+    public function test_user_cannot_be_deleted(): void
+    {
+        $tiAdmin = User::factory()->tiAdmin()->create();
+        $attendant = User::factory()->attendant()->create();
+
+        $this->actingAs($tiAdmin)
+            ->delete(route('users.destroy', $attendant))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('users', ['id' => $attendant->id]);
+    }
+
+    public function test_update_does_not_change_email_or_cpf(): void
+    {
+        $tiAdmin = User::factory()->tiAdmin()->create();
+        $attendant = User::factory()->attendant()->create([
+            'email' => 'original@example.com',
+            'cpf' => '52998224725',
+        ]);
+
+        $this->actingAs($tiAdmin)
+            ->put(route('users.update', $attendant), [
+                'name' => 'Nome Atualizado',
+                'email' => 'novo@example.com',
+                'cpf' => '39053344705',
+                'profile' => UserProfile::Attendant->value,
+                'active' => ActiveStatus::Inactive->value,
+            ])
+            ->assertRedirect(route('users.index'));
+
+        $attendant->refresh();
+
+        $this->assertSame('Nome Atualizado', $attendant->name);
+        $this->assertSame('original@example.com', $attendant->email);
+        $this->assertSame('52998224725', $attendant->cpf);
+        $this->assertSame(ActiveStatus::Inactive, $attendant->active);
     }
 
     public function test_inactive_user_cannot_login(): void
@@ -111,5 +155,44 @@ class UserManagementTest extends TestCase
         ])->assertSessionHasErrors('email');
 
         $this->assertGuest();
+    }
+
+    public function test_user_id_is_auto_generated_sequentially(): void
+    {
+        $admin = User::factory()->systemAdmin()->create();
+        $firstId = $admin->id;
+
+        $this->actingAs($admin)
+            ->post(route('users.store'), [
+                'name' => 'Atendente Sequencial',
+                'email' => 'sequencial@example.com',
+                'cpf' => '15350946056',
+                'password' => 'password',
+                'password_confirmation' => 'password',
+                'profile' => UserProfile::Attendant->value,
+            ])
+            ->assertRedirect(route('users.index'));
+
+        $created = User::query()->where('email', 'sequencial@example.com')->first();
+
+        $this->assertNotNull($created);
+        $this->assertSame($firstId + 1, $created->id);
+    }
+
+    public function test_user_id_cannot_be_set_manually_on_create(): void
+    {
+        $admin = User::factory()->systemAdmin()->create();
+
+        $this->actingAs($admin)
+            ->post(route('users.store'), [
+                'id' => 9999,
+                'name' => 'Atendente Manual Id',
+                'email' => 'manual.id@example.com',
+                'cpf' => '39053344705',
+                'password' => 'password',
+                'password_confirmation' => 'password',
+                'profile' => UserProfile::Attendant->value,
+            ])
+            ->assertSessionHasErrors('id');
     }
 }

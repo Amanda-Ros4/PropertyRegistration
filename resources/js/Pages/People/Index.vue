@@ -1,12 +1,10 @@
 <script setup>
-import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FilterBar from '@/Components/FilterBar.vue';
 import EmptyState from '@/Components/EmptyState.vue';
-import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
@@ -19,26 +17,12 @@ const props = defineProps({
     filters: { type: Object, default: () => ({}) },
 });
 
-const deleteConfirmRef = ref(null);
-const personToDelete = ref(null);
-
 const genderSeverity = {
     male: 'info',
     female: 'success',
     other: 'secondary',
     prefer_not_to_say: 'secondary',
 };
-
-function confirmDelete(person) {
-    personToDelete.value = person;
-    deleteConfirmRef.value.open();
-}
-
-function deletePerson() {
-    router.delete(route('people.destroy', personToDelete.value.id), {
-        preserveScroll: true,
-    });
-}
 
 function onPageChange(event) {
     router.get(route('people.index'), {
@@ -66,15 +50,6 @@ function onPageChange(event) {
             routeName="people.index"
             :searchPlaceholder="trans('people.search_placeholder')"
             :initialSearch="filters.search"
-        />
-
-        <DeleteConfirmation
-            ref="deleteConfirmRef"
-            :title="trans('people.delete_confirm_title')"
-            :message="trans('people.delete_confirm_message')"
-            :acceptLabel="trans('common.delete')"
-            :rejectLabel="trans('common.cancel')"
-            @confirm="deletePerson"
         />
 
         <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
@@ -125,30 +100,18 @@ function onPageChange(event) {
                             {{ data.email || '—' }}
                         </template>
                     </Column>
-                    <Column :header="trans('common.actions')" style="width: 120px">
+                    <Column :header="trans('common.actions')" style="width: 80px">
                         <template #body="{ data }">
-                            <div class="flex items-center gap-1">
-                                <Button
-                                    icon="pi pi-eye"
-                                    text
-                                    rounded
-                                    size="small"
-                                    severity="secondary"
-                                    :aria-label="trans('common.view')"
-                                    :title="trans('common.view')"
-                                    @click="router.visit(route('people.edit', data.id))"
-                                />
-                                <Button
-                                    icon="pi pi-trash"
-                                    text
-                                    rounded
-                                    size="small"
-                                    severity="danger"
-                                    :aria-label="trans('common.delete')"
-                                    :title="trans('common.delete')"
-                                    @click="confirmDelete(data)"
-                                />
-                            </div>
+                            <Button
+                                icon="pi pi-eye"
+                                text
+                                rounded
+                                size="small"
+                                severity="secondary"
+                                :aria-label="trans('common.view')"
+                                :title="trans('common.view')"
+                                @click="router.visit(route('people.edit', data.id))"
+                            />
                         </template>
                     </Column>
                 </DataTable>

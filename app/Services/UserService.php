@@ -26,7 +26,7 @@ class UserService
                         ->orWhere('cpf', 'like', '%'.Digits::only($search).'%');
                 });
             })
-            ->orderBy('name')
+            ->orderBy('id')
             ->paginate($perPage)
             ->withQueryString();
     }
@@ -68,7 +68,7 @@ class UserService
                 'email' => mb_strtolower(trim($data['email'])),
                 'password' => Hash::make($data['password']),
                 'profile' => $profile,
-                'active' => ActiveStatus::from($data['active']),
+                'active' => ActiveStatus::Active,
             ]);
         });
     }
@@ -92,8 +92,6 @@ class UserService
 
             $payload = [
                 'name' => $data['name'],
-                'cpf' => Digits::only($data['cpf']),
-                'email' => mb_strtolower(trim($data['email'])),
                 'profile' => $profile,
                 'active' => ActiveStatus::from($data['active']),
             ];
@@ -112,10 +110,5 @@ class UserService
 
             return $user->fresh();
         });
-    }
-
-    public function delete(User $user): void
-    {
-        $user->delete();
     }
 }

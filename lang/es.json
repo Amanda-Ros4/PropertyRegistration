@@ -221,6 +221,7 @@
     "users.subtitle": "Registre y gestione empleados y pasantes con acceso al sistema",
     "users.create": "Nuevo usuario",
     "users.edit": "Editar usuario",
+    "users.view": "Visualizar usuario",
     "users.created": "Usuario registrado exitosamente.",
     "users.updated": "Usuario actualizado exitosamente.",
     "users.deleted": "Usuario eliminado exitosamente.",

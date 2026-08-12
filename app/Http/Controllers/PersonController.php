@@ -12,7 +12,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use RuntimeException;
 
 class PersonController extends Controller
 {
@@ -66,20 +65,5 @@ class PersonController extends Controller
 
         return redirect()->route('people.index')
             ->with('flash', Flash::success(__('people.updated')));
-    }
-
-    public function destroy(Request $request, Person $person): RedirectResponse
-    {
-        $this->authorize('delete', $person);
-
-        try {
-            $this->personService->delete($person);
-        } catch (RuntimeException $e) {
-            return redirect()->route('people.index')
-                ->with('flash', Flash::error($e->getMessage()));
-        }
-
-        return redirect()->route('people.index')
-            ->with('flash', Flash::success(__('people.deleted')));
     }
 }

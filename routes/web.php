@@ -29,7 +29,6 @@ Route::middleware([
     Route::post('/users', [UserController::class, 'store'])->name('users.store')->middleware(Precognition::class);
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update'])->name('users.update')->middleware(Precognition::class);
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::prefix('people')->group(function () {
         Route::get('/', [PersonController::class, 'index'])->name('people.index');
@@ -37,7 +36,6 @@ Route::middleware([
         Route::post('/', [PersonController::class, 'store'])->name('people.store')->middleware(Precognition::class);
         Route::get('/{person}/edit', [PersonController::class, 'edit'])->name('people.edit');
         Route::match(['put', 'patch'], '/{person}', [PersonController::class, 'update'])->name('people.update')->middleware(Precognition::class);
-        Route::delete('/{person}', [PersonController::class, 'destroy'])->name('people.destroy');
     });
 
     Route::prefix('properties')->group(function () {
@@ -51,6 +49,5 @@ Route::middleware([
         Route::get('/{property}/documents/{document}', [PropertyDocumentController::class, 'show'])->name('properties.documents.show');
         Route::get('/{property}/documents/{document}/download', [PropertyDocumentController::class, 'download'])->name('properties.documents.download');
         Route::delete('/{property}/documents/{document}', [PropertyDocumentController::class, 'destroy'])->name('properties.documents.destroy');
-        Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
     });
 });

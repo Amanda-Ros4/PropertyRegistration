@@ -221,6 +221,7 @@
     "users.subtitle": "Cadastre e gerencie os funcionários e estagiários com acesso ao sistema",
     "users.create": "Novo usuário",
     "users.edit": "Editar usuário",
+    "users.view": "Visualizar usuário",
     "users.created": "Usuário cadastrado com sucesso.",
     "users.updated": "Usuário atualizado com sucesso.",
     "users.deleted": "Usuário excluído com sucesso.",

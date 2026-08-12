@@ -20,12 +20,13 @@ class StoreUserRequest extends UserFormRequest
     public function rules(): array
     {
         return [
+            'id' => $this->idRules(),
             'name' => $this->nameRules(),
             'email' => $this->emailRules(),
             'cpf' => $this->cpfRules(),
             'password' => $this->passwordRules(),
             'profile' => $this->profileRules(),
-            'active' => $this->activeRules(),
+            'active' => $this->activeOnCreateRules(),
         ];
     }
 }

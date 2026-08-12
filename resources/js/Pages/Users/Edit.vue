@@ -11,15 +11,10 @@ import Password from 'primevue/password';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
 import {
-    CPF_INPUT_MAX_LENGTH,
-    blockNonDigitBeforeInput,
-    blockNonDigitKey,
     blockNonLetterNameBeforeInput,
     blockNonLetterNameKey,
     formatCpfDisplay,
-    formatCpfInput,
     formatPersonNameInput,
-    stripNonDigits,
 } from '@/utils/formatting';
 import { usePrecognitiveForm } from '@/composables/usePrecognitiveForm';
 import { useAppToast } from '@/composables/useAppToast';
@@ -27,9 +22,14 @@ import { useAppToast } from '@/composables/useAppToast';
 const props = defineProps({
     user: { type: Object, required: true },
     profileOptions: { type: Array, default: () => [] },
+    canUpdate: { type: Boolean, default: false },
 });
 
 const { showValidationErrorToast } = useAppToast();
+
+const pageTitle = computed(() =>
+    props.canUpdate ? trans('users.edit') : trans('users.view'),
+);
 
 const profileSelectOptions = computed(() =>
     props.profileOptions.map((option) => ({
@@ -43,10 +43,14 @@ const activeOptions = computed(() => [
     { value: 'N', label: trans('users.active_status.inactive') },
 ]);
 
+const profileLabelKey = {
+    T: 'users.profiles.ti_admin',
+    S: 'users.profiles.system_admin',
+    A: 'users.profiles.attendant',
+};
+
 const { form, validateField } = usePrecognitiveForm('put', route('users.update', props.user.id), {
     name: props.user.name,
-    email: props.user.email,
-    cpf: formatCpfDisplay(props.user.cpf),
     password: '',
     password_confirmation: '',
     profile: props.user.profile,
@@ -66,17 +70,17 @@ function syncMaskedField(field, formatter, value) {
 }
 
 function onNameInput(value) {
+    if (!props.canUpdate) {
+        return;
+    }
     syncMaskedField('name', formatPersonNameInput, value);
 }
 
-function onCpfInput(value) {
-    syncMaskedField('cpf', formatCpfInput, value);
-    if (stripNonDigits(form.cpf).length === 11) {
-        validateField('cpf');
-    }
-}
-
 function submit() {
+    if (!props.canUpdate) {
+        return;
+    }
+
     form.submit({
         onError: showValidationErrorToast,
     });
@@ -84,11 +88,11 @@ function submit() {
 </script>
 
 <template>
-    <AppLayout :title="trans('users.edit')">
-        <Head :title="trans('users.edit')" />
+    <AppLayout :title="pageTitle">
+        <Head :title="pageTitle" />
 
         <PageHeader
-            :title="trans('users.edit')"
+            :title="pageTitle"
             backRoute="users.index"
             :backLabel="trans('common.back')"
         />
@@ -97,71 +101,70 @@ function submit() {
             <form @submit.prevent="submit" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
+                        :label="trans('common.id')"
+                        class="md:col-span-2"
+                    >
+                        <InputText
+                            :modelValue="String(user.id)"
+                            class="w-full max-w-xs font-mono"
+                            disabled
+                            readonly
+                        />
+                    </FormField>
+
+                    <FormField
                         class="md:col-span-2"
                         :label="trans('users.fields.name')"
                         :error="form.errors.name"
-                        required
+                        :required="canUpdate"
                     >
                         <div
                             class="w-full"
-                            @keydown.capture="blockNonLetterNameKey"
-                            @beforeinput.capture="blockNonLetterNameBeforeInput"
+                            @keydown.capture="canUpdate ? blockNonLetterNameKey : null"
+                            @beforeinput.capture="canUpdate ? blockNonLetterNameBeforeInput : null"
                         >
                             <InputText
                                 :modelValue="form.name"
                                 :placeholder="trans('users.placeholders.name')"
                                 :invalid="!!form.errors.name"
                                 class="w-full"
+                                :disabled="!canUpdate"
                                 @update:model-value="onNameInput"
-                                @blur="validateField('name')"
+                                @blur="canUpdate ? validateField('name') : null"
                             />
                         </div>
                     </FormField>
 
                     <FormField
                         :label="trans('users.fields.cpf')"
-                        :error="form.errors.cpf"
-                        required
                     >
-                        <div
-                            class="w-full"
-                            @keydown.capture="blockNonDigitKey"
-                            @beforeinput.capture="blockNonDigitBeforeInput"
-                        >
-                            <InputText
-                                :modelValue="form.cpf"
-                                :placeholder="trans('users.placeholders.cpf')"
-                                :invalid="!!form.errors.cpf"
-                                class="w-full font-mono"
-                                inputmode="numeric"
-                                :maxlength="CPF_INPUT_MAX_LENGTH"
-                                @update:model-value="onCpfInput"
-                                @blur="validateField('cpf')"
-                            />
-                        </div>
+                        <InputText
+                            :modelValue="formatCpfDisplay(user.cpf)"
+                            class="w-full font-mono"
+                            disabled
+                            readonly
+                        />
                     </FormField>
 
                     <FormField
                         :label="trans('users.fields.email')"
-                        :error="form.errors.email"
-                        required
                     >
                         <InputText
-                            v-model="form.email"
+                            :modelValue="user.email"
                             type="email"
-                            :placeholder="trans('users.placeholders.email')"
-                            :invalid="!!form.errors.email"
                             class="w-full"
-                            @blur="validateField('email')"
+                            disabled
+                            readonly
                         />
                     </FormField>
 
                     <FormField
                         :label="trans('users.fields.profile')"
                         :error="form.errors.profile"
-                        required
+                        :required="canUpdate"
                     >
                         <Select
+                            v-if="canUpdate"
                             v-model="form.profile"
                             :options="profileSelectOptions"
                             optionLabel="label"
@@ -171,14 +174,22 @@ function submit() {
                             class="w-full"
                             @change="validateField('profile')"
                         />
+                        <InputText
+                            v-else
+                            :modelValue="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
+                            class="w-full"
+                            disabled
+                            readonly
+                        />
                     </FormField>
 
                     <FormField
                         :label="trans('users.fields.active')"
                         :error="form.errors.active"
-                        required
+                        :required="canUpdate"
                     >
                         <Select
+                            v-if="canUpdate"
                             v-model="form.active"
                             :options="activeOptions"
                             optionLabel="label"
@@ -188,9 +199,17 @@ function submit() {
                             class="w-full"
                             @change="validateField('active')"
                         />
+                        <InputText
+                            v-else
+                            :modelValue="trans(user.active === 'S' ? 'users.active_status.active' : 'users.active_status.inactive')"
+                            class="w-full"
+                            disabled
+                            readonly
+                        />
                     </FormField>
 
                     <FormField
+                        v-if="canUpdate"
                         class="md:col-span-2"
                         :label="trans('users.fields.password')"
                         :hint="trans('users.password_optional_hint')"
@@ -209,6 +228,7 @@ function submit() {
                     </FormField>
 
                     <FormField
+                        v-if="canUpdate"
                         class="md:col-span-2"
                         :label="trans('users.fields.password_confirmation')"
                         :error="form.errors.password_confirmation"
@@ -228,12 +248,13 @@ function submit() {
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
                     <Button
                         type="button"
-                        :label="trans('common.cancel')"
+                        :label="trans('common.back')"
                         severity="secondary"
                         outlined
                         @click="router.visit(route('users.index'))"
                     />
                     <Button
+                        v-if="canUpdate"
                         type="submit"
                         :label="trans('common.save')"
                         icon="pi pi-check"

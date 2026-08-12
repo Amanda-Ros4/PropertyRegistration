@@ -26,6 +26,14 @@ abstract class UserFormRequest extends FormRequest
     /**
      * @return array<int, mixed>
      */
+    protected function idRules(): array
+    {
+        return ['prohibited'];
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
     protected function nameRules(): array
     {
         return ['required', 'string', 'max:255'];
@@ -77,6 +85,22 @@ abstract class UserFormRequest extends FormRequest
     protected function activeRules(): array
     {
         return ['required', new Enum(ActiveStatus::class)];
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    protected function lockedOnUpdateRules(): array
+    {
+        return ['prohibited'];
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    protected function activeOnCreateRules(): array
+    {
+        return ['prohibited'];
     }
 
     /**

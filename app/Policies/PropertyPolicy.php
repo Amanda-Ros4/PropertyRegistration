@@ -24,6 +24,6 @@ class PropertyPolicy
 
     public function delete(User $user, Property $property): bool
     {
-        return (int) $user->id === (int) $property->user_id;
+        return false;
     }
 }

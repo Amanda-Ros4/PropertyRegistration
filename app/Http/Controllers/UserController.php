@@ -33,11 +33,9 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'cpf' => $user->cpf,
                 'profile' => $user->profile->value,
                 'active' => $user->active->value,
                 'can_update' => $actor->can('update', $user),
-                'can_delete' => $actor->can('delete', $user),
             ]),
             'filters' => $filters,
             'canCreate' => $actor->can('create', User::class),
@@ -61,9 +59,9 @@ class UserController extends Controller
             ->with('flash', Flash::success(__('users.created')));
     }
 
-    public function edit(User $user): Response
+    public function edit(Request $request, User $user): Response
     {
-        $this->authorize('update', $user);
+        $this->authorize('view', $user);
 
         return Inertia::render('Users/Edit', [
             'user' => [
@@ -74,7 +72,8 @@ class UserController extends Controller
                 'profile' => $user->profile->value,
                 'active' => $user->active->value,
             ],
-            'profileOptions' => $this->userService->profileOptionsFor(request()->user()),
+            'profileOptions' => $this->userService->profileOptionsFor($request->user()),
+            'canUpdate' => $request->user()->can('update', $user),
         ]);
     }
 
@@ -86,15 +85,5 @@ class UserController extends Controller
 
         return redirect()->route('users.index')
             ->with('flash', Flash::success(__('users.updated')));
-    }
-
-    public function destroy(Request $request, User $user): RedirectResponse
-    {
-        $this->authorize('delete', $user);
-
-        $this->userService->delete($user);
-
-        return redirect()->route('users.index')
-            ->with('flash', Flash::success(__('users.deleted')));
     }
 }

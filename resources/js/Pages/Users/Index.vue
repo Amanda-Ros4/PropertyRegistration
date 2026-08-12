@@ -6,13 +6,11 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FilterBar from '@/Components/FilterBar.vue';
 import EmptyState from '@/Components/EmptyState.vue';
-import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Paginator from 'primevue/paginator';
-import { formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
     users: { type: Object, required: true },
@@ -21,8 +19,6 @@ const props = defineProps({
 });
 
 const page = usePage();
-const deleteConfirmRef = ref(null);
-const userToDelete = ref(null);
 
 const profileSeverity = {
     T: 'danger',
@@ -47,17 +43,6 @@ const activeLabelKey = {
 };
 
 const showCreateButton = computed(() => props.canCreate && page.props.permissions?.canManageUsers);
-
-function confirmDelete(user) {
-    userToDelete.value = user;
-    deleteConfirmRef.value?.open();
-}
-
-function deleteUser() {
-    router.delete(route('users.destroy', userToDelete.value.id), {
-        preserveScroll: true,
-    });
-}
 
 function onPageChange(event) {
     router.get(route('users.index'), {
@@ -87,15 +72,6 @@ function onPageChange(event) {
             :initialSearch="filters.search"
         />
 
-        <DeleteConfirmation
-            ref="deleteConfirmRef"
-            :title="trans('users.delete_confirm_title')"
-            :message="trans('users.delete_confirm_message')"
-            :acceptLabel="trans('common.delete')"
-            :rejectLabel="trans('common.cancel')"
-            @confirm="deleteUser"
-        />
-
         <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
             <EmptyState
                 v-if="users.data.length === 0"
@@ -114,13 +90,9 @@ function onPageChange(event) {
                     tableClass="w-full"
                     stripedRows
                 >
+                    <Column field="id" :header="trans('common.id')" style="width: 80px" />
                     <Column field="name" :header="trans('users.fields.name')" />
                     <Column field="email" :header="trans('users.fields.email')" />
-                    <Column :header="trans('users.fields.cpf')">
-                        <template #body="{ data }">
-                            <span class="font-mono text-sm">{{ data.cpf ? formatCpfDisplay(data.cpf) : '—' }}</span>
-                        </template>
-                    </Column>
                     <Column :header="trans('users.fields.profile')">
                         <template #body="{ data }">
                             <Tag
@@ -137,33 +109,18 @@ function onPageChange(event) {
                             />
                         </template>
                     </Column>
-                    <Column :header="trans('common.actions')" style="width: 120px">
+                    <Column :header="trans('common.actions')" style="width: 80px">
                         <template #body="{ data }">
-                            <div v-if="data.can_update || data.can_delete" class="flex items-center gap-1">
-                                <Button
-                                    v-if="data.can_update"
-                                    icon="pi pi-pencil"
-                                    text
-                                    rounded
-                                    size="small"
-                                    severity="secondary"
-                                    :aria-label="trans('common.edit')"
-                                    :title="trans('common.edit')"
-                                    @click="router.visit(route('users.edit', data.id))"
-                                />
-                                <Button
-                                    v-if="data.can_delete"
-                                    icon="pi pi-trash"
-                                    text
-                                    rounded
-                                    size="small"
-                                    severity="danger"
-                                    :aria-label="trans('common.delete')"
-                                    :title="trans('common.delete')"
-                                    @click="confirmDelete(data)"
-                                />
-                            </div>
-                            <span v-else class="text-sm text-slate-400">—</span>
+                            <Button
+                                icon="pi pi-eye"
+                                text
+                                rounded
+                                size="small"
+                                severity="secondary"
+                                :aria-label="trans('common.view')"
+                                :title="trans('common.view')"
+                                @click="router.visit(route('users.edit', data.id))"
+                            />
                         </template>
                     </Column>
                 </DataTable>
