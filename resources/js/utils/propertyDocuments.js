@@ -37,6 +37,20 @@ export function formatDocumentSize(bytes) {
     return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+export function downloadPendingFile(item) {
+    if (!item?.file) {
+        return;
+    }
+
+    const url = URL.createObjectURL(item.file);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = item.name || item.file.name || 'document';
+    anchor.rel = 'noopener';
+    anchor.click();
+    URL.revokeObjectURL(url);
+}
+
 export function documentIconClass(fileOrDoc) {
     const mime = String(fileOrDoc?.mime_type || fileOrDoc?.type || '').toLowerCase();
     const name = String(fileOrDoc?.original_name || fileOrDoc?.name || '').toLowerCase();

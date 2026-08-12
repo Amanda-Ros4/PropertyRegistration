@@ -44,6 +44,7 @@ Route::middleware([
         Route::patch('/{property}/status', [PropertyController::class, 'updateStatus'])->name('properties.status.update');
         Route::post('/{property}/documents', [PropertyDocumentController::class, 'store'])->name('properties.documents.store');
         Route::get('/{property}/documents/{document}', [PropertyDocumentController::class, 'show'])->name('properties.documents.show');
+        Route::get('/{property}/documents/{document}/download', [PropertyDocumentController::class, 'download'])->name('properties.documents.download');
         Route::delete('/{property}/documents/{document}', [PropertyDocumentController::class, 'destroy'])->name('properties.documents.destroy');
         Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
     });

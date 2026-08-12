@@ -27,6 +27,7 @@ class PropertyDocument extends Model
         'human_size',
         'is_image',
         'is_pdf',
+        'preview_url',
         'download_url',
     ];
 
@@ -67,9 +68,17 @@ class PropertyDocument extends Model
         return $this->mime_type === 'application/pdf';
     }
 
-    public function getDownloadUrlAttribute(): string
+    public function getPreviewUrlAttribute(): string
     {
         return route('properties.documents.show', [
+            'property' => $this->property_id,
+            'document' => $this->id,
+        ]);
+    }
+
+    public function getDownloadUrlAttribute(): string
+    {
+        return route('properties.documents.download', [
             'property' => $this->property_id,
             'document' => $this->id,
         ]);

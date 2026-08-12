@@ -8,6 +8,7 @@ use App\Models\PropertyDocument;
 use App\Services\PropertyDocumentService;
 use App\Support\Flash;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -31,7 +32,17 @@ class PropertyDocumentController extends Controller
             ->with('flash', Flash::success(__('properties.documents.uploaded')));
     }
 
-    public function show(Property $property, PropertyDocument $document): StreamedResponse
+    public function show(Request $request, Property $property, PropertyDocument $document): StreamedResponse
+    {
+        return $this->fileResponse($property, $document, 'inline');
+    }
+
+    public function download(Property $property, PropertyDocument $document): StreamedResponse
+    {
+        return $this->fileResponse($property, $document, 'attachment');
+    }
+
+    private function fileResponse(Property $property, PropertyDocument $document, string $disposition): StreamedResponse
     {
         $this->authorize('view', $property);
         abort_unless((int) $document->property_id === (int) $property->id, 404);
@@ -44,6 +55,7 @@ class PropertyDocumentController extends Controller
             $document->path,
             $document->original_name,
             ['Content-Type' => $document->mime_type],
+            $disposition,
         );
     }
 

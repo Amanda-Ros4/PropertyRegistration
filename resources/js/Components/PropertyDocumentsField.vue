@@ -11,6 +11,7 @@ import {
     PROPERTY_DOCUMENT_MAX_BYTES,
     PROPERTY_DOCUMENT_MAX_FILES,
     documentIconClass,
+    downloadPendingFile,
     fileExtension,
     formatDocumentSize,
     isAllowedPropertyDocument,
@@ -190,6 +191,18 @@ function onDropZoneKeydown(event) {
     }
 }
 
+function documentPreviewUrl(document) {
+    return document.preview_url || document.download_url;
+}
+
+function documentDownloadUrl(document) {
+    return document.download_url;
+}
+
+function downloadSaved(document) {
+    window.location.assign(documentDownloadUrl(document));
+}
+
 function removePending(item) {
     revokePreview(item);
     pending.value = pending.value.filter((entry) => entry.id !== item.id);
@@ -278,28 +291,33 @@ onBeforeUnmount(() => {
             >
                 <img
                     v-if="document.is_image"
-                    :src="document.download_url"
+                    :src="documentPreviewUrl(document)"
                     :alt="document.original_name"
                     class="h-11 w-11 rounded object-cover border border-slate-200 dark:border-slate-700 shrink-0"
                 />
                 <i v-else :class="[documentIconClass(document), 'text-xl shrink-0']" />
                 <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
+                    <a
+                        :href="documentDownloadUrl(document)"
+                        class="text-sm font-medium text-slate-800 dark:text-slate-100 truncate hover:text-green-700 dark:hover:text-green-400"
+                        :title="trans('properties.documents.download')"
+                    >
                         {{ document.original_name }}
-                    </p>
+                    </a>
                     <p class="text-xs text-slate-500">
                         {{ document.human_size || formatDocumentSize(document.size) }}
                     </p>
                 </div>
-                <a
-                    :href="document.download_url"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center justify-center h-9 w-9 rounded-full text-slate-500 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800"
+                <Button
+                    type="button"
+                    :label="trans('properties.documents.download')"
+                    icon="pi pi-download"
+                    size="small"
+                    outlined
+                    severity="secondary"
                     :aria-label="trans('properties.documents.download')"
-                >
-                    <i class="pi pi-download text-sm" />
-                </a>
+                    @click="downloadSaved(document)"
+                />
                 <Button
                     v-if="isEdit"
                     type="button"
@@ -334,6 +352,16 @@ onBeforeUnmount(() => {
                         · {{ trans('properties.documents.pending') }}
                     </p>
                 </div>
+                <Button
+                    type="button"
+                    :label="trans('properties.documents.download')"
+                    icon="pi pi-download"
+                    size="small"
+                    outlined
+                    severity="secondary"
+                    :aria-label="trans('properties.documents.download')"
+                    @click="downloadPendingFile(item)"
+                />
                 <Button
                     type="button"
                     icon="pi pi-times"
