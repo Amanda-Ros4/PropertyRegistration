@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ActiveStatus;
+use App\Enums\UserProfile;
 use App\Models\User;
 use Database\Seeders\Concerns\GeneratesValidCpf;
 use Illuminate\Database\Seeder;
@@ -14,9 +16,24 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $accounts = [
-            ['name' => 'Amanda', 'email' => 'amanda.darosadelima@gmail.com', 'cpf_seed' => 1],
-            ['name' => 'Usuário Dois', 'email' => 'usuario2@example.com', 'cpf_seed' => 2],
-            ['name' => 'Usuário Três', 'email' => 'usuario3@example.com', 'cpf_seed' => 3],
+            [
+                'name' => 'Administrador TI',
+                'email' => 'ti@example.com',
+                'profile' => UserProfile::TiAdmin,
+                'cpf_seed' => 1,
+            ],
+            [
+                'name' => 'Administrador Sistema',
+                'email' => 'admin@example.com',
+                'profile' => UserProfile::SystemAdmin,
+                'cpf_seed' => 2,
+            ],
+            [
+                'name' => 'Atendente',
+                'email' => 'atendente@example.com',
+                'profile' => UserProfile::Attendant,
+                'cpf_seed' => 3,
+            ],
         ];
 
         foreach ($accounts as $account) {
@@ -26,6 +43,8 @@ class UserSeeder extends Seeder
                     'name' => $account['name'],
                     'cpf' => $this->validCpfFromSeed($account['cpf_seed']),
                     'password' => Hash::make('password'),
+                    'profile' => $account['profile'],
+                    'active' => ActiveStatus::Active,
                     'email_verified_at' => now(),
                 ]
             );

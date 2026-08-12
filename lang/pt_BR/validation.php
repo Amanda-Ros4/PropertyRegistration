@@ -30,6 +30,9 @@ return [
     'property_documents_mimes' => 'Os documentos devem ser JPG, JPEG, PNG ou PDF.',
     'property_documents_size' => 'Cada documento deve ter no máximo 3 MB.',
     'property_documents_store_failed' => 'Não foi possível salvar o documento. Tente novamente.',
+    'user_profile_not_allowed' => 'Você não tem permissão para atribuir este perfil.',
+    'user_profile_self_change' => 'Você não pode alterar o seu próprio perfil.',
+    'user_cannot_deactivate_self' => 'Você não pode desativar o seu próprio usuário.',
     'attributes' => [
         'name' => 'Nome Completo',
         'birth_date' => 'Data de Nascimento',
@@ -45,5 +48,9 @@ return [
         'documents' => 'Documentos',
         'code' => 'Código',
         'recovery_code' => 'Código de recuperação',
+        'password' => 'Senha',
+        'password_confirmation' => 'Confirmar senha',
+        'profile' => 'Perfil',
+        'active' => 'Ativo',
     ],
 ];

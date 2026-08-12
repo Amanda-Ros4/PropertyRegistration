@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\ActiveStatus;
+use App\Enums\UserProfile;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,8 +26,6 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
 
     /**
-     * The attributes that are mass assignable.
-     *
      * @var array<int, string>
      */
     protected $fillable = [
@@ -33,11 +33,11 @@ class User extends Authenticatable
         'cpf',
         'email',
         'password',
+        'profile',
+        'active',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
      * @var array<int, string>
      */
     protected $hidden = [
@@ -48,15 +48,11 @@ class User extends Authenticatable
     ];
 
     /**
-     * The accessors to append to the model's array form.
-     *
      * @var array<int, string>
      */
     protected $appends = [
         'profile_photo_url',
     ];
-
-    // ─── Relationships ──────────────────────────────────────────────────────────
 
     public function people(): HasMany
     {
@@ -68,9 +64,37 @@ class User extends Authenticatable
         return $this->hasMany(Property::class);
     }
 
+    public function isTiAdmin(): bool
+    {
+        return $this->profile === UserProfile::TiAdmin;
+    }
+
+    public function isSystemAdmin(): bool
+    {
+        return $this->profile === UserProfile::SystemAdmin;
+    }
+
+    public function isAttendant(): bool
+    {
+        return $this->profile === UserProfile::Attendant;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active === ActiveStatus::Active;
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->isTiAdmin() || $this->isSystemAdmin();
+    }
+
+    public function canViewAudit(): bool
+    {
+        return ! $this->isAttendant();
+    }
+
     /**
-     * Get the attributes that should be cast.
-     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -78,6 +102,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'profile' => UserProfile::class,
+            'active' => ActiveStatus::class,
         ];
     }
 }

@@ -46,6 +46,10 @@ class HandleInertiaRequests extends Middleware
                     'id' => $flash['id'] ?? null,
                 ];
             },
+            'permissions' => fn () => [
+                'canManageUsers' => $request->user()?->canManageUsers() ?? false,
+                'canViewAudit' => $request->user()?->canViewAudit() ?? false,
+            ],
         ];
     }
 }

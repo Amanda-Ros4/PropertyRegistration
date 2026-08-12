@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { usePrimeVue } from 'primevue/config';
@@ -119,13 +119,21 @@ async function changeLocale(locale) {
 
 // ─── Navigation ──────────────────────────────────────────────────────────────
 
-const navLinks = [
-    { label: () => trans('nav.home'), route: 'dashboard', icon: 'pi pi-home' },
-    { label: () => trans('nav.people'), route: 'people.index', icon: 'pi pi-users' },
-    { label: () => trans('nav.properties'), route: 'properties.index', icon: 'pi pi-building' },
-    { label: () => trans('nav.users'), route: 'users.index', icon: 'pi pi-user' },
-    { label: () => trans('nav.settings'), route: 'profile.show', icon: 'pi pi-cog' },
-];
+const navLinks = computed(() => {
+    const links = [
+        { label: () => trans('nav.home'), route: 'dashboard', icon: 'pi pi-home' },
+        { label: () => trans('nav.people'), route: 'people.index', icon: 'pi pi-users' },
+        { label: () => trans('nav.properties'), route: 'properties.index', icon: 'pi pi-building' },
+    ];
+
+    if (page.props.permissions?.canManageUsers) {
+        links.push({ label: () => trans('nav.users'), route: 'users.index', icon: 'pi pi-user' });
+    }
+
+    links.push({ label: () => trans('nav.settings'), route: 'profile.show', icon: 'pi pi-cog' });
+
+    return links;
+});
 
 const userMenuItems = ref([
     {
