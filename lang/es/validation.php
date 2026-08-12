@@ -19,6 +19,9 @@ return [
     'email_taken' => 'Este correo ya está registrado.',
     'invalid_phone' => 'Ingrese un teléfono válido en el formato (99) 99999-9999.',
     'must_be_adult' => 'El contribuyente debe tener al menos :age años de edad.',
+    'land_area_required' => 'El área del terreno es obligatoria para el tipo Terreno.',
+    'land_area_gt' => 'El área del terreno debe ser mayor que cero.',
+    'building_area_must_be_zero' => 'Para terreno, el área de la edificación debe ser cero.',
     'attributes' => [
         'name' => 'Nombre Completo',
         'birth_date' => 'Fecha de Nacimiento',

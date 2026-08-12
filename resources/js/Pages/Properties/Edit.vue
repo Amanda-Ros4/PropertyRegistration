@@ -27,6 +27,7 @@ import {
 } from '@/utils/formatting';
 import { fetchAddressByCep } from '@/utils/viacep';
 import { useAppToast } from '@/composables/useAppToast';
+import { useLandTypeAreas } from '@/composables/useLandTypeAreas';
 
 const { showValidationErrorToast } = useAppToast();
 
@@ -115,6 +116,8 @@ const form = useForm({
     complement: formatAddressInput(props.property.complement ?? ''),
 });
 
+const { isLand, onTypeChange } = useLandTypeAreas(form);
+
 const cepErrorDisplay = computed(() => form.errors.cep || cepLookupError.value);
 
 function syncMasked(field, formatter, value) {
@@ -154,6 +157,10 @@ function onLandAreaInput(value) {
 }
 
 function onBuildingAreaInput(value) {
+    if (isLand.value) {
+        form.building_area = '0.00';
+        return;
+    }
     syncMasked('building_area', formatAreaInput, value);
 }
 
@@ -207,7 +214,9 @@ function submit() {
         .transform((data) => ({
             ...data,
             land_area: data.land_area === '' ? null : data.land_area,
-            building_area: data.building_area === '' ? null : data.building_area,
+            building_area: data.type === 'land'
+                ? 0
+                : (data.building_area === '' ? null : data.building_area),
         }))
         .put(route('properties.update', props.property.id), {
             onError: showValidationErrorToast,
@@ -297,13 +306,14 @@ function submit() {
                             :placeholder="trans('properties.placeholders.type')"
                             :invalid="!!form.errors.type"
                             class="w-full"
-                            @change="form.clearErrors('type')"
+                            @change="onTypeChange"
                         />
                     </FormField>
 
                     <FormField
                         :label="trans('properties.fields.land_area')"
                         :error="form.errors.land_area"
+                        :required="isLand"
                     >
                         <div
                             @keydown.capture="blockNonAreaKey"
@@ -324,6 +334,7 @@ function submit() {
                     <FormField
                         :label="trans('properties.fields.building_area')"
                         :error="form.errors.building_area"
+                        :hint="isLand ? trans('properties.hint_building_area_land') : null"
                     >
                         <div
                             @keydown.capture="blockNonAreaKey"
@@ -335,6 +346,7 @@ function submit() {
                                 :placeholder="trans('properties.placeholders.building_area')"
                                 :invalid="!!form.errors.building_area"
                                 class="w-full font-mono"
+                                :disabled="isLand"
                                 @update:model-value="onBuildingAreaInput"
                                 @change="form.clearErrors('building_area')"
                             />

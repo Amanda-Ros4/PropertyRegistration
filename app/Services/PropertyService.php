@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\PropertyStatus;
+use App\Enums\PropertyType;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -35,7 +36,7 @@ class PropertyService
                 'person_id' => $data['person_id'],
                 'type' => $data['type'],
                 'land_area' => $data['land_area'] ?? null,
-                'building_area' => $data['building_area'] ?? null,
+                'building_area' => $this->buildingAreaForType($data),
                 'cep' => $data['cep'] ?? null,
                 'street' => $data['street'],
                 'number' => $data['number'],
@@ -53,7 +54,7 @@ class PropertyService
                 'person_id' => $data['person_id'],
                 'type' => $data['type'],
                 'land_area' => $data['land_area'] ?? null,
-                'building_area' => $data['building_area'] ?? null,
+                'building_area' => $this->buildingAreaForType($data),
                 'cep' => $data['cep'] ?? null,
                 'street' => $data['street'],
                 'number' => $data['number'],
@@ -79,5 +80,13 @@ class PropertyService
     public function delete(Property $property): void
     {
         $property->delete();
+    }
+
+    private function buildingAreaForType(array $data): mixed
+    {
+        $type = $data['type'] ?? null;
+        $isLand = $type === PropertyType::Land || $type === PropertyType::Land->value;
+
+        return $isLand ? 0 : ($data['building_area'] ?? null);
     }
 }
