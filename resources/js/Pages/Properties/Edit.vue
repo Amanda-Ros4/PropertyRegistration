@@ -29,6 +29,7 @@ import { fetchAddressByCep } from '@/utils/viacep';
 import { useAppToast } from '@/composables/useAppToast';
 import { usePropertyTypeAreas } from '@/composables/usePropertyTypeAreas';
 import PropertyDocumentsField from '@/Components/PropertyDocumentsField.vue';
+import PropertyEndorsementsField from '@/Components/PropertyEndorsementsField.vue';
 
 const { showValidationErrorToast } = useAppToast();
 
@@ -59,38 +60,6 @@ const statusLabel = computed(() =>
 const statusSeverity = computed(() =>
     statusValue.value === 'active' ? 'success' : 'secondary',
 );
-
-const statusUpdating = ref(false);
-const nextStatus = computed(() =>
-    statusValue.value === 'active' ? 'inactive' : 'active',
-);
-const statusActionLabel = computed(() =>
-    statusValue.value === 'active'
-        ? trans('properties.actions.deactivate')
-        : trans('properties.actions.activate'),
-);
-const statusActionSeverity = computed(() =>
-    statusValue.value === 'active' ? 'secondary' : 'success',
-);
-const statusActionIcon = computed(() =>
-    statusValue.value === 'active' ? 'pi pi-ban' : 'pi pi-check-circle',
-);
-
-function toggleStatus() {
-    if (statusUpdating.value) return;
-
-    statusUpdating.value = true;
-    router.patch(
-        route('properties.status.update', props.property.id),
-        { status: nextStatus.value },
-        {
-            preserveScroll: true,
-            onFinish: () => {
-                statusUpdating.value = false;
-            },
-        },
-    );
-}
 
 const cepLookupError = ref('');
 const cepLoading = ref(false);
@@ -256,20 +225,9 @@ function submit() {
                         </p>
                         <div class="flex flex-wrap items-center gap-3">
                             <Tag :value="statusLabel" :severity="statusSeverity" />
-                            <Button
-                                type="button"
-                                :label="statusActionLabel"
-                                :icon="statusActionIcon"
-                                :severity="statusActionSeverity"
-                                size="small"
-                                outlined
-                                :loading="statusUpdating"
-                                :disabled="statusUpdating"
-                                @click="toggleStatus"
-                            />
                         </div>
                         <p class="text-xs text-slate-400 mt-2">
-                            {{ trans('properties.hint_status_readonly') }}
+                            {{ trans('properties.hint_status_endorsements') }}
                         </p>
                     </div>
                 </div>
@@ -472,6 +430,11 @@ function submit() {
                     <PropertyDocumentsField
                         :property-id="property.id"
                         :documents="property.documents ?? []"
+                    />
+
+                    <PropertyEndorsementsField
+                        :property-id="property.id"
+                        :endorsements="property.endorsements ?? []"
                     />
                 </div>
 

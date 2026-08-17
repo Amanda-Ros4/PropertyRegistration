@@ -33,6 +33,10 @@ return [
     'user_profile_not_allowed' => 'Você não tem permissão para atribuir este perfil.',
     'user_profile_self_change' => 'Você não pode alterar o seu próprio perfil.',
     'user_cannot_deactivate_self' => 'Você não pode desativar o seu próprio usuário.',
+    'endorsement_cancellation_on_inactive' => 'Não é possível registrar cancelamento: o imóvel já está inativo.',
+    'endorsement_reactivation_on_active' => 'Não é possível registrar reativação: o imóvel já está ativo.',
+    'endorsement_area_change_on_land' => 'Não é possível alterar a área construída de um terreno.',
+    'endorsement_decrease_exceeds_area' => 'A redução informada é maior que a área construída atual.',
     'attributes' => [
         'name' => 'Nome Completo',
         'birth_date' => 'Data de Nascimento',
@@ -52,5 +56,8 @@ return [
         'password_confirmation' => 'Confirmar senha',
         'profile' => 'Perfil',
         'active' => 'Ativo',
+        'event' => 'Evento',
+        'measure' => 'Medida',
+        'description' => 'Descrição',
     ],
 ];

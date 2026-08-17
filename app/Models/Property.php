@@ -59,7 +59,10 @@ class Property extends Model
         return $this->hasMany(PropertyDocument::class)->orderBy('id');
     }
 
-    // ─── Scopes ─────────────────────────────────────────────────────────────────
+    public function endorsements(): HasMany
+    {
+        return $this->hasMany(PropertyEndorsement::class)->orderByDesc('id');
+    }
 
     public function scopeForUser(Builder $query, int $userId): Builder
     {

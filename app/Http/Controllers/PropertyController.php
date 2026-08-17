@@ -81,7 +81,7 @@ class PropertyController extends Controller
         $people = $this->personService->allForUser($request->user());
 
         return Inertia::render('Properties/Edit', [
-            'property' => $property->load(['person:id,name,cpf', 'documents']),
+            'property' => $property->load(['person:id,name,cpf', 'documents', 'endorsements']),
             'people' => $people,
         ]);
     }

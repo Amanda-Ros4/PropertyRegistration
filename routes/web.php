@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyDocumentController;
+use App\Http\Controllers\PropertyEndorsementController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests as Precognition;
@@ -46,6 +47,9 @@ Route::middleware([
         Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
         Route::match(['put', 'patch'], '/{property}', [PropertyController::class, 'update'])->name('properties.update')->middleware(Precognition::class);
         Route::patch('/{property}/status', [PropertyController::class, 'updateStatus'])->name('properties.status.update');
+        Route::post('/{property}/endorsements', [PropertyEndorsementController::class, 'store'])
+            ->name('properties.endorsements.store')
+            ->middleware(Precognition::class);
         Route::post('/{property}/documents', [PropertyDocumentController::class, 'store'])->name('properties.documents.store');
         Route::get('/{property}/documents/{document}', [PropertyDocumentController::class, 'show'])->name('properties.documents.show');
         Route::get('/{property}/documents/{document}/download', [PropertyDocumentController::class, 'download'])->name('properties.documents.download');
