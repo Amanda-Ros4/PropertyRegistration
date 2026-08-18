@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Person;
 use App\Models\User;
+use App\Support\AuditLogger;
 use App\Support\Digits;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,7 +17,7 @@ class PersonService
     public function listForUser(User $user, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         return Person::query()
-            ->forUser($user->id)
+            ->visibleTo($user)
             ->filter($filters)
             ->orderBy('name')
             ->paginate($perPage)
@@ -26,7 +27,7 @@ class PersonService
     public function allForUser(User $user): Collection
     {
         return Person::query()
-            ->forUser($user->id)
+            ->visibleTo($user)
             ->orderBy('name')
             ->get(['id', 'name', 'cpf']);
     }
@@ -57,7 +58,7 @@ class PersonService
                 return $this->update($trashed, $data);
             }
 
-            return Person::create([
+            $person = Person::create([
                 'user_id' => $userId,
                 'name' => $data['name'],
                 'birth_date' => $data['birth_date'],
@@ -66,6 +67,12 @@ class PersonService
                 'phone' => Digits::onlyOrNull($data['phone'] ?? null),
                 'email' => $this->normalizeEmail($data['email'] ?? null),
             ]);
+
+            AuditLogger::record('created', $person, __('audit.descriptions.person_created', [
+                'name' => $person->name,
+            ]));
+
+            return $person;
         });
     }
 
@@ -79,6 +86,10 @@ class PersonService
                 'phone' => Digits::onlyOrNull($data['phone'] ?? null),
                 'email' => $this->normalizeEmail($data['email'] ?? null),
             ]);
+
+            AuditLogger::record('updated', $person, __('audit.descriptions.person_updated', [
+                'name' => $person->name,
+            ]));
 
             return $person->fresh();
         });

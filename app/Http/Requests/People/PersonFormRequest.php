@@ -93,8 +93,10 @@ abstract class PersonFormRequest extends FormRequest
 
     protected function uniqueForUser(string $column, ?int $ignorePersonId = null): Unique
     {
+        $ownerId = $this->route('person')?->user_id ?? $this->user()?->id;
+
         $rule = Rule::unique('people', $column)
-            ->where('user_id', $this->user()?->id)
+            ->where('user_id', $ownerId)
             ->whereNull('deleted_at');
 
         if ($ignorePersonId !== null) {

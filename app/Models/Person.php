@@ -53,6 +53,15 @@ class Person extends Model
         return $query->where('user_id', $userId);
     }
 
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->canAccessAllRecords()) {
+            return $query;
+        }
+
+        return $query->where('user_id', $user->id);
+    }
+
     public function scopeSearch(Builder $query, ?string $search): Builder
     {
         if (! $search) {

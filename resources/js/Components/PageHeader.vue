@@ -25,8 +25,11 @@ defineProps({
             </div>
         </div>
 
-        <Link v-if="createRoute" :href="route(createRoute)">
-            <Button :label="createLabel" :icon="createIcon" />
-        </Link>
+        <div class="flex items-center gap-2">
+            <slot name="actions" />
+            <Link v-if="createRoute" :href="route(createRoute)">
+                <Button :label="createLabel" :icon="createIcon" />
+            </Link>
+        </div>
     </div>
 </template>

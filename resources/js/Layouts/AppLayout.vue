@@ -130,6 +130,10 @@ const navLinks = computed(() => {
         links.push({ label: () => trans('nav.users'), route: 'users.index', icon: 'pi pi-user' });
     }
 
+    if (page.props.permissions?.canViewAudit) {
+        links.push({ label: () => trans('nav.audit'), route: 'audit.index', icon: 'pi pi-history' });
+    }
+
     links.push({ label: () => trans('nav.settings'), route: 'profile.show', icon: 'pi pi-cog' });
 
     return links;
@@ -166,6 +170,9 @@ function isActiveRoute(routeName) {
         }
         if (routeName === 'users.index') {
             return route().current('users.*');
+        }
+        if (routeName === 'audit.index') {
+            return route().current('audit.*');
         }
         if (routeName === 'profile.show') {
             return route().current('profile.*');

@@ -7,9 +7,15 @@ use App\Models\User;
 
 class PropertyPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
     public function view(User $user, Property $property): bool
     {
-        return (int) $user->id === (int) $property->user_id;
+        return $user->canAccessAllRecords()
+            || (int) $user->id === (int) $property->user_id;
     }
 
     public function create(User $user): bool
@@ -19,7 +25,8 @@ class PropertyPolicy
 
     public function update(User $user, Property $property): bool
     {
-        return (int) $user->id === (int) $property->user_id;
+        return $user->canAccessAllRecords()
+            || (int) $user->id === (int) $property->user_id;
     }
 
     public function delete(User $user, Property $property): bool

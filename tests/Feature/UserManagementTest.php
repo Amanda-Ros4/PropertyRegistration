@@ -113,8 +113,8 @@ class UserManagementTest extends TestCase
         $attendant = User::factory()->attendant()->create();
 
         $this->actingAs($tiAdmin)
-            ->delete(route('users.destroy', $attendant))
-            ->assertNotFound();
+            ->delete('/users/'.$attendant->id)
+            ->assertStatus(405);
 
         $this->assertDatabaseHas('users', ['id' => $attendant->id]);
     }

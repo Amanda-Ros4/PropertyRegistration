@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Enums\PropertyStatus;
 use App\Enums\PropertyType;
+use App\Models\Person;
 use App\Models\Property;
 use App\Models\User;
+use App\Support\AuditLogger;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -18,26 +20,52 @@ class PropertyService
 
     public function listForUser(User $user, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return Property::query()
+        return $this->filteredQuery($user, $filters)
             ->with('person:id,name,cpf')
-            ->forUser($user->id)
+            ->orderBy('id', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return \Illuminate\Support\Collection<int, Property>
+     */
+    public function allForReport(User $user, array $filters = [])
+    {
+        return $this->filteredQuery($user, $filters)
+            ->with('person:id,name,cpf')
+            ->orderBy('id')
+            ->get();
+    }
+
+    private function filteredQuery(User $user, array $filters)
+    {
+        return Property::query()
+            ->visibleTo($user)
             ->filterById(isset($filters['id']) ? (int) $filters['id'] : null)
             ->filterByType($filters['type'] ?? null)
             ->filterByStreet($filters['street'] ?? null)
             ->filterByNumber($filters['number'] ?? null)
             ->filterByNeighborhood($filters['neighborhood'] ?? null)
             ->filterByPerson(isset($filters['person_id']) ? (int) $filters['person_id'] : null)
-            ->filterByStatus($filters['status'] ?? null)
-            ->orderBy('id', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->filterByStatus($filters['status'] ?? null);
     }
 
     public function create(User $user, array $data): Property
     {
         return DB::transaction(function () use ($user, $data) {
+            $ownerId = $user->id;
+
+            if ($user->canAccessAllRecords()) {
+                $person = Person::query()->find($data['person_id']);
+                if ($person) {
+                    $ownerId = (int) $person->user_id;
+                }
+            }
+
             $property = Property::create([
-                'user_id' => $user->id,
+                'user_id' => $ownerId,
                 'person_id' => $data['person_id'],
                 'type' => $data['type'],
                 'land_area' => $this->landAreaForType($data),
@@ -51,6 +79,10 @@ class PropertyService
             ]);
 
             $this->documentService->storeMany($property, $this->uploadedDocuments($data));
+
+            AuditLogger::record('created', $property, __('audit.descriptions.property_created', [
+                'id' => $property->id,
+            ]));
 
             return $property;
         });
@@ -71,16 +103,9 @@ class PropertyService
                 'complement' => $data['complement'] ?? null,
             ]);
 
-            return $property->fresh();
-        });
-    }
-
-    public function updateStatus(Property $property, PropertyStatus $status): Property
-    {
-        return DB::transaction(function () use ($property, $status) {
-            $property->update([
-                'status' => $status,
-            ]);
+            AuditLogger::record('updated', $property, __('audit.descriptions.property_updated', [
+                'id' => $property->id,
+            ]));
 
             return $property->fresh();
         });

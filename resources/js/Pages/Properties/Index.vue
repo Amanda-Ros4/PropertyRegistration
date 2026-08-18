@@ -38,6 +38,20 @@ const hasActiveFilters = computed(() =>
     ),
 );
 
+function reportQuery() {
+    return Object.fromEntries(
+        Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
+    );
+}
+
+function openSyntheticReport() {
+    window.open(route('properties.report.synthetic', reportQuery()), '_blank');
+}
+
+function openIndividualReport(id) {
+    window.open(route('properties.report.individual', id), '_blank');
+}
+
 function onPageChange(event) {
     router.get(route('properties.index'), {
         ...Object.fromEntries(
@@ -60,7 +74,17 @@ function onPageChange(event) {
             :subtitle="trans('properties.subtitle')"
             createRoute="properties.create"
             :createLabel="trans('properties.create')"
-        />
+        >
+            <template #actions>
+                <Button
+                    :label="trans('properties.reports.synthetic')"
+                    icon="pi pi-file-pdf"
+                    severity="secondary"
+                    outlined
+                    @click="openSyntheticReport"
+                />
+            </template>
+        </PageHeader>
 
         <PropertyFilters
             :filters="filters"
@@ -124,8 +148,18 @@ function onPageChange(event) {
                             {{ data.complement || '—' }}
                         </template>
                     </Column>
-                    <Column :header="trans('common.actions')" style="width: 80px">
+                    <Column :header="trans('common.actions')" style="width: 120px">
                         <template #body="{ data }">
+                            <Button
+                                icon="pi pi-file-pdf"
+                                text
+                                rounded
+                                size="small"
+                                severity="secondary"
+                                :aria-label="trans('properties.reports.individual')"
+                                :title="trans('properties.reports.individual')"
+                                @click="openIndividualReport(data.id)"
+                            />
                             <Button
                                 icon="pi pi-pencil"
                                 text

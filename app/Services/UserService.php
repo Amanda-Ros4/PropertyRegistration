@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ActiveStatus;
 use App\Enums\UserProfile;
 use App\Models\User;
+use App\Support\AuditLogger;
 use App\Support\Digits;
 use App\Support\SearchInput;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -79,7 +80,7 @@ class UserService
         }
 
         return DB::transaction(function () use ($data, $profile) {
-            return User::create([
+            $created = User::create([
                 'name' => $data['name'],
                 'cpf' => Digits::only($data['cpf']),
                 'email' => mb_strtolower(trim($data['email'])),
@@ -87,6 +88,12 @@ class UserService
                 'profile' => $profile,
                 'active' => ActiveStatus::Active,
             ]);
+
+            AuditLogger::record('created', $created, __('audit.descriptions.user_created', [
+                'name' => $created->name,
+            ]));
+
+            return $created;
         });
     }
 
@@ -124,6 +131,10 @@ class UserService
 
             $user->update($payload);
 
+            AuditLogger::record('updated', $user, __('audit.descriptions.user_updated', [
+                'name' => $user->name,
+            ]));
+
             return $user->fresh();
         });
     }
@@ -137,6 +148,14 @@ class UserService
         }
 
         $user->update(['active' => $active]);
+
+        AuditLogger::record(
+            $active === ActiveStatus::Active ? 'activated' : 'deactivated',
+            $user,
+            $active === ActiveStatus::Active
+                ? __('audit.descriptions.user_activated', ['name' => $user->name])
+                : __('audit.descriptions.user_deactivated', ['name' => $user->name]),
+        );
 
         return $user->fresh();
     }

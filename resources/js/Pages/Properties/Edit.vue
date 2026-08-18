@@ -204,7 +204,18 @@ function submit() {
             :title="trans('properties.edit')"
             backRoute="properties.index"
             :backLabel="trans('common.back')"
-        />
+        >
+            <template #actions>
+                <Button
+                    type="button"
+                    :label="trans('properties.reports.individual')"
+                    icon="pi pi-file-pdf"
+                    severity="secondary"
+                    outlined
+                    @click="window.open(route('properties.report.individual', property.id), '_blank')"
+                />
+            </template>
+        </PageHeader>
 
         <FormCard>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">

@@ -103,7 +103,12 @@ class User extends Authenticatable
 
     public function canViewAudit(): bool
     {
-        return ! $this->isAttendant();
+        return $this->isTiAdmin() || $this->isSystemAdmin();
+    }
+
+    public function canAccessAllRecords(): bool
+    {
+        return $this->isTiAdmin();
     }
 
     public function canAssignProfile(UserProfile $profile): bool

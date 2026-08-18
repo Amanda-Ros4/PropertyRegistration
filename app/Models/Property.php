@@ -69,6 +69,15 @@ class Property extends Model
         return $query->where('properties.user_id', $userId);
     }
 
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->canAccessAllRecords()) {
+            return $query;
+        }
+
+        return $query->where('properties.user_id', $user->id);
+    }
+
     public function scopeSearch(Builder $query, ?string $search): Builder
     {
         if (! $search) {

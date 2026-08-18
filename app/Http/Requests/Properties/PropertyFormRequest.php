@@ -40,9 +40,7 @@ abstract class PropertyFormRequest extends FormRequest
             'person_id' => [
                 'required',
                 'integer',
-                Rule::exists('people', 'id')
-                    ->where('user_id', $this->user()->id)
-                    ->whereNull('deleted_at'),
+                $this->personExistsRule(),
             ],
             'type' => ['required', new Enum(PropertyType::class)],
             'land_area' => $this->landAreaRules(),
@@ -128,6 +126,17 @@ abstract class PropertyFormRequest extends FormRequest
             'building_area.required' => __('validation.building_area_required'),
             'building_area.gt' => __('validation.building_area_gt'),
         ];
+    }
+
+    protected function personExistsRule(): \Illuminate\Validation\Rules\Exists
+    {
+        $rule = Rule::exists('people', 'id')->whereNull('deleted_at');
+
+        if (! $this->user()?->canAccessAllRecords()) {
+            $rule->where('user_id', $this->user()?->id);
+        }
+
+        return $rule;
     }
 
     protected function isLand(): bool

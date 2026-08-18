@@ -30,7 +30,7 @@ return new class extends Migration
             }
         });
 
-        if (! $this->indexExists('property_endorsements', 'property_endorsements_property_id_index')) {
+        if (! Schema::hasIndex('property_endorsements', 'property_endorsements_property_id_index')) {
             Schema::table('property_endorsements', function (Blueprint $table) {
                 $table->index('property_id');
             });
@@ -50,18 +50,5 @@ return new class extends Migration
                 }
             }
         });
-    }
-
-    private function indexExists(string $table, string $index): bool
-    {
-        $connection = Schema::getConnection();
-        $database = $connection->getDatabaseName();
-
-        $result = $connection->select(
-            'SELECT COUNT(*) AS aggregate FROM information_schema.statistics WHERE table_schema = ? AND table_name = ? AND index_name = ?',
-            [$database, $table, $index],
-        );
-
-        return (int) ($result[0]->aggregate ?? 0) > 0;
     }
 };

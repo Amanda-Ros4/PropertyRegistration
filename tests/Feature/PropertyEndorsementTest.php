@@ -65,6 +65,24 @@ class PropertyEndorsementTest extends TestCase
             'event' => EndorsementEvent::IncreaseInBuiltArea->value,
             'measure' => 10.50,
         ]);
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'endorsed',
+            'auditable_type' => Property::class,
+            'auditable_id' => $property->id,
+        ]);
+    }
+
+    public function test_property_status_cannot_be_changed_without_endorsement(): void
+    {
+        $property = $this->createProperty();
+
+        $this->actingAs(User::query()->findOrFail($property->user_id))
+            ->patch('/properties/'.$property->id.'/status', [
+                'status' => PropertyStatus::Inactive->value,
+            ])
+            ->assertNotFound();
+
+        $this->assertSame(PropertyStatus::Active, $property->fresh()->status);
     }
 
     public function test_decrease_endorsement_updates_building_area(): void
@@ -196,10 +214,10 @@ class PropertyEndorsementTest extends TestCase
             ])
             ->assertRedirect();
 
-        $this->assertDatabaseHas('property_endorsements', [
-            'property_id' => $property->id,
-            'occurred_on' => now()->toDateString(),
-        ]);
+        $endorsement = $property->endorsements()->first();
+
+        $this->assertNotNull($endorsement);
+        $this->assertSame(now()->toDateString(), $endorsement->occurred_on->toDateString());
     }
 
     public function test_other_user_cannot_create_endorsement(): void

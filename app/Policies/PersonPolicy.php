@@ -9,7 +9,8 @@ class PersonPolicy
 {
     public function view(User $user, Person $person): bool
     {
-        return (int) $user->id === (int) $person->user_id;
+        return $user->canAccessAllRecords()
+            || (int) $user->id === (int) $person->user_id;
     }
 
     public function create(User $user): bool
@@ -19,7 +20,8 @@ class PersonPolicy
 
     public function update(User $user, Person $person): bool
     {
-        return (int) $user->id === (int) $person->user_id;
+        return $user->canAccessAllRecords()
+            || (int) $user->id === (int) $person->user_id;
     }
 
     public function delete(User $user, Person $person): bool

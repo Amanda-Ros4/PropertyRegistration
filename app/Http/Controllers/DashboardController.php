@@ -12,17 +12,15 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request): Response
     {
-        $userId = $request->user()->id;
+        $totalPeople = Person::visibleTo($request->user())->count();
+        $totalProperties = Property::visibleTo($request->user())->count();
 
-        $totalPeople = Person::forUser($userId)->count();
-        $totalProperties = Property::forUser($userId)->count();
-
-        $recentPeople = Person::forUser($userId)
+        $recentPeople = Person::visibleTo($request->user())
             ->orderByDesc('created_at')
             ->limit(5)
             ->get(['id', 'name', 'cpf', 'gender', 'created_at']);
 
-        $recentProperties = Property::forUser($userId)
+        $recentProperties = Property::visibleTo($request->user())
             ->with('person:id,name')
             ->orderByDesc('created_at')
             ->limit(5)

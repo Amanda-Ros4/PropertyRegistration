@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Properties\StorePropertyRequest;
 use App\Http\Requests\Properties\UpdatePropertyRequest;
-use App\Http\Requests\Properties\UpdatePropertyStatusRequest;
 use App\Enums\PropertyStatus;
 use App\Enums\PropertyType;
 use App\Models\Property;
@@ -94,20 +93,5 @@ class PropertyController extends Controller
 
         return redirect()->route('properties.index')
             ->with('flash', Flash::success(__('properties.updated')));
-    }
-
-    public function updateStatus(UpdatePropertyStatusRequest $request, Property $property): RedirectResponse
-    {
-        $this->authorize('update', $property);
-
-        $status = PropertyStatus::from($request->validated('status'));
-        $this->propertyService->updateStatus($property, $status);
-
-        $message = $status === PropertyStatus::Active
-            ? __('properties.status_activated')
-            : __('properties.status_deactivated');
-
-        return redirect()->back()
-            ->with('flash', Flash::success($message));
     }
 }
