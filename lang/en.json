@@ -243,6 +243,9 @@
     "properties.reports.synthetic_title": "Property summary report",
     "properties.reports.individual_title": "Property report #:id",
     "properties.reports.generated_at": "Generated at",
+    "reports.municipality": "PREFEITURA MUNICIPAL DE SÃO LEOPOLDO",
+    "reports.state": "Estado do Rio Grande do Sul",
+    "reports.page_of": "of",
 
     "users.title": "Users",
     "users.subtitle": "Register and manage staff and interns with system access",

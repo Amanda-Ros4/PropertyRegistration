@@ -77,6 +77,7 @@ class UserController extends Controller
             'profileOptions' => $this->userService->profileOptionsFor($request->user()),
             'canUpdate' => $request->user()->can('update', $user),
             'canChangeProfile' => $this->userService->canChangeProfile($request->user(), $user),
+            'canEditEmail' => $request->user()->isTiAdmin(),
             'isSelf' => (int) $request->user()->id === (int) $user->id,
         ]);
     }

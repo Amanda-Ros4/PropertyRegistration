@@ -12,6 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Written by the browser, so it must stay readable for plain navigations
+        // (PDF downloads) that cannot send the X-Locale header.
+        $middleware->encryptCookies(except: [
+            'app_locale',
+        ]);
+
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\HandleInertiaRequests::class,

@@ -119,7 +119,23 @@ class UserManagementTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $attendant->id]);
     }
 
-    public function test_update_does_not_change_email_or_cpf(): void
+    public function test_ti_admin_user_edit_page_allows_email_editing(): void
+    {
+        $tiAdmin = User::factory()->tiAdmin()->create();
+        $attendant = User::factory()->attendant()->create();
+
+        $this->actingAs($tiAdmin)
+            ->get(route('users.edit', $attendant))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Users/Edit')
+                ->where('canEditEmail', true)
+                ->where('canUpdate', true)
+                ->has('user.email')
+            );
+    }
+
+    public function test_ti_admin_can_update_email_but_not_cpf(): void
     {
         $tiAdmin = User::factory()->tiAdmin()->create();
         $attendant = User::factory()->attendant()->create([
@@ -139,9 +155,32 @@ class UserManagementTest extends TestCase
         $attendant->refresh();
 
         $this->assertSame('Nome Atualizado', $attendant->name);
+        $this->assertSame('novo@example.com', $attendant->email);
+        $this->assertSame('52998224725', $attendant->cpf);
+    }
+
+    public function test_system_admin_cannot_update_email_or_cpf(): void
+    {
+        $admin = User::factory()->systemAdmin()->create();
+        $attendant = User::factory()->attendant()->create([
+            'email' => 'original@example.com',
+            'cpf' => '52998224725',
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('users.update', $attendant), [
+                'name' => 'Nome Atualizado',
+                'email' => 'novo@example.com',
+                'cpf' => '39053344705',
+                'profile' => UserProfile::Attendant->value,
+            ])
+            ->assertRedirect(route('users.index'));
+
+        $attendant->refresh();
+
+        $this->assertSame('Nome Atualizado', $attendant->name);
         $this->assertSame('original@example.com', $attendant->email);
         $this->assertSame('52998224725', $attendant->cpf);
-        $this->assertSame(ActiveStatus::Active, $attendant->active);
     }
 
     public function test_ti_admin_can_change_user_profile(): void
@@ -152,6 +191,7 @@ class UserManagementTest extends TestCase
         $this->actingAs($tiAdmin)
             ->put(route('users.update', $attendant), [
                 'name' => $attendant->name,
+                'email' => $attendant->email,
                 'profile' => UserProfile::SystemAdmin->value,
             ])
             ->assertRedirect(route('users.index'));

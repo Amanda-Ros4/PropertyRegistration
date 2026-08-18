@@ -15,12 +15,17 @@ abstract class UserFormRequest extends FormRequest
 {
     use PasswordValidationRules;
 
-    protected function prepareUserPayload(): void
+    protected function prepareUserPayload(bool $includeCpf = true): void
     {
-        $this->merge([
-            'cpf' => Digits::only($this->input('cpf')),
+        $payload = [
             'email' => mb_strtolower(trim((string) $this->input('email', ''))),
-        ]);
+        ];
+
+        if ($includeCpf) {
+            $payload['cpf'] = Digits::only($this->input('cpf'));
+        }
+
+        $this->merge($payload);
     }
 
     /**

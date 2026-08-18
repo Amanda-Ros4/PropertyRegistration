@@ -75,4 +75,54 @@ class PropertyReportTest extends TestCase
             ->get(route('properties.report.individual', $property))
             ->assertNotFound();
     }
+
+    public function test_synthetic_report_is_translated_with_the_locale_cookie(): void
+    {
+        $user = User::factory()->attendant()->create();
+        $this->createPropertyFor($user);
+
+        $response = $this->actingAs($user)
+            ->withUnencryptedCookie('app_locale', 'pt_BR')
+            ->get(route('properties.report.synthetic'));
+
+        $text = $this->pdfText($response->getContent());
+
+        $this->assertStringContainsString('RELAT', $text);
+        $this->assertStringContainsString('Bairro', $text);
+    }
+
+    public function test_synthetic_report_is_translated_with_the_locale_header(): void
+    {
+        $user = User::factory()->attendant()->create();
+        $this->createPropertyFor($user);
+
+        $response = $this->actingAs($user)
+            ->withHeader('X-Locale', 'es')
+            ->get(route('properties.report.synthetic'));
+
+        $text = $this->pdfText($response->getContent());
+
+        $this->assertStringContainsString('INFORME', $text);
+        $this->assertStringContainsString('Barrio', $text);
+    }
+
+    /**
+     * Concatenates the decompressed content streams so the drawn text can be asserted.
+     */
+    private function pdfText(string $pdf): string
+    {
+        preg_match_all('/stream\r?\n(.*?)\r?\nendstream/s', $pdf, $matches);
+
+        $text = '';
+
+        foreach ($matches[1] as $stream) {
+            $decoded = @gzuncompress($stream) ?: @gzinflate($stream);
+
+            if ($decoded !== false) {
+                $text .= $decoded;
+            }
+        }
+
+        return mb_convert_encoding($text, 'UTF-8', 'Windows-1252');
+    }
 }

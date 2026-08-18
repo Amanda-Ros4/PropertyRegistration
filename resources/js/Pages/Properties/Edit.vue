@@ -184,6 +184,10 @@ async function lookupCepDigits(digits) {
     form.clearErrors('neighborhood');
 }
 
+function openIndividualReport() {
+    window.open(route('properties.report.individual', props.property.id), '_blank');
+}
+
 function submit() {
     form
         .transform((data) => ({
@@ -212,7 +216,7 @@ function submit() {
                     icon="pi pi-file-pdf"
                     severity="secondary"
                     outlined
-                    @click="window.open(route('properties.report.individual', property.id), '_blank')"
+                    @click="openIndividualReport"
                 />
             </template>
         </PageHeader>

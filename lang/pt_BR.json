@@ -243,6 +243,9 @@
     "properties.reports.synthetic_title": "Relatório sintético de imóveis",
     "properties.reports.individual_title": "Relatório do imóvel #:id",
     "properties.reports.generated_at": "Gerado em",
+    "reports.municipality": "PREFEITURA MUNICIPAL DE SÃO LEOPOLDO",
+    "reports.state": "Estado do Rio Grande do Sul",
+    "reports.page_of": "de",
 
     "users.title": "Usuários",
     "users.subtitle": "Cadastre e gerencie os funcionários e estagiários com acesso ao sistema",

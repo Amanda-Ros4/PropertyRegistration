@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
@@ -25,8 +25,17 @@ const props = defineProps({
     profileOptions: { type: Array, default: () => [] },
     canUpdate: { type: Boolean, default: false },
     canChangeProfile: { type: Boolean, default: false },
+    canEditEmail: { type: Boolean, default: false },
     isSelf: { type: Boolean, default: false },
 });
+
+const page = usePage();
+
+const isTiAdmin = computed(() =>
+    Boolean(page.props.permissions?.isTiAdmin ?? props.canEditEmail),
+);
+
+const canEditUserEmail = computed(() => isTiAdmin.value && props.canUpdate);
 
 const { showValidationErrorToast } = useAppToast();
 
@@ -89,6 +98,7 @@ const profileLabelKey = {
 
 const { form, validateField } = usePrecognitiveForm('put', route('users.update', props.user.id), {
     name: props.user.name,
+    ...(page.props.permissions?.isTiAdmin || props.canEditEmail ? { email: props.user.email } : {}),
     password: '',
     password_confirmation: '',
     profile: props.user.profile,
@@ -217,8 +227,20 @@ function submit() {
 
                     <FormField
                         :label="trans('users.fields.email')"
+                        :error="form.errors.email"
+                        :required="canEditUserEmail"
                     >
                         <InputText
+                            v-if="canEditUserEmail"
+                            v-model="form.email"
+                            type="email"
+                            :placeholder="trans('users.placeholders.email')"
+                            :invalid="!!form.errors.email"
+                            class="w-full"
+                            @blur="validateField('email')"
+                        />
+                        <InputText
+                            v-else
                             :modelValue="user.email"
                             type="email"
                             class="w-full"

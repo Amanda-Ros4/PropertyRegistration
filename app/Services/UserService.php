@@ -125,6 +125,10 @@ class UserService
                 'profile' => $profile,
             ];
 
+            if ($actor->isTiAdmin() && array_key_exists('email', $data)) {
+                $payload['email'] = mb_strtolower(trim((string) $data['email']));
+            }
+
             if (! empty($data['password'])) {
                 $payload['password'] = Hash::make($data['password']);
             }

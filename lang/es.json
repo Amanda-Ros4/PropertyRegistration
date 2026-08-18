@@ -243,6 +243,9 @@
     "properties.reports.synthetic_title": "Informe sintético de inmuebles",
     "properties.reports.individual_title": "Informe del inmueble #:id",
     "properties.reports.generated_at": "Generado el",
+    "reports.municipality": "PREFEITURA MUNICIPAL DE SÃO LEOPOLDO",
+    "reports.state": "Estado do Rio Grande do Sul",
+    "reports.page_of": "de",
 
     "users.title": "Usuarios",
     "users.subtitle": "Registre y gestione empleados y pasantes con acceso al sistema",

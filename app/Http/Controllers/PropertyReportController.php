@@ -9,11 +9,14 @@ use App\Services\PropertyService;
 use App\Support\AddressInput;
 use App\Support\Digits;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\PDF as PdfDocument;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class PropertyReportController extends Controller
 {
+    private const FOOTER_FONT_SIZE = 11;
+
     public function __construct(private readonly PropertyService $propertyService) {}
 
     public function synthetic(Request $request): Response
@@ -39,8 +42,9 @@ class PropertyReportController extends Controller
 
         $pdf = Pdf::loadView('reports.properties-synthetic', [
             'properties' => $properties,
-            'generatedAt' => now(),
         ])->setPaper('a4', 'landscape');
+
+        $this->addPageNumbers($pdf);
 
         return $pdf->download('relatorio-sintetico-imoveis.pdf');
     }
@@ -56,9 +60,39 @@ class PropertyReportController extends Controller
 
         $pdf = Pdf::loadView('reports.properties-individual', [
             'property' => $property,
-            'generatedAt' => now(),
         ])->setPaper('a4', 'portrait');
 
+        $this->addPageNumbers($pdf);
+
         return $pdf->download('relatorio-imovel-'.$property->id.'.pdf');
+    }
+
+    private function addPageNumbers(PdfDocument $pdf): void
+    {
+        $pdf->render();
+
+        $dompdf = $pdf->getDomPDF();
+        $canvas = $dompdf->getCanvas();
+        $fontMetrics = $dompdf->getFontMetrics();
+        $font = $fontMetrics->getFont('Helvetica');
+
+        $text = '-- {PAGE_NUM} '.__('reports.page_of').' {PAGE_COUNT} --';
+
+        // page_text only substitutes the placeholders while writing each page, so
+        // the width is measured against the widest value they can expand to.
+        $widest = str_replace(
+            ['{PAGE_NUM}', '{PAGE_COUNT}'],
+            (string) $canvas->get_page_count(),
+            $text
+        );
+
+        $canvas->page_text(
+            ($canvas->get_width() - $fontMetrics->getTextWidth($widest, $font, self::FOOTER_FONT_SIZE)) / 2,
+            $canvas->get_height() - 34,
+            $text,
+            $font,
+            self::FOOTER_FONT_SIZE,
+            [0.25, 0.25, 0.25],
+        );
     }
 }

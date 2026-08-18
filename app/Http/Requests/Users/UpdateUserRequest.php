@@ -15,7 +15,14 @@ class UpdateUserRequest extends UserFormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->replace($this->except(['email', 'cpf', 'active']));
+        if ($this->user()?->isTiAdmin()) {
+            $this->prepareUserPayload(includeCpf: false);
+        } else {
+            $this->request->remove('email');
+        }
+
+        $this->request->remove('cpf');
+        $this->request->remove('active');
     }
 
     /**
@@ -26,12 +33,19 @@ class UpdateUserRequest extends UserFormRequest
         /** @var \App\Models\User $user */
         $user = $this->route('user');
 
-        return [
+        $rules = [
             'id' => $this->idRules(),
             'name' => $this->nameRules(),
             'password' => ['nullable', 'string', Password::default(), 'confirmed'],
             'profile' => $this->profileRules(),
             'active' => $this->lockedOnUpdateRules(),
+            'cpf' => $this->lockedOnUpdateRules(),
         ];
+
+        if ($this->user()?->isTiAdmin()) {
+            $rules['email'] = $this->emailRules($user->id);
+        }
+
+        return $rules;
     }
 }
