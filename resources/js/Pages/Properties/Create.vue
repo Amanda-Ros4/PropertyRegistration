@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
@@ -25,6 +25,7 @@ import {
 } from '@/utils/formatting';
 import { fetchAddressByCep } from '@/utils/viacep';
 import { useAppToast } from '@/composables/useAppToast';
+import { usePrecognitiveForm } from '@/composables/usePrecognitiveForm';
 import { usePropertyTypeAreas } from '@/composables/usePropertyTypeAreas';
 import PropertyDocumentsField from '@/Components/PropertyDocumentsField.vue';
 
@@ -51,7 +52,7 @@ const cepLookupError = ref('');
 const cepLoading = ref(false);
 const lastFetchedCep = ref(null);
 
-const form = useForm({
+const { form, validateField } = usePrecognitiveForm('post', route('properties.store'), {
     person_id: null,
     type: null,
     land_area: '',
@@ -205,7 +206,7 @@ function submit() {
                             :invalid="!!form.errors.person_id"
                             filter
                             class="w-full"
-                            @change="form.clearErrors('person_id')"
+                            @change="() => { form.clearErrors('person_id'); validateField('person_id'); }"
                         />
                     </FormField>
 
@@ -222,7 +223,7 @@ function submit() {
                             :placeholder="trans('properties.placeholders.type')"
                             :invalid="!!form.errors.type"
                             class="w-full"
-                            @change="onTypeChange"
+                            @change="() => { onTypeChange(); validateField('type'); validateField('land_area'); validateField('building_area'); }"
                         />
                     </FormField>
 
@@ -244,6 +245,7 @@ function submit() {
                                 class="w-full font-mono"
                                 :disabled="landAreaLocked"
                                 @update:model-value="onLandAreaInput"
+                                @blur="validateField('land_area')"
                                 @change="form.clearErrors('land_area')"
                             />
                         </div>
@@ -267,6 +269,7 @@ function submit() {
                                 class="w-full font-mono"
                                 :disabled="buildingAreaLocked"
                                 @update:model-value="onBuildingAreaInput"
+                                @blur="validateField('building_area')"
                                 @change="form.clearErrors('building_area')"
                             />
                         </div>
@@ -290,6 +293,7 @@ function submit() {
                                 :maxlength="CEP_INPUT_MAX_LENGTH"
                                 :disabled="cepLoading"
                                 @update:model-value="onCepInput"
+                                @blur="validateField('cep')"
                                 @change="form.clearErrors('cep')"
                             />
                             <i
@@ -316,6 +320,7 @@ function submit() {
                                 :invalid="!!form.errors.street"
                                 class="w-full"
                                 @update:model-value="onStreetInput"
+                                @blur="validateField('street')"
                                 @change="form.clearErrors('street')"
                             />
                         </div>
@@ -337,6 +342,7 @@ function submit() {
                                 :invalid="!!form.errors.number"
                                 class="w-full font-mono"
                                 @update:model-value="onNumberInput"
+                                @blur="validateField('number')"
                                 @change="form.clearErrors('number')"
                             />
                         </div>
@@ -357,6 +363,7 @@ function submit() {
                                 :invalid="!!form.errors.neighborhood"
                                 class="w-full"
                                 @update:model-value="onNeighborhoodInput"
+                                @blur="validateField('neighborhood')"
                                 @change="form.clearErrors('neighborhood')"
                             />
                         </div>
@@ -377,6 +384,7 @@ function submit() {
                                 :invalid="!!form.errors.complement"
                                 class="w-full"
                                 @update:model-value="onComplementInput"
+                                @blur="validateField('complement')"
                                 @change="form.clearErrors('complement')"
                             />
                         </div>

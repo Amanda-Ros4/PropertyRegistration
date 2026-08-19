@@ -1,6 +1,5 @@
 <script setup>
 import { computed } from 'vue';
-import { useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import FormField from '@/Components/FormField.vue';
 import InputText from 'primevue/inputtext';
@@ -16,6 +15,7 @@ import {
     formatAreaInput,
 } from '@/utils/formatting';
 import { useAppToast } from '@/composables/useAppToast';
+import { usePrecognitiveForm } from '@/composables/usePrecognitiveForm';
 
 const props = defineProps({
     propertyId: { type: [Number, String], required: true },
@@ -40,7 +40,7 @@ const eventLabelKey = {
     R: 'properties.endorsements.events.reactivation',
 };
 
-const form = useForm({
+const { form, validateField } = usePrecognitiveForm('post', route('properties.endorsements.store', props.propertyId), {
     event: 'O',
     measure: '',
     description: '',
@@ -75,7 +75,7 @@ function formatMeasure(value) {
 }
 
 function submit() {
-    form.post(route('properties.endorsements.store', props.propertyId), {
+    form.submit({
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
@@ -112,7 +112,7 @@ function submit() {
                     :placeholder="trans('properties.endorsements.placeholders.event')"
                     :invalid="!!form.errors.event"
                     class="w-full"
-                    @change="form.clearErrors('event')"
+                    @change="() => { form.clearErrors('event'); validateField('event'); validateField('measure'); }"
                 />
             </FormField>
 
@@ -133,6 +133,7 @@ function submit() {
                         :invalid="!!form.errors.measure"
                         class="w-full font-mono"
                         @update:model-value="onMeasureInput"
+                        @blur="validateField('measure')"
                         @change="form.clearErrors('measure')"
                     />
                 </div>
@@ -151,6 +152,7 @@ function submit() {
                     :placeholder="trans('properties.endorsements.placeholders.description')"
                     :invalid="!!form.errors.description"
                     class="w-full"
+                    @blur="validateField('description')"
                     @change="form.clearErrors('description')"
                 />
             </FormField>
