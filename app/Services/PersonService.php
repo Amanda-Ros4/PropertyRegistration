@@ -9,7 +9,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use RuntimeException;
 
 class PersonService
 {
@@ -91,17 +90,5 @@ class PersonService
         $value = trim((string) ($email ?? ''));
 
         return $value === '' ? null : mb_strtolower($value);
-    }
-
-    /**
-     * Soft-deletes a Person. Throws RuntimeException if the person has active properties.
-     */
-    public function delete(Person $person): void
-    {
-        if ($person->hasActiveProperties()) {
-            throw new RuntimeException(__('people.has_properties'));
-        }
-
-        $person->delete();
     }
 }

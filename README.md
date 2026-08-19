@@ -1,6 +1,8 @@
 # PropertyRegistration
 
-A complete real estate registration system built with Laravel 12, Vue 3, Inertia.js (SSR), Jetstream, PrimeVue, and multi-language support.
+> **Languages:** English | [Português (BR)](README.pt-BR.md)
+
+Real estate registration system built with Laravel 12, Vue 3, Inertia.js (SSR), Jetstream, PrimeVue, and multi-language support.
 
 ---
 
@@ -9,269 +11,196 @@ A complete real estate registration system built with Laravel 12, Vue 3, Inertia
 | Layer        | Technology                          |
 |--------------|-------------------------------------|
 | Backend      | Laravel 12, PHP 8.2+                |
-| Auth         | Laravel Jetstream (Fortify + Sanctum)|
-| Frontend     | Vue 3, Inertia.js v2 (SSR enabled)  |
-| UI Library   | PrimeVue 4 (Aura theme)             |
+| Auth         | Laravel Jetstream (Fortify + Sanctum) |
+| Frontend     | Vue 3, Inertia.js v2 (SSR)          |
+| UI           | PrimeVue 4 (Aura theme)             |
 | Styling      | Tailwind CSS v3                     |
 | i18n         | laravel-vue-i18n                    |
-| Database     | MySQL                               |
+| Database     | MariaDB (`mariadb` driver)          |
+| Auditing     | owen-it/laravel-auditing            |
+| Reports      | barryvdh/laravel-dompdf             |
 | Build        | Vite 7 + SSR                        |
+
+> **Note:** The project specification mentions Vuetify; the implemented UI library is **PrimeVue**, integrated throughout the frontend.
 
 ---
 
 ## Requirements
 
-- PHP 8.2+
+- PHP 8.2+ (document uploads: `upload_max_filesize` ≥ 16M and `post_max_size` ≥ 20M recommended)
 - Node.js 18+
-- MySQL 8.0+
+- MariaDB 10.6+ (or compatible MySQL 8.0+)
 - Composer 2.x
 
 ---
 
-## Setup Instructions
+## Installation
 
-### 1. Clone & Install PHP Dependencies
+### 1. Clone and install PHP dependencies
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Amanda-Ros4/PropertyRegistration.git
 cd PropertyRegistration
 composer install
 ```
 
-### 2. Environment Configuration
+Repository: [github.com/Amanda-Ros4/PropertyRegistration](https://github.com/Amanda-Ros4/PropertyRegistration)
+
+### 2. Environment
+
+**Linux / macOS / Git Bash:**
 
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-Edit `.env` with your database credentials:
+**Windows (PowerShell or CMD):**
+
+```powershell
+copy .env.example .env
+php artisan key:generate
+```
+
+Configure the database and locale in `.env`:
 
 ```env
-DB_CONNECTION=mysql
+APP_LOCALE=pt_BR
+APP_FALLBACK_LOCALE=pt_BR
+
+DB_CONNECTION=mariadb
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=properties
+DB_DATABASE=property_registration
 DB_USERNAME=root
 DB_PASSWORD=your_password
 
 VITE_APP_NAME="PropertyReg"
 ```
 
-### 3. Install Node Dependencies
+### 3. Create the database
+
+Make sure MariaDB is running, then create the database:
+
+```sql
+CREATE DATABASE property_registration CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+For local development without MariaDB, use SQLite instead (see comments in `.env.example`).
+
+### 4. Node dependencies
 
 ```bash
 npm install
 ```
 
-### 4. Database Setup
+### 5. Database migrations and seed
 
 ```bash
 php artisan migrate
-```
-
-Optionally seed demo data (creates `admin@example.com` / `password`):
-
-```bash
 php artisan db:seed
 ```
 
-### 5. Build Frontend Assets
+### 6. Assets
 
-For production:
+Production:
+
 ```bash
 npm run build
 ```
 
-For development with hot reload:
+Development:
+
 ```bash
 npm run dev
 ```
 
-### 6. Start the Application
+### 7. Server
 
 ```bash
 php artisan serve
 ```
 
-Visit `http://localhost:8000` and register or log in with the seeded account.
-
----
-
-## Running the Dev Server (All-in-One)
-
-The project includes a `dev` composer script that runs all processes concurrently:
+Or run all processes together (includes PHP upload limits for property documents):
 
 ```bash
 composer dev
 ```
 
-This starts: `php artisan serve`, queue listener, Pail log viewer, and `npm run dev` simultaneously.
+Visit `http://localhost:8000` and sign in with a seeded account. **Public registration is disabled** — users are created by administrators.
 
 ---
 
-## Architecture Overview
+## Access profiles
 
-### Backend
+| Profile              | Users module | Audit | People / properties | Reports |
+|----------------------|:------------:|:-----:|---------------------|:-------:|
+| IT Administrator     | Full         | Yes   | **All records**     | Yes     |
+| System Administrator | Manage attendants only | Yes | **Own records only** | Own records only |
+| Attendant            | No access    | No    | Own records only    | Own records only |
 
-```
-app/
-├── Enums/
-│   └── Gender.php               # Backed string enum: male, female, other, prefer_not_to_say
-├── Http/
-│   ├── Controllers/
-│   │   ├── DashboardController.php
-│   │   ├── PersonController.php
-│   │   └── PropertyController.php
-│   ├── Middleware/
-│   │   └── HandleInertiaRequests.php  # Shares flash, locale, ziggy props
-│   └── Requests/
-│       ├── People/
-│       │   ├── StorePersonRequest.php
-│       │   └── UpdatePersonRequest.php
-│       └── Properties/
-│           ├── StorePropertyRequest.php
-│           └── UpdatePropertyRequest.php
-├── Models/
-│   ├── User.php
-│   ├── Person.php               # Scopes: forUser, search
-│   └── Property.php             # Scopes: forUser, search, filterByPerson
-├── Policies/
-│   ├── PersonPolicy.php         # Auto-discovered by Laravel
-│   └── PropertyPolicy.php
-├── Rules/
-│   └── ValidCpf.php             # Full CPF digit validation
-└── Services/
-    ├── PersonService.php        # Business logic + deletion protection
-    └── PropertyService.php
-```
+### Profile details
 
-### Frontend
+- **IT Administrator** — Full access; can edit user emails and profiles; sees all data.
+- **System Administrator** — Creates and edits **attendants only**; cannot create or edit IT administrators; manages users and audit; people and properties are scoped to their own `user_id`.
+- **Attendant** — Creates and views only their own people and properties; no access to users or audit.
 
-```
-resources/js/
-├── app.js                       # Client entry point
-├── ssr.js                       # SSR entry point (eager i18n loading)
-├── composables/
-│   ├── useTheme.js              # Dark/light toggle, localStorage persistence
-│   └── useLocale.js             # Language switcher + PrimeVue locale maps
-├── plugins/
-│   ├── primevue.js              # PrimeVue config (Aura preset, dark mode)
-│   └── i18n.js                  # laravel-vue-i18n setup (SSR-safe)
-├── Layouts/
-│   └── AppLayout.vue            # Main layout with nav, theme, lang, flash toasts
-├── Components/
-│   ├── PageHeader.vue           # Page title + create/back buttons
-│   ├── FilterBar.vue            # Search input + optional select filter
-│   ├── EmptyState.vue           # Empty table state component
-│   ├── DeleteConfirmation.vue   # ConfirmDialog wrapper
-│   ├── FormCard.vue             # Form wrapper card
-│   └── FormField.vue            # Label + slot + error display
-└── Pages/
-    ├── Dashboard.vue
-    ├── People/
-    │   ├── Index.vue
-    │   ├── Create.vue
-    │   └── Edit.vue
-    └── Properties/
-        ├── Index.vue
-        ├── Create.vue
-        └── Edit.vue
-```
+### General rules
+
+- Users **cannot be deleted** — only activated or deactivated.
+- People and properties **cannot be deleted** through the UI.
+- Property **area and status** change only through **endorsements**.
+- CPF is **locked after user creation** (except IT Administrator can change profiles).
+
+---
+
+## Modules
+
+- **Users** — create, edit, activate/deactivate; no deletion
+- **People** — registration and search with filters
+- **Properties** — registration, documents, endorsements (area and status)
+- **Endorsements** — only way to change property area and status
+- **PDF reports** — synthetic and individual, translated by locale
+- **Audit** — listing, filters, and details (Laravel Auditing; IT and System administrators only)
 
 ---
 
 ## Multi-tenancy
 
-Every `Person` and `Property` record is scoped to `user_id`. The system enforces:
-
-- All queries use `scopeForUser($userId)` — users can never see each other's data
-- Form Requests validate `person_id` belongs to the authenticated user
-- Policies (`PersonPolicy`, `PropertyPolicy`) enforce ownership on edit/delete
-- CPF uniqueness is scoped **per tenant** (`UNIQUE(user_id, cpf)`)
-
----
-
-## Validation Rules
-
-### Person
-| Field       | Rules                                              |
-|-------------|---------------------------------------------------|
-| name        | required, string, max:255                         |
-| birth_date  | required, date, before_or_equal:today             |
-| cpf         | required, ValidCpf rule, unique per user_id       |
-| gender      | required, Gender enum                             |
-| phone       | nullable, string, max:20                          |
-| email       | nullable, email, max:255                          |
-
-### Property
-| Field        | Rules                                             |
-|--------------|--------------------------------------------------|
-| person_id    | required, exists in people scoped to user_id     |
-| street       | required, string, max:255                        |
-| number       | required, string, max:20                         |
-| neighborhood | required, string, max:255                        |
-| complement   | nullable, string, max:255                        |
-
----
-
-## Deletion Rules
-
-- **Person with active Properties**: deletion is **blocked** with a clear error message
-- **Property**: soft-deleted safely
-- Both models use `SoftDeletes`; hard deletion is never exposed in the UI
+`Person` and `Property` records belong to a `user_id`. Attendants and System Administrators see only their own data. The **IT Administrator** sees all records via `canAccessAllRecords()`.
 
 ---
 
 ## Internationalization
 
-Languages supported: **English** (`en`), **Português** (`pt_BR`), **Español** (`es`)
+Languages: **Portuguese** (`pt_BR`), **English** (`en`), **Spanish** (`es`).
 
-- Translation files: `lang/en.json`, `lang/pt_BR.json`, `lang/es.json`
-- Library: `laravel-vue-i18n` v2.x
-- SSR-safe: uses `import.meta.glob(..., { eager: true })` for synchronous resolution
-- PrimeVue locale maps for calendar, paginator, and UI components per language
-- User preference persisted in `localStorage`
-- Language switcher available in the navigation bar
+Translation files: `lang/pt_BR.json`, `lang/en.json`, and `lang/es.json`.
+
+The in-app language switcher persists the choice in a cookie (`app_locale`).
 
 ---
 
-## Dark / Light Mode
+## Tests
 
-- PrimeVue configured with `darkModeSelector: '.dark'`
-- Tailwind configured with `darkMode: 'class'`
-- Toggle adds/removes `.dark` class on `<html>`
-- Preference persisted in `localStorage`
-- Respects OS preference on first visit
+Automated tests use in-memory SQLite (configured in `phpunit.xml`):
 
----
-
-## Suggested Commit Steps
-
-```
-git commit -m "feat: initial Laravel 12 + Jetstream + Inertia SSR setup"
-git commit -m "feat: install and configure PrimeVue 4 + laravel-vue-i18n"
-git commit -m "feat: add dark/light theme and multi-language support"
-git commit -m "feat: create migrations for people and properties tables"
-git commit -m "feat: add Person and Property models with tenant scopes"
-git commit -m "feat: add Gender enum and ValidCpf validation rule"
-git commit -m "feat: implement PersonService with deletion protection"
-git commit -m "feat: implement PropertyService"
-git commit -m "feat: add PersonController and PropertyController with full CRUD"
-git commit -m "feat: add PersonPolicy and PropertyPolicy for authorization"
-git commit -m "feat: rebuild AppLayout with PrimeVue nav, theme toggle, lang switcher"
-git commit -m "feat: create People pages (Index, Create, Edit)"
-git commit -m "feat: create Properties pages (Index, Create, Edit)"
-git commit -m "feat: create Dashboard with stats and recent records"
-git commit -m "feat: add database seeders with demo data"
-git commit -m "docs: add README with full setup and architecture guide"
+```bash
+php artisan test
 ```
 
 ---
 
-## Test Credentials (after seeding)
+## Credentials (after seed)
 
-| Field    | Value               |
-|----------|---------------------|
-| Email    | admin@example.com   |
-| Password | password            |
+| Profile              | Email                 | Password |
+|----------------------|-----------------------|----------|
+| IT Administrator     | ti@example.com        | password |
+| System Administrator | admin@example.com     | password |
+| Attendant            | atendente@example.com | password |
+
+---
+
+## License
+
+MIT — see [composer.json](composer.json).

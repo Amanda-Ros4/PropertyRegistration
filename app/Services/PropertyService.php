@@ -102,12 +102,6 @@ class PropertyService
         });
     }
 
-    public function delete(Property $property): void
-    {
-        $this->documentService->deleteAllForProperty($property);
-        $property->delete();
-    }
-
     /**
      * @param  array<string, mixed>  $data
      * @return array<int, UploadedFile>

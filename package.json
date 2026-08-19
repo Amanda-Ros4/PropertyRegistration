@@ -27,7 +27,6 @@
         "vue": "^3.3.13"
     },
     "dependencies": {
-        "laravel-precognition-vue-inertia": "^0.8.0",
-        "vuetify": "^4.1.8"
+        "laravel-precognition-vue-inertia": "^0.8.0"
     }
 }

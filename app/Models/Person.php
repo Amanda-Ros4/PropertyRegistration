@@ -306,11 +306,6 @@ class Person extends Model implements Auditable
 
     // ─── Helpers ────────────────────────────────────────────────────────────────
 
-    public function hasActiveProperties(): bool
-    {
-        return $this->properties()->whereNull('deleted_at')->exists();
-    }
-
     public function getFormattedCpfAttribute(): string
     {
         $cpf = preg_replace('/[^0-9]/', '', $this->cpf);
