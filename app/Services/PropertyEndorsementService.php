@@ -6,7 +6,6 @@ use App\Enums\EndorsementEvent;
 use App\Enums\PropertyStatus;
 use App\Models\Property;
 use App\Models\PropertyEndorsement;
-use App\Support\AuditLogger;
 use Illuminate\Support\Facades\DB;
 
 class PropertyEndorsementService
@@ -40,11 +39,6 @@ class PropertyEndorsementService
                 ]),
                 EndorsementEvent::Observation => null,
             };
-
-            AuditLogger::record('endorsed', $property, __('audit.descriptions.endorsement_created', [
-                'id' => $property->id,
-                'event' => __($event->labelKey()),
-            ]));
 
             return $endorsement;
         });

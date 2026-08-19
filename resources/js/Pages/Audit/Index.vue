@@ -1,32 +1,47 @@
 <script setup>
+import { computed } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
-import FilterBar from '@/Components/FilterBar.vue';
+import AuditFilters from '@/Components/AuditFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Tag from 'primevue/tag';
+import Button from 'primevue/button';
 import Paginator from 'primevue/paginator';
 
 const props = defineProps({
     logs: { type: Object, required: true },
     filters: { type: Object, default: () => ({}) },
+    filterOptions: { type: Object, default: () => ({}) },
 });
 
 const page = usePage();
 
-const actionSeverity = {
+const eventSeverity = {
     created: 'success',
     updated: 'info',
-    activated: 'success',
-    deactivated: 'warn',
-    endorsed: 'info',
+    deleted: 'danger',
+    restored: 'warn',
 };
 
-function actionLabel(action) {
-    return trans(`audit.actions.${action}`);
+const hasActiveFilters = computed(() =>
+    Boolean(
+        props.filters.user_id
+        || props.filters.event
+        || props.filters.date
+        || props.filters.auditable_type,
+    ),
+);
+
+function eventLabel(event) {
+    return trans(`audit.events.${event}`);
+}
+
+function tableLabel(labelKey) {
+    return trans(labelKey);
 }
 
 function formatDateTime(value) {
@@ -44,7 +59,9 @@ function formatDateTime(value) {
 
 function onPageChange(event) {
     router.get(route('audit.index'), {
-        ...props.filters,
+        ...Object.fromEntries(
+            Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
+        ),
         page: event.page + 1,
     }, {
         preserveState: true,
@@ -62,18 +79,17 @@ function onPageChange(event) {
             :subtitle="trans('audit.subtitle')"
         />
 
-        <FilterBar
-            routeName="audit.index"
-            :searchPlaceholder="trans('audit.search_placeholder')"
-            :initialSearch="filters.search"
+        <AuditFilters
+            :filters="filters"
+            :filterOptions="filterOptions"
         />
 
         <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
             <EmptyState
                 v-if="logs.data.length === 0"
                 icon="pi pi-history"
-                :title="trans('audit.empty')"
-                :description="trans('audit.empty_description')"
+                :title="hasActiveFilters ? trans('audit.empty_filtered') : trans('audit.empty')"
+                :description="hasActiveFilters ? trans('audit.empty_filtered_description') : trans('audit.empty_description')"
             />
 
             <template v-else>
@@ -84,9 +100,9 @@ function onPageChange(event) {
                     tableClass="w-full"
                     stripedRows
                 >
-                    <Column :header="trans('audit.fields.date')" style="width: 180px">
+                    <Column :header="trans('audit.fields.id')" style="width: 80px">
                         <template #body="{ data }">
-                            <span class="font-mono text-sm">{{ formatDateTime(data.created_at) }}</span>
+                            <span class="font-mono font-medium text-indigo-600 dark:text-indigo-400">#{{ data.id }}</span>
                         </template>
                     </Column>
                     <Column :header="trans('audit.fields.user')">
@@ -97,15 +113,40 @@ function onPageChange(event) {
                             </div>
                         </template>
                     </Column>
-                    <Column :header="trans('audit.fields.action')" style="width: 140px">
+                    <Column :header="trans('audit.fields.event')" style="width: 140px">
                         <template #body="{ data }">
                             <Tag
-                                :value="actionLabel(data.action)"
-                                :severity="actionSeverity[data.action] || 'secondary'"
+                                :value="eventLabel(data.event)"
+                                :severity="eventSeverity[data.event] || 'secondary'"
                             />
                         </template>
                     </Column>
-                    <Column field="description" :header="trans('audit.fields.description')" />
+                    <Column :header="trans('audit.fields.datetime')" style="width: 180px">
+                        <template #body="{ data }">
+                            <span class="font-mono text-sm">{{ formatDateTime(data.created_at) }}</span>
+                        </template>
+                    </Column>
+                    <Column :header="trans('audit.fields.table')">
+                        <template #body="{ data }">
+                            {{ tableLabel(data.table_label_key) }}
+                        </template>
+                    </Column>
+                    <Column :header="trans('audit.fields.audited_id')" style="width: 110px">
+                        <template #body="{ data }">
+                            <span class="font-mono">{{ data.auditable_id ?? '—' }}</span>
+                        </template>
+                    </Column>
+                    <Column :header="trans('audit.fields.details')" style="width: 120px">
+                        <template #body="{ data }">
+                            <Button
+                                :label="trans('audit.details')"
+                                icon="pi pi-eye"
+                                text
+                                size="small"
+                                @click="router.visit(route('audit.show', data.id))"
+                            />
+                        </template>
+                    </Column>
                 </DataTable>
 
                 <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">

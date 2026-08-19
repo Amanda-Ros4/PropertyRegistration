@@ -1,5 +1,4 @@
 @php
-    /** @var string $title */
     $logoPath = public_path('images/report-logo.png');
     $hasLogo = is_file($logoPath);
 @endphp
@@ -63,7 +62,6 @@
             color: #404040;
         }
 
-        /* Key/value table used by the individual report. */
         table.details th { width: 32%; }
     </style>
 </head>

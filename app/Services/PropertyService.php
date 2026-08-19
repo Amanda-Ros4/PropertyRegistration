@@ -7,7 +7,6 @@ use App\Enums\PropertyType;
 use App\Models\Person;
 use App\Models\Property;
 use App\Models\User;
-use App\Support\AuditLogger;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -80,10 +79,6 @@ class PropertyService
 
             $this->documentService->storeMany($property, $this->uploadedDocuments($data));
 
-            AuditLogger::record('created', $property, __('audit.descriptions.property_created', [
-                'id' => $property->id,
-            ]));
-
             return $property;
         });
     }
@@ -102,10 +97,6 @@ class PropertyService
                 'neighborhood' => $data['neighborhood'],
                 'complement' => $data['complement'] ?? null,
             ]);
-
-            AuditLogger::record('updated', $property, __('audit.descriptions.property_updated', [
-                'id' => $property->id,
-            ]));
 
             return $property->fresh();
         });

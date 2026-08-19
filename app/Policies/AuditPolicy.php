@@ -2,17 +2,17 @@
 
 namespace App\Policies;
 
-use App\Models\AuditLog;
+use App\Models\Audit;
 use App\Models\User;
 
-class AuditLogPolicy
+class AuditPolicy
 {
     public function viewAny(User $user): bool
     {
         return $user->canViewAudit();
     }
 
-    public function view(User $user, AuditLog $auditLog): bool
+    public function view(User $user, Audit $audit): bool
     {
         return $user->canViewAudit();
     }

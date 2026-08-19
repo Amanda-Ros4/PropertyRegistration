@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PropertyController;
@@ -34,7 +34,8 @@ Route::middleware([
     Route::patch('/users/{user}/active', [UserController::class, 'updateActive'])->name('users.active.update');
     Route::match(['put', 'patch'], '/users/{user}', [UserController::class, 'update'])->name('users.update')->middleware(Precognition::class);
 
-    Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
+    Route::get('/audit', [AuditController::class, 'index'])->name('audit.index');
+    Route::get('/audit/{audit}', [AuditController::class, 'show'])->name('audit.show');
 
     Route::prefix('people')->group(function () {
         Route::get('/', [PersonController::class, 'index'])->name('people.index');

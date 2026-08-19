@@ -13,9 +13,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
+    use AuditableTrait;
     use HasApiTokens;
 
     /** @use HasFactory<UserFactory> */
@@ -52,6 +55,13 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+    ];
+
+    protected $auditExclude = [
+        'password',
+        'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     public function people(): HasMany

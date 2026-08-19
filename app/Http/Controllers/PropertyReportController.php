@@ -78,8 +78,6 @@ class PropertyReportController extends Controller
 
         $text = '-- {PAGE_NUM} '.__('reports.page_of').' {PAGE_COUNT} --';
 
-        // page_text only substitutes the placeholders while writing each page, so
-        // the width is measured against the widest value they can expand to.
         $widest = str_replace(
             ['{PAGE_NUM}', '{PAGE_COUNT}'],
             (string) $canvas->get_page_count(),

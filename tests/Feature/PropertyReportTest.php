@@ -106,9 +106,6 @@ class PropertyReportTest extends TestCase
         $this->assertStringContainsString('Barrio', $text);
     }
 
-    /**
-     * Concatenates the decompressed content streams so the drawn text can be asserted.
-     */
     private function pdfText(string $pdf): string
     {
         preg_match_all('/stream\r?\n(.*?)\r?\nendstream/s', $pdf, $matches);

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Person;
 use App\Models\User;
-use App\Support\AuditLogger;
 use App\Support\Digits;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -68,10 +67,6 @@ class PersonService
                 'email' => $this->normalizeEmail($data['email'] ?? null),
             ]);
 
-            AuditLogger::record('created', $person, __('audit.descriptions.person_created', [
-                'name' => $person->name,
-            ]));
-
             return $person;
         });
     }
@@ -86,10 +81,6 @@ class PersonService
                 'phone' => Digits::onlyOrNull($data['phone'] ?? null),
                 'email' => $this->normalizeEmail($data['email'] ?? null),
             ]);
-
-            AuditLogger::record('updated', $person, __('audit.descriptions.person_updated', [
-                'name' => $person->name,
-            ]));
 
             return $person->fresh();
         });

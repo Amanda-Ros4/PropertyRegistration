@@ -8,6 +8,7 @@ use App\Enums\PropertyStatus;
 use App\Enums\PropertyType;
 use App\Models\Person;
 use App\Models\Property;
+use App\Models\PropertyEndorsement;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -65,10 +66,9 @@ class PropertyEndorsementTest extends TestCase
             'event' => EndorsementEvent::IncreaseInBuiltArea->value,
             'measure' => 10.50,
         ]);
-        $this->assertDatabaseHas('audit_logs', [
-            'action' => 'endorsed',
-            'auditable_type' => Property::class,
-            'auditable_id' => $property->id,
+        $this->assertDatabaseHas('audits', [
+            'event' => 'created',
+            'auditable_type' => PropertyEndorsement::class,
         ]);
     }
 
