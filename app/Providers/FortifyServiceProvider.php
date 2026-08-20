@@ -15,6 +15,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Contracts\RegisterResponse;
+use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -24,7 +26,23 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(RegisterResponse::class, function () {
+            return new class implements RegisterResponse
+            {
+                public function toResponse($request)
+                {
+                    $user = $request->user();
+
+                    if (Features::enabled(Features::emailVerification())
+                        && $user
+                        && ! $user->hasVerifiedEmail()) {
+                        return redirect()->route('verification.notice');
+                    }
+
+                    return redirect()->intended(config('fortify.home'));
+                }
+            };
+        });
     }
 
     /**

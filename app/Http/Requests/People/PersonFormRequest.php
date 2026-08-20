@@ -8,6 +8,7 @@ use App\Rules\ValidBrazilianMobile;
 use App\Rules\ValidCpf;
 use App\Support\BirthDate;
 use App\Support\Digits;
+use App\Support\EmailValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -70,9 +71,7 @@ abstract class PersonFormRequest extends FormRequest
     protected function emailRules(?int $ignorePersonId = null): array
     {
         return [
-            'nullable',
-            'email',
-            'max:255',
+            ...EmailValidation::rules(required: false),
             $this->uniqueForUser('email', $ignorePersonId),
         ];
     }

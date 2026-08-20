@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -7,6 +7,7 @@ import PageHeader from '@/Components/PageHeader.vue';
 import FormCard from '@/Components/FormCard.vue';
 import FormField from '@/Components/FormField.vue';
 import BirthDateInput from '@/Components/BirthDateInput.vue';
+import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
@@ -29,7 +30,10 @@ const { showValidationErrorToast } = useAppToast();
 
 const props = defineProps({
     person: { type: Object, required: true },
+    canDelete: { type: Boolean, default: true },
 });
+
+const deleteConfirmRef = ref(null);
 
 const genderOptions = computed(() => [
     { value: 'male', label: trans('genders.male') },
@@ -78,6 +82,18 @@ function onBirthDateInput(value) {
 function submit() {
     form.submit({
         onError: showValidationErrorToast,
+    });
+}
+
+function openDeleteConfirm() {
+    deleteConfirmRef.value?.open();
+}
+
+function deletePerson() {
+    router.delete(route('people.destroy', props.person.id), {
+        onFinish: () => {
+            deleteConfirmRef.value = null;
+        },
     });
 }
 </script>
@@ -171,22 +187,42 @@ function submit() {
                     </FormField>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
+                <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
                     <Button
+                        v-if="canDelete"
                         type="button"
-                        :label="trans('common.cancel')"
-                        severity="secondary"
+                        :label="trans('common.delete')"
+                        icon="pi pi-trash"
+                        severity="danger"
                         outlined
-                        @click="router.visit(route('people.index'))"
+                        @click="openDeleteConfirm"
                     />
-                    <Button
-                        type="submit"
-                        :label="trans('common.save')"
-                        icon="pi pi-check"
-                        :loading="form.processing || form.validating"
-                    />
+
+                    <div class="flex justify-end gap-3" :class="{ 'sm:ml-auto': canDelete }">
+                        <Button
+                            type="button"
+                            :label="trans('common.cancel')"
+                            severity="secondary"
+                            outlined
+                            @click="router.visit(route('people.index'))"
+                        />
+                        <Button
+                            type="submit"
+                            :label="trans('common.save')"
+                            icon="pi pi-check"
+                            :loading="form.processing || form.validating"
+                        />
+                    </div>
                 </div>
             </form>
         </FormCard>
+
+        <DeleteConfirmation
+            v-if="canDelete"
+            ref="deleteConfirmRef"
+            :title="trans('people.delete_confirm_title')"
+            :message="trans('people.delete_confirm_message_detail', { name: person.name })"
+            @confirm="deletePerson"
+        />
     </AppLayout>
 </template>

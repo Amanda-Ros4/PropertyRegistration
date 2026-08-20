@@ -1,6 +1,8 @@
 <script setup>
+import { computed } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import { formatDateTimeDisplay } from '@/utils/formatting';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import Tag from 'primevue/tag';
@@ -11,6 +13,8 @@ const props = defineProps({
 
 const page = usePage();
 
+const pageTitle = computed(() => trans('audit.details_title', { id: props.audit.id }));
+
 const eventSeverity = {
     created: 'success',
     updated: 'info',
@@ -19,25 +23,24 @@ const eventSeverity = {
 };
 
 function formatDateTime(value) {
-    if (!value) {
-        return '—';
-    }
+    return formatDateTimeDisplay(value, page.props.locale);
+}
 
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-        return value;
-    }
+function eventLabel(event) {
+    return event ? trans(`audit.events.${event}`) : '—';
+}
 
-    return date.toLocaleString(page.props.locale || 'pt-BR');
+function tableLabel(labelKey) {
+    return labelKey ? trans(labelKey) : '—';
 }
 </script>
 
 <template>
-    <AppLayout :title="trans('audit.details_title', { id: audit.id })">
-        <Head :title="trans('audit.details_title', { id: audit.id })" />
+    <AppLayout :title="pageTitle">
+        <Head :title="pageTitle" />
 
         <PageHeader
-            :title="trans('audit.details_title', { id: audit.id })"
+            :title="pageTitle"
             :subtitle="trans('audit.details_subtitle')"
             backRoute="audit.index"
             :backLabel="trans('common.back')"
@@ -67,7 +70,7 @@ function formatDateTime(value) {
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ trans('audit.fields.event') }}</dt>
                     <dd class="sm:col-span-2">
                         <Tag
-                            :value="trans(`audit.events.${audit.event}`)"
+                            :value="eventLabel(audit.event)"
                             :severity="eventSeverity[audit.event] || 'secondary'"
                         />
                     </dd>
@@ -75,7 +78,7 @@ function formatDateTime(value) {
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ trans('audit.fields.table') }}</dt>
-                    <dd class="sm:col-span-2">{{ trans(audit.table_label_key) }}</dd>
+                    <dd class="sm:col-span-2">{{ tableLabel(audit.table_label_key) }}</dd>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">

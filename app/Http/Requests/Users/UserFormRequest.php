@@ -7,6 +7,7 @@ use App\Enums\ActiveStatus;
 use App\Enums\UserProfile;
 use App\Rules\ValidCpf;
 use App\Support\Digits;
+use App\Support\EmailValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -55,7 +56,7 @@ abstract class UserFormRequest extends FormRequest
             $rule->ignore($ignoreUserId);
         }
 
-        return ['required', 'email', 'max:255', $rule];
+        return [...EmailValidation::rules(required: true), $rule];
     }
 
     /**

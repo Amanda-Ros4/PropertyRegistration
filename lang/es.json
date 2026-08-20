@@ -146,6 +146,7 @@
     "people.cannot_delete_with_properties": "No es posible eliminar una persona vinculada a inmuebles.",
     "people.delete_confirm_title": "Eliminar persona",
     "people.delete_confirm_message": "¿Está seguro de que desea eliminar esta persona? Esta acción no se puede deshacer.",
+    "people.delete_confirm_message_detail": "¿Está seguro de que desea eliminar a \":name\"? Esta acción no se puede deshacer.",
 
     "properties.title": "Propiedades",
     "properties.subtitle": "Gestiona las propiedades registradas",
@@ -206,6 +207,7 @@
     "properties.deleted": "Propiedad eliminada exitosamente.",
     "properties.delete_confirm_title": "Eliminar propiedad",
     "properties.delete_confirm_message": "¿Está seguro de que desea eliminar esta propiedad? Esta acción no se puede deshacer.",
+    "properties.delete_confirm_message_detail": "¿Está seguro de que desea eliminar la propiedad con inscripción municipal #:registration? Esta acción no se puede deshacer.",
     "properties.fields.documents": "Documentos",
     "properties.documents.hint": "Fotos, croquis, certificados y otros. Formatos: JPG, JPEG, PNG o PDF. Hasta 5 archivos, 3 MB cada uno.",
     "properties.documents.attach": "Anexar documentos",

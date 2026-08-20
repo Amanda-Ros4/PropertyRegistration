@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -21,6 +21,16 @@ const props = defineProps({
 
 const deleteConfirmRef = ref(null);
 const personToDelete = ref(null);
+
+const deleteConfirmMessage = computed(() => {
+    if (!personToDelete.value) {
+        return trans('people.delete_confirm_message');
+    }
+
+    return trans('people.delete_confirm_message_detail', {
+        name: personToDelete.value.name,
+    });
+});
 
 const genderSeverity = {
     male: 'info',
@@ -87,6 +97,8 @@ function deletePerson() {
                 <DataTable
                     :value="people.data"
                     :rowHover="true"
+                    scrollable
+                    scrollDirection="horizontal"
                     class="rounded-xl overflow-hidden"
                     tableClass="w-full"
                     stripedRows
@@ -121,28 +133,35 @@ function deletePerson() {
                             {{ data.email || '—' }}
                         </template>
                     </Column>
-                    <Column :header="trans('common.actions')" style="width: 120px">
+                    <Column
+                        :header="trans('common.actions')"
+                        frozen
+                        alignFrozen="right"
+                        style="width: 9rem; min-width: 9rem"
+                    >
                         <template #body="{ data }">
-                            <Button
-                                icon="pi pi-eye"
-                                text
-                                rounded
-                                size="small"
-                                severity="secondary"
-                                :aria-label="trans('common.view')"
-                                :title="trans('common.view')"
-                                @click="router.visit(route('people.edit', data.id))"
-                            />
-                            <Button
-                                icon="pi pi-trash"
-                                text
-                                rounded
-                                size="small"
-                                severity="danger"
-                                :aria-label="trans('common.delete')"
-                                :title="trans('common.delete')"
-                                @click="confirmDelete(data)"
-                            />
+                            <div class="flex items-center justify-end gap-1 shrink-0">
+                                <Button
+                                    icon="pi pi-eye"
+                                    text
+                                    rounded
+                                    size="small"
+                                    severity="secondary"
+                                    :aria-label="trans('common.view')"
+                                    :title="trans('common.view')"
+                                    @click="router.visit(route('people.edit', data.id))"
+                                />
+                                <Button
+                                    icon="pi pi-trash"
+                                    text
+                                    rounded
+                                    size="small"
+                                    severity="danger"
+                                    :aria-label="trans('common.delete')"
+                                    :title="trans('common.delete')"
+                                    @click="confirmDelete(data)"
+                                />
+                            </div>
                         </template>
                     </Column>
                 </DataTable>
@@ -166,7 +185,7 @@ function deletePerson() {
         <DeleteConfirmation
             ref="deleteConfirmRef"
             :title="trans('people.delete_confirm_title')"
-            :message="trans('people.delete_confirm_message')"
+            :message="deleteConfirmMessage"
             @confirm="deletePerson"
         />
     </AppLayout>

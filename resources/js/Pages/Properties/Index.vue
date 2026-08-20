@@ -12,7 +12,7 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Paginator from 'primevue/paginator';
-import { formatCpfDisplay } from '@/utils/formatting';
+import { formatCepDisplay, formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
     properties: { type: Object, required: true },
@@ -22,6 +22,16 @@ const props = defineProps({
 
 const deleteConfirmRef = ref(null);
 const propertyToDelete = ref(null);
+
+const deleteConfirmMessage = computed(() => {
+    if (!propertyToDelete.value) {
+        return trans('properties.delete_confirm_message');
+    }
+
+    return trans('properties.delete_confirm_message_detail', {
+        registration: propertyToDelete.value.id,
+    });
+});
 
 const peopleOptions = computed(() =>
     props.people.map(p => ({
@@ -148,6 +158,16 @@ function deleteProperty() {
                             <span v-else class="text-gray-400">—</span>
                         </template>
                     </Column>
+                    <Column :header="trans('properties.fields.cep')" style="width: 110px">
+                        <template #body="{ data }">
+                            <span class="font-mono text-sm">{{ data.cep ? formatCepDisplay(data.cep) : '—' }}</span>
+                        </template>
+                    </Column>
+                    <Column :header="trans('properties.fields.complement')">
+                        <template #body="{ data }">
+                            {{ data.complement || '—' }}
+                        </template>
+                    </Column>
                     <Column :header="trans('properties.fields.status')" style="width: 110px">
                         <template #body="{ data }">
                             <Tag
@@ -201,7 +221,7 @@ function deleteProperty() {
         <DeleteConfirmation
             ref="deleteConfirmRef"
             :title="trans('properties.delete_confirm_title')"
-            :message="trans('properties.delete_confirm_message')"
+            :message="deleteConfirmMessage"
             @confirm="deleteProperty"
         />
     </AppLayout>

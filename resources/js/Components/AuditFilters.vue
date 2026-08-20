@@ -16,6 +16,8 @@ const event = ref(props.filters.event ?? null);
 const auditableType = ref(props.filters.auditable_type ?? null);
 const date = ref(props.filters.date ? new Date(`${props.filters.date}T12:00:00`) : null);
 
+let debounceTimer = null;
+
 const userOptions = computed(() =>
     (props.filterOptions.users ?? []).map((user) => ({
         value: user.id,
@@ -41,7 +43,10 @@ const hasActiveFilters = computed(() =>
     Boolean(userId.value || event.value || auditableType.value || date.value),
 );
 
-watch([userId, event, auditableType, date], () => applyFilters());
+watch([userId, event, auditableType], () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => applyFilters(), 200);
+});
 
 function formatDateParam(value) {
     if (!value) {
@@ -55,7 +60,7 @@ function formatDateParam(value) {
     return `${year}-${month}-${day}`;
 }
 
-function applyFilters() {
+function buildParams() {
     const params = {};
 
     if (userId.value) params.user_id = userId.value;
@@ -65,11 +70,44 @@ function applyFilters() {
     const dateValue = formatDateParam(date.value);
     if (dateValue) params.date = dateValue;
 
+    return params;
+}
+
+function paramsMatchCurrentQuery(params) {
+    const current = new URLSearchParams(window.location.search);
+
+    for (const [key, value] of Object.entries(params)) {
+        if (current.get(key) !== String(value)) {
+            return false;
+        }
+    }
+
+    for (const key of ['user_id', 'event', 'auditable_type', 'date']) {
+        if (!(key in params) && current.has(key)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function applyFilters() {
+    const params = buildParams();
+
+    if (paramsMatchCurrentQuery(params)) {
+        return;
+    }
+
     router.get(route('audit.index'), params, {
         preserveState: true,
         preserveScroll: true,
         replace: true,
     });
+}
+
+function onDateFilterChange() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => applyFilters(), 200);
 }
 
 function clearFilters() {
@@ -117,6 +155,8 @@ function clearFilters() {
                 showIcon
                 showClear
                 class="w-full"
+                @date-select="onDateFilterChange"
+                @clear-click="onDateFilterChange"
             />
 
             <Select

@@ -146,6 +146,7 @@
     "people.cannot_delete_with_properties": "Não é possível excluir uma pessoa vinculada a imóveis.",
     "people.delete_confirm_title": "Excluir pessoa",
     "people.delete_confirm_message": "Tem certeza que deseja excluir esta pessoa? Esta ação não pode ser desfeita.",
+    "people.delete_confirm_message_detail": "Tem certeza que deseja excluir \":name\"? Esta ação não pode ser desfeita.",
 
     "properties.title": "Imóveis",
     "properties.subtitle": "Gerencie os imóveis cadastrados",
@@ -206,6 +207,7 @@
     "properties.deleted": "Imóvel excluído com sucesso.",
     "properties.delete_confirm_title": "Excluir imóvel",
     "properties.delete_confirm_message": "Tem certeza que deseja excluir este imóvel? Esta ação não pode ser desfeita.",
+    "properties.delete_confirm_message_detail": "Tem certeza que deseja excluir o imóvel de inscrição municipal #:registration? Esta ação não pode ser desfeita.",
     "properties.fields.documents": "Documentos",
     "properties.documents.hint": "Fotos, croquis, certidões e outros. Formatos: JPG, JPEG, PNG ou PDF. Até 5 arquivos, 3 MB cada.",
     "properties.documents.attach": "Anexar documentos",

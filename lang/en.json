@@ -1,5 +1,5 @@
 {
-    "site.name": "PropertyReg",
+    "site.name": "Property Registration",
     "site.context_short": "IPTU Office",
     "welcome.title": "Home",
     "welcome.agency": "Municipal Treasury Department · IPTU Office",
@@ -146,6 +146,7 @@
     "people.cannot_delete_with_properties": "Cannot delete a person linked to properties.",
     "people.delete_confirm_title": "Delete person",
     "people.delete_confirm_message": "Are you sure you want to delete this person? This action cannot be undone.",
+    "people.delete_confirm_message_detail": "Are you sure you want to delete \":name\"? This action cannot be undone.",
 
     "properties.title": "Properties",
     "properties.subtitle": "Manage registered properties",
@@ -206,6 +207,7 @@
     "properties.deleted": "Property deleted successfully.",
     "properties.delete_confirm_title": "Delete property",
     "properties.delete_confirm_message": "Are you sure you want to delete this property? This action cannot be undone.",
+    "properties.delete_confirm_message_detail": "Are you sure you want to delete the property with municipal registration #:registration? This action cannot be undone.",
     "properties.fields.documents": "Documents",
     "properties.documents.hint": "Photos, sketches, certificates and other files. Formats: JPG, JPEG, PNG or PDF. Up to 5 files, 3 MB each.",
     "properties.documents.attach": "Attach documents",

@@ -147,18 +147,18 @@ Acesse `http://localhost:8000` e faça login com uma conta do seed. **O cadastro
 
 ### Regras gerais
 
-- Usuários **não podem ser excluídos** — apenas ativados ou desativados.
-- Pessoas e imóveis **não podem ser excluídos** pela interface.
+- Usuários **não podem ser excluídos** — apenas ativados ou desativados. Contas novas precisam **verificar o e-mail** antes de acessar o sistema (link enviado na criação ou quando o Administrador TI altera o e-mail).
+- Pessoas e imóveis **podem ser excluídos** pela interface, com confirmação. Pessoa vinculada a imóveis **não pode** ser excluída enquanto houver vínculos.
 - **Área e situação** do imóvel só mudam por **averbação**.
-- CPF **bloqueado após a criação** do usuário (Administrador TI pode alterar perfis).
+- CPF **bloqueado após a criação** do usuário (Administrador TI pode alterar e-mail e perfil).
 
 ---
 
 ## Módulos
 
-- **Usuários** — cadastro, edição, ativação/desativação; sem exclusão
-- **Pessoas** — cadastro e consulta com filtros
-- **Imóveis** — cadastro, documentos, averbações (área e situação)
+- **Usuários** — cadastro, edição, ativação/desativação; verificação de e-mail; sem exclusão
+- **Pessoas** — cadastro, consulta com filtros, exclusão (com confirmação; bloqueada se houver imóveis)
+- **Imóveis** — cadastro, documentos, averbações (área e situação), exclusão com confirmação
 - **Averbações** — única forma de alterar área e status do imóvel
 - **Relatórios PDF** — sintético e individual, com tradução por idioma
 - **Auditoria** — listagem, filtros e detalhes (Laravel Auditing; apenas Admin TI e Admin Sistema)
@@ -178,6 +178,26 @@ Idiomas: **Português** (`pt_BR`), **English** (`en`), **Español** (`es`).
 Arquivos em `lang/pt_BR.json`, `lang/en.json` e `lang/es.json`.
 
 O seletor de idioma na aplicação persiste a escolha no cookie `app_locale`.
+
+---
+
+## Verificação de e-mail
+
+Usuários do sistema devem verificar o endereço de e-mail (Laravel Fortify + Jetstream) antes de acessar as rotas autenticadas.
+
+E-mails de contribuintes em **Pessoas** são validados como únicos e conformes à RFC; em produção, também há verificação DNS (MX) (`App\Support\EmailValidation`).
+
+- Na **criação de usuário**, o link de verificação é enviado automaticamente.
+- Quando o **Administrador TI** altera o e-mail de um usuário, a verificação é resetada e um novo link é enviado.
+- Contas do seed já vêm verificadas para desenvolvimento local.
+
+Para testar localmente sem SMTP, use o driver de log no `.env`:
+
+```env
+MAIL_MAILER=log
+```
+
+As mensagens de verificação aparecem em `storage/logs/laravel.log`.
 
 ---
 

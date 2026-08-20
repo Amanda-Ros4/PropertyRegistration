@@ -147,18 +147,18 @@ Visit `http://localhost:8000` and sign in with a seeded account. **Public regist
 
 ### General rules
 
-- Users **cannot be deleted** — only activated or deactivated.
-- People and properties **cannot be deleted** through the UI.
+- Users **cannot be deleted** — only activated or deactivated. New accounts must **verify their e-mail** before accessing the system (link sent on user creation or when the IT Administrator changes the e-mail).
+- People and properties **can be deleted** through the UI with confirmation. A person linked to properties **cannot** be deleted until those links are removed.
 - Property **area and status** change only through **endorsements**.
-- CPF is **locked after user creation** (except IT Administrator can change profiles).
+- CPF is **locked after user creation** (IT Administrator can change user e-mail and profile).
 
 ---
 
 ## Modules
 
-- **Users** — create, edit, activate/deactivate; no deletion
-- **People** — registration and search with filters
-- **Properties** — registration, documents, endorsements (area and status)
+- **Users** — create, edit, activate/deactivate; e-mail verification; no deletion
+- **People** — registration, search with filters, delete (with confirmation; blocked if linked to properties)
+- **Properties** — registration, documents, endorsements (area and status), delete with confirmation
 - **Endorsements** — only way to change property area and status
 - **PDF reports** — synthetic and individual, translated by locale
 - **Audit** — listing, filters, and details (Laravel Auditing; IT and System administrators only)
@@ -178,6 +178,26 @@ Languages: **Portuguese** (`pt_BR`), **English** (`en`), **Spanish** (`es`).
 Translation files: `lang/pt_BR.json`, `lang/en.json`, and `lang/es.json`.
 
 The in-app language switcher persists the choice in a cookie (`app_locale`).
+
+---
+
+## E-mail verification
+
+System users must verify their e-mail address (Laravel Fortify + Jetstream) before accessing authenticated routes.
+
+Contributor e-mails in **People** are validated as unique and RFC-compliant; in production, DNS (MX) checks are applied as well (`App\Support\EmailValidation`).
+
+- On **user creation**, a verification link is sent automatically.
+- When the **IT Administrator** changes a user's e-mail, verification is reset and a new link is sent.
+- Seeded accounts are pre-verified for local development.
+
+For local testing without SMTP, use the log mail driver in `.env`:
+
+```env
+MAIL_MAILER=log
+```
+
+Verification messages appear in `storage/logs/laravel.log`.
 
 ---
 

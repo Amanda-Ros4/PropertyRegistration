@@ -2,9 +2,12 @@
 
 namespace App\Actions\Fortify;
 
+use App\Enums\ActiveStatus;
+use App\Enums\UserProfile;
 use App\Models\User;
 use App\Rules\ValidCpf;
 use App\Support\Digits;
+use App\Support\EmailValidation;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -29,17 +32,23 @@ class CreateNewUser implements CreatesNewUsers
             [
                 'name' => ['required', 'string', 'max:255'],
                 'cpf' => ['required', 'string', new ValidCpf, Rule::unique('users', 'cpf')],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'email' => array_merge(EmailValidation::rules(required: true), [Rule::unique('users', 'email')]),
                 'password' => $this->passwordRules(),
                 'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
             ]
         )->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'cpf' => $cpfDigits,
-            'email' => $input['email'],
+            'email' => mb_strtolower(trim($input['email'])),
             'password' => Hash::make($input['password']),
+            'profile' => UserProfile::Attendant,
+            'active' => ActiveStatus::Active,
         ]);
+
+        $user->sendEmailVerificationNotification();
+
+        return $user;
     }
 }

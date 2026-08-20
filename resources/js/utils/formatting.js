@@ -323,6 +323,37 @@ export function parseBirthDateInput(value) {
 }
 
 /**
+ * Converte locale da app (pt_BR) para tag BCP 47 usada por Intl (pt-BR).
+ */
+export function toIntlLocale(locale) {
+    if (!locale) {
+        return 'pt-BR';
+    }
+
+    if (locale === 'pt_BR') {
+        return 'pt-BR';
+    }
+
+    return String(locale).includes('_') ? String(locale).replace('_', '-') : locale;
+}
+
+/**
+ * Exibe data/hora ISO com locale do usuário (listas, detalhes).
+ */
+export function formatDateTimeDisplay(value, locale = 'pt_BR') {
+    if (!value) {
+        return '—';
+    }
+
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return String(value);
+    }
+
+    return date.toLocaleString(toIntlLocale(locale));
+}
+
+/**
  * Exibe data ISO YYYY-MM-DD sem deslocar o fuso (lista/tabelas).
  */
 export function formatDateDisplay(value) {

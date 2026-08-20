@@ -88,6 +88,8 @@ class UserService
                 'active' => ActiveStatus::Active,
             ]);
 
+            $created->sendEmailVerificationNotification();
+
             return $created;
         });
     }
@@ -120,8 +122,16 @@ class UserService
                 'profile' => $profile,
             ];
 
+            $emailChanged = false;
+
             if ($actor->isTiAdmin() && array_key_exists('email', $data)) {
-                $payload['email'] = mb_strtolower(trim((string) $data['email']));
+                $newEmail = mb_strtolower(trim((string) $data['email']));
+
+                if ($newEmail !== $user->email) {
+                    $payload['email'] = $newEmail;
+                    $payload['email_verified_at'] = null;
+                    $emailChanged = true;
+                }
             }
 
             if (! empty($data['password'])) {
@@ -130,7 +140,13 @@ class UserService
 
             $user->update($payload);
 
-            return $user->fresh();
+            $user = $user->fresh();
+
+            if ($emailChanged) {
+                $user->sendEmailVerificationNotification();
+            }
+
+            return $user;
         });
     }
 

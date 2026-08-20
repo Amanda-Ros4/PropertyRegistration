@@ -49,6 +49,7 @@ class UserManagementTest extends TestCase
             'email' => 'novo.atendente@example.com',
             'profile' => UserProfile::Attendant->value,
             'active' => ActiveStatus::Active->value,
+            'email_verified_at' => null,
         ]);
     }
 

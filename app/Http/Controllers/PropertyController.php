@@ -75,7 +75,7 @@ class PropertyController extends Controller
 
     public function edit(Request $request, Property $property): Response
     {
-        $this->authorize('update', $property);
+        $this->authorize('view', $property);
 
         $people = $this->personService->allForUser($request->user());
 

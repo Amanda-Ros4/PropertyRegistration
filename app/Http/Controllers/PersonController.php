@@ -65,6 +65,7 @@ class PersonController extends Controller
 
         return Inertia::render('People/Edit', [
             'person' => $person,
+            'canDelete' => request()->user()?->can('delete', $person) ?? false,
         ]);
     }
 

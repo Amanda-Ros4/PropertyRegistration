@@ -2,12 +2,11 @@
 import { computed } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import { formatDateTimeDisplay } from '@/utils/formatting';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import AuditFilters from '@/Components/AuditFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
 import Tag from 'primevue/tag';
 import Button from 'primevue/button';
 import Paginator from 'primevue/paginator';
@@ -36,25 +35,18 @@ const hasActiveFilters = computed(() =>
     ),
 );
 
+const rows = computed(() => props.logs.data ?? []);
+
 function eventLabel(event) {
-    return trans(`audit.events.${event}`);
+    return event ? trans(`audit.events.${event}`) : '—';
 }
 
 function tableLabel(labelKey) {
-    return trans(labelKey);
+    return labelKey ? trans(labelKey) : '—';
 }
 
 function formatDateTime(value) {
-    if (!value) {
-        return '—';
-    }
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-        return value;
-    }
-
-    return date.toLocaleString(page.props.locale || 'pt-BR');
+    return formatDateTimeDisplay(value, page.props.locale);
 }
 
 function onPageChange(event) {
@@ -86,68 +78,81 @@ function onPageChange(event) {
 
         <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
             <EmptyState
-                v-if="logs.data.length === 0"
+                v-if="rows.length === 0"
                 icon="pi pi-history"
                 :title="hasActiveFilters ? trans('audit.empty_filtered') : trans('audit.empty')"
                 :description="hasActiveFilters ? trans('audit.empty_filtered_description') : trans('audit.empty_description')"
             />
 
             <template v-else>
-                <DataTable
-                    :value="logs.data"
-                    :rowHover="true"
-                    class="rounded-xl overflow-hidden"
-                    tableClass="w-full"
-                    stripedRows
-                >
-                    <Column :header="trans('audit.fields.id')" style="width: 80px">
-                        <template #body="{ data }">
-                            <span class="font-mono font-medium text-indigo-600 dark:text-indigo-400">#{{ data.id }}</span>
-                        </template>
-                    </Column>
-                    <Column :header="trans('audit.fields.user')">
-                        <template #body="{ data }">
-                            <div class="flex flex-col">
-                                <span class="font-medium">{{ data.user_name }}</span>
-                                <span class="text-xs text-gray-400">{{ data.user_email || '—' }}</span>
-                            </div>
-                        </template>
-                    </Column>
-                    <Column :header="trans('audit.fields.event')" style="width: 140px">
-                        <template #body="{ data }">
-                            <Tag
-                                :value="eventLabel(data.event)"
-                                :severity="eventSeverity[data.event] || 'secondary'"
-                            />
-                        </template>
-                    </Column>
-                    <Column :header="trans('audit.fields.datetime')" style="width: 180px">
-                        <template #body="{ data }">
-                            <span class="font-mono text-sm">{{ formatDateTime(data.created_at) }}</span>
-                        </template>
-                    </Column>
-                    <Column :header="trans('audit.fields.table')">
-                        <template #body="{ data }">
-                            {{ tableLabel(data.table_label_key) }}
-                        </template>
-                    </Column>
-                    <Column :header="trans('audit.fields.audited_id')" style="width: 110px">
-                        <template #body="{ data }">
-                            <span class="font-mono">{{ data.auditable_id ?? '—' }}</span>
-                        </template>
-                    </Column>
-                    <Column :header="trans('audit.fields.details')" style="width: 120px">
-                        <template #body="{ data }">
-                            <Button
-                                :label="trans('audit.details')"
-                                icon="pi pi-eye"
-                                text
-                                size="small"
-                                @click="router.visit(route('audit.show', data.id))"
-                            />
-                        </template>
-                    </Column>
-                </DataTable>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 dark:bg-gray-950/50 border-b border-gray-100 dark:border-gray-800">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 w-20">
+                                    {{ trans('audit.fields.id') }}
+                                </th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">
+                                    {{ trans('audit.fields.user') }}
+                                </th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 w-36">
+                                    {{ trans('audit.fields.event') }}
+                                </th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 w-44">
+                                    {{ trans('audit.fields.datetime') }}
+                                </th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">
+                                    {{ trans('audit.fields.table') }}
+                                </th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 w-28">
+                                    {{ trans('audit.fields.audited_id') }}
+                                </th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 w-28">
+                                    {{ trans('audit.fields.details') }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <tr
+                                v-for="row in rows"
+                                :key="row.id"
+                                class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                            >
+                                <td class="px-4 py-3 font-mono font-medium text-indigo-600 dark:text-indigo-400">
+                                    #{{ row.id }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="font-medium">{{ row.user_name }}</div>
+                                    <div class="text-xs text-gray-400">{{ row.user_email || '—' }}</div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <Tag
+                                        :value="eventLabel(row.event)"
+                                        :severity="eventSeverity[row.event] || 'secondary'"
+                                    />
+                                </td>
+                                <td class="px-4 py-3 font-mono text-sm whitespace-nowrap">
+                                    {{ formatDateTime(row.created_at) }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    {{ tableLabel(row.table_label_key) }}
+                                </td>
+                                <td class="px-4 py-3 font-mono">
+                                    {{ row.auditable_id ?? '—' }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <Button
+                                        :label="trans('audit.details')"
+                                        icon="pi pi-eye"
+                                        text
+                                        size="small"
+                                        @click="router.visit(route('audit.show', row.id))"
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
                 <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
                     <span class="text-sm text-gray-500 dark:text-gray-400">
