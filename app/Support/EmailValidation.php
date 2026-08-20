@@ -7,7 +7,7 @@ use Illuminate\Validation\Rules\Email;
 class EmailValidation
 {
     /**
-     * Regras RFC estritas; em produção também valida DNS (MX).
+     * Regras RFC estritas; fora de testes também valida registro MX do domínio.
      *
      * @return array<int, mixed>
      */
@@ -16,7 +16,7 @@ class EmailValidation
         $emailRule = Email::default()->strict();
 
         if (! app()->runningUnitTests()) {
-            $emailRule = $emailRule->dns();
+            $emailRule = $emailRule->validateMxRecord();
         }
 
         $rules = [$emailRule, 'max:255'];
