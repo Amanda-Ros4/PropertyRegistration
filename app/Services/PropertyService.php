@@ -89,8 +89,6 @@ class PropertyService
             $property->update([
                 'person_id' => $data['person_id'],
                 'type' => $data['type'],
-                'land_area' => $this->landAreaForType($data),
-                'building_area' => $this->buildingAreaForType($data),
                 'cep' => $data['cep'] ?? null,
                 'street' => $data['street'],
                 'number' => $data['number'],
@@ -99,6 +97,14 @@ class PropertyService
             ]);
 
             return $property->fresh();
+        });
+    }
+
+    public function delete(Property $property): void
+    {
+        DB::transaction(function () use ($property) {
+            $this->documentService->deleteAllForProperty($property);
+            $property->delete();
         });
     }
 

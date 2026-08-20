@@ -26,6 +26,6 @@ class PersonPolicy
 
     public function delete(User $user, Person $person): bool
     {
-        return false;
+        return $this->update($user, $person);
     }
 }

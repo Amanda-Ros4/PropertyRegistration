@@ -85,6 +85,17 @@ class PersonService
         });
     }
 
+    public function delete(Person $person): void
+    {
+        if ($person->properties()->exists()) {
+            throw ValidationException::withMessages([
+                'person' => [__('people.cannot_delete_with_properties')],
+            ]);
+        }
+
+        $person->delete();
+    }
+
     private function normalizeEmail(mixed $email): ?string
     {
         $value = trim((string) ($email ?? ''));

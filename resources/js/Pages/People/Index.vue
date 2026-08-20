@@ -1,10 +1,12 @@
 <script setup>
+import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
-import FilterBar from '@/Components/FilterBar.vue';
+import PersonFilters from '@/Components/PersonFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
+import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
@@ -17,6 +19,9 @@ const props = defineProps({
     filters: { type: Object, default: () => ({}) },
 });
 
+const deleteConfirmRef = ref(null);
+const personToDelete = ref(null);
+
 const genderSeverity = {
     male: 'info',
     female: 'success',
@@ -26,11 +31,31 @@ const genderSeverity = {
 
 function onPageChange(event) {
     router.get(route('people.index'), {
-        ...props.filters,
+        ...Object.fromEntries(
+            Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
+        ),
         page: event.page + 1,
     }, {
         preserveState: true,
         preserveScroll: true,
+    });
+}
+
+function confirmDelete(person) {
+    personToDelete.value = person;
+    deleteConfirmRef.value?.open();
+}
+
+function deletePerson() {
+    if (!personToDelete.value) {
+        return;
+    }
+
+    router.delete(route('people.destroy', personToDelete.value.id), {
+        preserveScroll: true,
+        onFinish: () => {
+            personToDelete.value = null;
+        },
     });
 }
 </script>
@@ -46,11 +71,7 @@ function onPageChange(event) {
             :createLabel="trans('people.create')"
         />
 
-        <FilterBar
-            routeName="people.index"
-            :searchPlaceholder="trans('people.search_placeholder')"
-            :initialSearch="filters.search"
-        />
+        <PersonFilters :filters="filters" />
 
         <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
             <EmptyState
@@ -100,7 +121,7 @@ function onPageChange(event) {
                             {{ data.email || '—' }}
                         </template>
                     </Column>
-                    <Column :header="trans('common.actions')" style="width: 80px">
+                    <Column :header="trans('common.actions')" style="width: 120px">
                         <template #body="{ data }">
                             <Button
                                 icon="pi pi-eye"
@@ -111,6 +132,16 @@ function onPageChange(event) {
                                 :aria-label="trans('common.view')"
                                 :title="trans('common.view')"
                                 @click="router.visit(route('people.edit', data.id))"
+                            />
+                            <Button
+                                icon="pi pi-trash"
+                                text
+                                rounded
+                                size="small"
+                                severity="danger"
+                                :aria-label="trans('common.delete')"
+                                :title="trans('common.delete')"
+                                @click="confirmDelete(data)"
                             />
                         </template>
                     </Column>
@@ -131,5 +162,12 @@ function onPageChange(event) {
                 </div>
             </template>
         </div>
+
+        <DeleteConfirmation
+            ref="deleteConfirmRef"
+            :title="trans('people.delete_confirm_title')"
+            :message="trans('people.delete_confirm_message')"
+            @confirm="deletePerson"
+        />
     </AppLayout>
 </template>

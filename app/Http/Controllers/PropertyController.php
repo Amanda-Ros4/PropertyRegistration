@@ -94,4 +94,14 @@ class PropertyController extends Controller
         return redirect()->route('properties.index')
             ->with('flash', Flash::success(__('properties.updated')));
     }
+
+    public function destroy(Property $property): RedirectResponse
+    {
+        $this->authorize('delete', $property);
+
+        $this->propertyService->delete($property);
+
+        return redirect()->route('properties.index')
+            ->with('flash', Flash::success(__('properties.deleted')));
+    }
 }

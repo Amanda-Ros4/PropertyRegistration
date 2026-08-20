@@ -114,8 +114,6 @@ class PropertyPrecognitionTest extends TestCase
             ->putJson(route('properties.update', $property), [
                 'person_id' => $property->person_id,
                 'type' => PropertyType::House->value,
-                'land_area' => '100',
-                'building_area' => '80',
                 'street' => '',
                 'number' => '10',
                 'neighborhood' => 'Centro',

@@ -159,4 +159,56 @@ class PersonValidationTest extends TestCase
             ])
             ->assertNoContent();
     }
+
+    public function test_person_can_be_deleted(): void
+    {
+        $user = $this->user();
+
+        $person = Person::query()->create([
+            'user_id' => $user->id,
+            'name' => 'João',
+            'birth_date' => now()->subYears(30)->toDateString(),
+            'cpf' => '52998224725',
+            'gender' => Gender::Male,
+        ]);
+
+        $this->actingAs($user)
+            ->delete(route('people.destroy', $person))
+            ->assertRedirect(route('people.index'));
+
+        $this->assertSoftDeleted('people', ['id' => $person->id]);
+    }
+
+    public function test_person_with_properties_cannot_be_deleted(): void
+    {
+        $user = $this->user();
+
+        $person = Person::query()->create([
+            'user_id' => $user->id,
+            'name' => 'João',
+            'birth_date' => now()->subYears(30)->toDateString(),
+            'cpf' => '52998224725',
+            'gender' => Gender::Male,
+        ]);
+
+        \App\Models\Property::query()->create([
+            'user_id' => $user->id,
+            'person_id' => $person->id,
+            'type' => \App\Enums\PropertyType::House,
+            'land_area' => 100,
+            'building_area' => 80,
+            'street' => 'Rua A',
+            'number' => '10',
+            'neighborhood' => 'Centro',
+            'status' => \App\Enums\PropertyStatus::Active,
+        ]);
+
+        $this->actingAs($user)
+            ->from(route('people.index'))
+            ->delete(route('people.destroy', $person))
+            ->assertRedirect(route('people.index'))
+            ->assertSessionHas('flash.type', 'error');
+
+        $this->assertDatabaseHas('people', ['id' => $person->id, 'deleted_at' => null]);
+    }
 }

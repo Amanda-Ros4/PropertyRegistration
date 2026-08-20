@@ -31,6 +31,6 @@ class PropertyPolicy
 
     public function delete(User $user, Property $property): bool
     {
-        return false;
+        return $this->update($user, $property);
     }
 }

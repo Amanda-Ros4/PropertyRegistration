@@ -1,23 +1,27 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import PropertyFilters from '@/Components/PropertyFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
+import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Paginator from 'primevue/paginator';
-import { formatCepDisplay, formatCpfDisplay } from '@/utils/formatting';
+import { formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
     properties: { type: Object, required: true },
     people: { type: Array, default: () => [] },
     filters: { type: Object, default: () => ({}) },
 });
+
+const deleteConfirmRef = ref(null);
+const propertyToDelete = ref(null);
 
 const peopleOptions = computed(() =>
     props.people.map(p => ({
@@ -48,10 +52,6 @@ function openSyntheticReport() {
     window.open(route('properties.report.synthetic', reportQuery()), '_blank');
 }
 
-function openIndividualReport(id) {
-    window.open(route('properties.report.individual', id), '_blank');
-}
-
 function onPageChange(event) {
     router.get(route('properties.index'), {
         ...Object.fromEntries(
@@ -61,6 +61,24 @@ function onPageChange(event) {
     }, {
         preserveState: true,
         preserveScroll: true,
+    });
+}
+
+function confirmDelete(property) {
+    propertyToDelete.value = property;
+    deleteConfirmRef.value?.open();
+}
+
+function deleteProperty() {
+    if (!propertyToDelete.value) {
+        return;
+    }
+
+    router.delete(route('properties.destroy', propertyToDelete.value.id), {
+        preserveScroll: true,
+        onFinish: () => {
+            propertyToDelete.value = null;
+        },
     });
 }
 </script>
@@ -118,14 +136,9 @@ function onPageChange(event) {
                             {{ data.type ? trans('properties.types.' + (data.type.value ?? data.type)) : '—' }}
                         </template>
                     </Column>
-                    <Column :header="trans('properties.fields.status')" style="width: 110px">
-                        <template #body="{ data }">
-                            <Tag
-                                :value="trans('properties.statuses.' + (data.status?.value ?? data.status))"
-                                :severity="(data.status?.value ?? data.status) === 'active' ? 'success' : 'secondary'"
-                            />
-                        </template>
-                    </Column>
+                    <Column field="street" :header="trans('properties.fields.street')" />
+                    <Column field="number" :header="trans('properties.fields.number')" style="width: 100px" />
+                    <Column field="neighborhood" :header="trans('properties.fields.neighborhood')" />
                     <Column :header="trans('properties.fields.owner')">
                         <template #body="{ data }">
                             <div v-if="data.person" class="flex flex-col">
@@ -135,39 +148,35 @@ function onPageChange(event) {
                             <span v-else class="text-gray-400">—</span>
                         </template>
                     </Column>
-                    <Column :header="trans('properties.fields.cep')" style="width: 110px">
+                    <Column :header="trans('properties.fields.status')" style="width: 110px">
                         <template #body="{ data }">
-                            <span class="font-mono text-sm">{{ data.cep ? formatCepDisplay(data.cep) : '—' }}</span>
+                            <Tag
+                                :value="trans('properties.statuses.' + (data.status?.value ?? data.status))"
+                                :severity="(data.status?.value ?? data.status) === 'active' ? 'success' : 'secondary'"
+                            />
                         </template>
                     </Column>
-                    <Column field="street" :header="trans('properties.fields.street')" />
-                    <Column field="number" :header="trans('properties.fields.number')" style="width: 100px" />
-                    <Column field="neighborhood" :header="trans('properties.fields.neighborhood')" />
-                    <Column :header="trans('properties.fields.complement')">
-                        <template #body="{ data }">
-                            {{ data.complement || '—' }}
-                        </template>
-                    </Column>
-                    <Column :header="trans('common.actions')" style="width: 120px">
+                    <Column :header="trans('common.actions')" style="width: 140px">
                         <template #body="{ data }">
                             <Button
-                                icon="pi pi-file-pdf"
+                                icon="pi pi-eye"
                                 text
                                 rounded
                                 size="small"
                                 severity="secondary"
-                                :aria-label="trans('properties.reports.individual')"
-                                :title="trans('properties.reports.individual')"
-                                @click="openIndividualReport(data.id)"
+                                :aria-label="trans('common.view')"
+                                :title="trans('common.view')"
+                                @click="router.visit(route('properties.edit', data.id))"
                             />
                             <Button
-                                icon="pi pi-pencil"
+                                icon="pi pi-trash"
                                 text
                                 rounded
                                 size="small"
-                                severity="secondary"
-                                :aria-label="trans('common.edit')"
-                                @click="router.visit(route('properties.edit', data.id))"
+                                severity="danger"
+                                :aria-label="trans('common.delete')"
+                                :title="trans('common.delete')"
+                                @click="confirmDelete(data)"
                             />
                         </template>
                     </Column>
@@ -188,5 +197,12 @@ function onPageChange(event) {
                 </div>
             </template>
         </div>
+
+        <DeleteConfirmation
+            ref="deleteConfirmRef"
+            :title="trans('properties.delete_confirm_title')"
+            :message="trans('properties.delete_confirm_message')"
+            @confirm="deleteProperty"
+        />
     </AppLayout>
 </template>

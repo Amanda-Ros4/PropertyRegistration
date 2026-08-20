@@ -43,6 +43,7 @@ Route::middleware([
         Route::post('/', [PersonController::class, 'store'])->name('people.store')->middleware(Precognition::class);
         Route::get('/{person}/edit', [PersonController::class, 'edit'])->name('people.edit');
         Route::match(['put', 'patch'], '/{person}', [PersonController::class, 'update'])->name('people.update')->middleware(Precognition::class);
+        Route::delete('/{person}', [PersonController::class, 'destroy'])->name('people.destroy');
     });
 
     Route::prefix('properties')->group(function () {
@@ -53,6 +54,7 @@ Route::middleware([
         Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
         Route::get('/{property}/report', [PropertyReportController::class, 'individual'])->name('properties.report.individual');
         Route::match(['put', 'patch'], '/{property}', [PropertyController::class, 'update'])->name('properties.update')->middleware(Precognition::class);
+        Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
         Route::post('/{property}/endorsements', [PropertyEndorsementController::class, 'store'])
             ->name('properties.endorsements.store')
             ->middleware(Precognition::class);

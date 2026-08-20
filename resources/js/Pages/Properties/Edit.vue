@@ -14,8 +14,6 @@ import {
     CEP_INPUT_MAX_LENGTH,
     blockDisallowedAddressBeforeInput,
     blockDisallowedAddressKey,
-    blockNonAreaBeforeInput,
-    blockNonAreaKey,
     blockNonDigitBeforeInput,
     blockNonDigitKey,
     formatAddressInput,
@@ -28,7 +26,6 @@ import {
 import { fetchAddressByCep } from '@/utils/viacep';
 import { useAppToast } from '@/composables/useAppToast';
 import { usePrecognitiveForm } from '@/composables/usePrecognitiveForm';
-import { usePropertyTypeAreas } from '@/composables/usePropertyTypeAreas';
 import PropertyDocumentsField from '@/Components/PropertyDocumentsField.vue';
 import PropertyEndorsementsField from '@/Components/PropertyEndorsementsField.vue';
 
@@ -70,33 +67,26 @@ const lastFetchedCep = ref(
         : null,
 );
 
-function areaToInput(value) {
-    if (value === null || value === undefined || value === '') return '';
+function formatAreaDisplay(value) {
+    if (value === null || value === undefined || value === '') {
+        return '—';
+    }
+
     return formatAreaInput(String(value));
 }
+
+const landAreaDisplay = computed(() => formatAreaDisplay(props.property.land_area));
+const buildingAreaDisplay = computed(() => formatAreaDisplay(props.property.building_area));
 
 const { form, validateField } = usePrecognitiveForm('put', route('properties.update', props.property.id), {
     person_id: props.property.person_id,
     type: props.property.type?.value ?? props.property.type,
-    land_area: areaToInput(props.property.land_area),
-    building_area: areaToInput(props.property.building_area),
     cep: props.property.cep ? formatCepDisplay(props.property.cep) : '',
     street: formatAddressInput(props.property.street),
     number: props.property.number ? stripNonDigits(props.property.number) : '',
     neighborhood: formatAddressInput(props.property.neighborhood),
     complement: formatAddressInput(props.property.complement ?? ''),
 });
-
-const {
-    landAreaRequired,
-    buildingAreaRequired,
-    landAreaLocked,
-    buildingAreaLocked,
-    onTypeChange,
-    onLandAreaInput: applyLandAreaInput,
-    onBuildingAreaInput: applyBuildingAreaInput,
-    areasForSubmit,
-} = usePropertyTypeAreas(form);
 
 const cepErrorDisplay = computed(() => form.errors.cep || cepLookupError.value);
 
@@ -130,14 +120,6 @@ function onCepInput(value) {
 
 function onNumberInput(value) {
     syncMasked('number', (v) => stripNonDigits(v), value);
-}
-
-function onLandAreaInput(value) {
-    applyLandAreaInput(syncMasked, formatAreaInput, value);
-}
-
-function onBuildingAreaInput(value) {
-    applyBuildingAreaInput(syncMasked, formatAreaInput, value);
 }
 
 function onStreetInput(value) {
@@ -190,14 +172,9 @@ function openIndividualReport() {
 }
 
 function submit() {
-    form
-        .transform((data) => ({
-            ...data,
-            ...areasForSubmit(data),
-        }))
-        .put(route('properties.update', props.property.id), {
-            onError: showValidationErrorToast,
-        });
+    form.put(route('properties.update', props.property.id), {
+        onError: showValidationErrorToast,
+    });
 }
 </script>
 
@@ -283,56 +260,32 @@ function submit() {
                             :placeholder="trans('properties.placeholders.type')"
                             :invalid="!!form.errors.type"
                             class="w-full"
-                            @change="() => { onTypeChange(); validateField('type'); validateField('land_area'); validateField('building_area'); }"
+                            @change="() => { form.clearErrors('type'); validateField('type'); }"
                         />
                     </FormField>
 
                     <FormField
                         :label="trans('properties.fields.land_area')"
-                        :error="form.errors.land_area"
-                        :required="landAreaRequired"
-                        :hint="landAreaLocked ? trans('properties.hint_land_area_apartment') : null"
+                        class="md:col-span-1"
+                        :hint="trans('properties.hint_areas_endorsements')"
                     >
-                        <div
-                            @keydown.capture="blockNonAreaKey"
-                            @beforeinput.capture="blockNonAreaBeforeInput"
-                        >
-                            <InputText
-                                :modelValue="form.land_area"
-                                inputmode="decimal"
-                                :placeholder="trans('properties.placeholders.land_area')"
-                                :invalid="!!form.errors.land_area"
-                                class="w-full font-mono"
-                                :disabled="landAreaLocked"
-                                @update:model-value="onLandAreaInput"
-                                @blur="validateField('land_area')"
-                                @change="form.clearErrors('land_area')"
-                            />
-                        </div>
+                        <InputText
+                            :modelValue="landAreaDisplay"
+                            class="w-full font-mono"
+                            disabled
+                        />
                     </FormField>
 
                     <FormField
                         :label="trans('properties.fields.building_area')"
-                        :error="form.errors.building_area"
-                        :required="buildingAreaRequired"
-                        :hint="buildingAreaLocked ? trans('properties.hint_building_area_land') : null"
+                        class="md:col-span-1"
+                        :hint="trans('properties.hint_areas_endorsements')"
                     >
-                        <div
-                            @keydown.capture="blockNonAreaKey"
-                            @beforeinput.capture="blockNonAreaBeforeInput"
-                        >
-                            <InputText
-                                :modelValue="form.building_area"
-                                inputmode="decimal"
-                                :placeholder="trans('properties.placeholders.building_area')"
-                                :invalid="!!form.errors.building_area"
-                                class="w-full font-mono"
-                                :disabled="buildingAreaLocked"
-                                @update:model-value="onBuildingAreaInput"
-                                @blur="validateField('building_area')"
-                                @change="form.clearErrors('building_area')"
-                            />
-                        </div>
+                        <InputText
+                            :modelValue="buildingAreaDisplay"
+                            class="w-full font-mono"
+                            disabled
+                        />
                     </FormField>
 
                     <FormField

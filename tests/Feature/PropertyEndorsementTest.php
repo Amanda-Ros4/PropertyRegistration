@@ -232,4 +232,38 @@ class PropertyEndorsementTest extends TestCase
             ])
             ->assertNotFound();
     }
+
+    public function test_property_update_preserves_building_area(): void
+    {
+        $property = $this->createProperty();
+        $user = User::query()->findOrFail($property->user_id);
+
+        $this->actingAs($user)
+            ->put(route('properties.update', $property), [
+                'person_id' => $property->person_id,
+                'type' => PropertyType::House->value,
+                'street' => 'Rua Atualizada',
+                'number' => '200',
+                'neighborhood' => 'Centro',
+            ])
+            ->assertRedirect(route('properties.index'));
+
+        $property->refresh();
+
+        $this->assertSame('Rua Atualizada', $property->street);
+        $this->assertSame('80.00', number_format((float) $property->building_area, 2, '.', ''));
+        $this->assertSame('100.00', number_format((float) $property->land_area, 2, '.', ''));
+    }
+
+    public function test_property_can_be_deleted(): void
+    {
+        $property = $this->createProperty();
+        $user = User::query()->findOrFail($property->user_id);
+
+        $this->actingAs($user)
+            ->delete(route('properties.destroy', $property))
+            ->assertRedirect(route('properties.index'));
+
+        $this->assertSoftDeleted('properties', ['id' => $property->id]);
+    }
 }
