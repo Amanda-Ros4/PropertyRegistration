@@ -100,6 +100,10 @@
     "auth.two_factor.use_code": "Use an authenticator code",
     "auth.two_factor.invalid": "The provided two factor authentication code was invalid.",
     "auth.inactive": "This user account is inactive. Contact an administrator.",
+    "auth.verify_email.title": "Email verification",
+    "auth.verify_email.intro": "Before continuing, please verify your email address by clicking on the link we just emailed to you. If you did not receive the email, we will gladly send you another.",
+    "auth.verify_email.link_sent": "A new verification link has been sent to the email address you provided in your profile settings.",
+    "auth.verify_email.resend": "Resend verification email",
     "The provided two factor authentication code was invalid.": "The provided two factor authentication code was invalid.",
     "The provided two factor recovery code was invalid.": "The provided two factor recovery code was invalid.",
 
