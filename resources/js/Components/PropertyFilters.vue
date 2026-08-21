@@ -132,7 +132,11 @@ function clearFilters() {
 </script>
 
 <template>
-    <div class="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm">
+    <div class="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm space-y-3">
+        <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            {{ trans('properties.filters.heading') }}
+        </p>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div
                 @keydown.capture="blockNonDigitKey"

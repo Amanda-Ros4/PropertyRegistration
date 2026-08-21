@@ -4,18 +4,20 @@ import { router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
-import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
+import BirthDateInput from '@/Components/BirthDateInput.vue';
 import {
     blockDisallowedSearchBeforeInput,
     blockDisallowedSearchKey,
     blockNonDigitBeforeInput,
     blockNonDigitKey,
+    formatBirthDateForSubmit,
     formatCpfInput,
     formatSearchInput,
     stripNonDigits,
+    toBirthDateInputValue,
     CPF_INPUT_MAX_LENGTH,
 } from '@/utils/formatting';
 
@@ -24,9 +26,7 @@ const props = defineProps({
 });
 
 const name = ref(props.filters.name ?? '');
-const birthDate = ref(
-    props.filters.birth_date ? new Date(`${props.filters.birth_date}T12:00:00`) : null,
-);
+const birthDate = ref(toBirthDateInputValue(props.filters.birth_date ?? ''));
 const cpf = ref(props.filters.cpf ? formatCpfInput(props.filters.cpf) : '');
 const gender = ref(props.filters.gender ?? null);
 const search = ref(formatSearchInput(props.filters.search ?? ''));
@@ -43,7 +43,7 @@ const genderOptions = computed(() => [
 const hasActiveFilters = computed(() =>
     Boolean(
         name.value.trim()
-        || birthDate.value
+        || formatBirthDateForSubmit(birthDate.value)
         || stripNonDigits(cpf.value)
         || gender.value
         || formatSearchInput(search.value).trim(),
@@ -55,24 +55,22 @@ watch([name, cpf], () => {
     debounceTimer = setTimeout(() => applyFilters(), 220);
 });
 
-watch([birthDate, gender], () => applyFilters());
+watch(birthDate, () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        const digits = stripNonDigits(birthDate.value);
+        if (digits.length === 0 || digits.length === 8) {
+            applyFilters();
+        }
+    }, 220);
+});
+
+watch(gender, () => applyFilters());
 
 watch(search, () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => applyFilters(), 180);
 });
-
-function formatDateParam(value) {
-    if (!value) {
-        return null;
-    }
-
-    const year = value.getFullYear();
-    const month = String(value.getMonth() + 1).padStart(2, '0');
-    const day = String(value.getDate()).padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-}
 
 function syncMasked(fieldRef, formatter, value) {
     const formatted = formatter(value);
@@ -100,7 +98,7 @@ function applyFilters() {
     const nameValue = name.value.trim();
     if (nameValue) params.name = nameValue;
 
-    const birthDateValue = formatDateParam(birthDate.value);
+    const birthDateValue = formatBirthDateForSubmit(birthDate.value);
     if (birthDateValue) params.birth_date = birthDateValue;
 
     const cpfDigits = stripNonDigits(cpf.value);
@@ -120,7 +118,7 @@ function applyFilters() {
 
 function clearFilters() {
     name.value = '';
-    birthDate.value = null;
+    birthDate.value = '';
     cpf.value = '';
     gender.value = null;
     search.value = '';
@@ -135,6 +133,10 @@ function clearFilters() {
 
 <template>
     <div class="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm space-y-3">
+        <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            {{ trans('people.filters.heading') }}
+        </p>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <InputText
                 v-model="name"
@@ -142,13 +144,9 @@ function clearFilters() {
                 class="w-full"
             />
 
-            <DatePicker
+            <BirthDateInput
                 v-model="birthDate"
-                :placeholder="trans('people.filters.birth_date')"
-                dateFormat="dd/mm/yy"
-                showIcon
-                showClear
-                class="w-full"
+                :placeholder="trans('people.placeholders.birth_date')"
             />
 
             <div

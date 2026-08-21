@@ -11,11 +11,13 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Contracts\RegisterResponse;
+use Laravel\Fortify\Contracts\VerifyEmailResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
@@ -26,6 +28,8 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        Fortify::ignoreRoutes();
+
         $this->app->singleton(RegisterResponse::class, function () {
             return new class implements RegisterResponse
             {
@@ -40,6 +44,16 @@ class FortifyServiceProvider extends ServiceProvider
                     }
 
                     return redirect()->intended(config('fortify.home'));
+                }
+            };
+        });
+
+        $this->app->singleton(VerifyEmailResponse::class, function () {
+            return new class implements VerifyEmailResponse
+            {
+                public function toResponse($request)
+                {
+                    return redirect()->intended(config('fortify.home').'?verified=1');
                 }
             };
         });
@@ -82,6 +96,13 @@ class FortifyServiceProvider extends ServiceProvider
 
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
+        });
+
+        Route::group([
+            'domain' => config('fortify.domain', null),
+            'prefix' => config('fortify.prefix'),
+        ], function () {
+            $this->loadRoutesFrom(base_path('routes/fortify.php'));
         });
     }
 }

@@ -89,10 +89,19 @@ function tableLabel(labelKey) {
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ trans('audit.fields.old_values') }}</dt>
                     <dd class="sm:col-span-2">
-                        <pre
-                            v-if="audit.old_values"
-                            class="overflow-x-auto rounded-lg bg-gray-50 dark:bg-gray-950 p-4 text-xs font-mono whitespace-pre-wrap"
-                        >{{ audit.old_values }}</pre>
+                        <dl
+                            v-if="audit.old_values?.length"
+                            class="rounded-lg bg-gray-50 dark:bg-gray-950 p-4 space-y-2"
+                        >
+                            <div
+                                v-for="(entry, index) in audit.old_values"
+                                :key="`old-${index}`"
+                                class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 text-sm"
+                            >
+                                <dt class="font-medium text-gray-600 dark:text-gray-300">{{ entry.label }}</dt>
+                                <dd class="sm:col-span-2 text-gray-900 dark:text-gray-100 break-words">{{ entry.value }}</dd>
+                            </div>
+                        </dl>
                         <span v-else>—</span>
                     </dd>
                 </div>
@@ -100,10 +109,19 @@ function tableLabel(labelKey) {
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ trans('audit.fields.new_values') }}</dt>
                     <dd class="sm:col-span-2">
-                        <pre
-                            v-if="audit.new_values"
-                            class="overflow-x-auto rounded-lg bg-gray-50 dark:bg-gray-950 p-4 text-xs font-mono whitespace-pre-wrap"
-                        >{{ audit.new_values }}</pre>
+                        <dl
+                            v-if="audit.new_values?.length"
+                            class="rounded-lg bg-gray-50 dark:bg-gray-950 p-4 space-y-2"
+                        >
+                            <div
+                                v-for="(entry, index) in audit.new_values"
+                                :key="`new-${index}`"
+                                class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 text-sm"
+                            >
+                                <dt class="font-medium text-gray-600 dark:text-gray-300">{{ entry.label }}</dt>
+                                <dd class="sm:col-span-2 text-gray-900 dark:text-gray-100 break-words">{{ entry.value }}</dd>
+                            </div>
+                        </dl>
                         <span v-else>—</span>
                     </dd>
                 </div>
