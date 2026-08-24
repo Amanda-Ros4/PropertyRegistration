@@ -368,7 +368,7 @@ export function formatDateDisplay(value) {
 }
 
 /**
- * Converte valor do PrimeVue DatePicker ou Date para string YYYY-MM-DD.
+ * Converte valor de DatePicker ou Date para string YYYY-MM-DD.
  */
 export function formatDateForSubmit(date) {
     if (!date) return null;

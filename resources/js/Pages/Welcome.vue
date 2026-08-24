@@ -1,7 +1,8 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import Button from 'primevue/button';
+import { ArrowRight, BarChart3, Building2, LogIn, Shield, UserPlus, Users } from '@lucide/vue';
+import { Button } from '@/Components/ui/button';
 import AppBrandMark from '@/Components/AppBrandMark.vue';
 import LocaleThemeControls from '@/Components/LocaleThemeControls.vue';
 
@@ -24,21 +25,21 @@ defineProps({
 
 const featureCards = [
     {
-        icon: 'pi pi-users',
+        icon: Users,
         iconClass: 'text-green-700 dark:text-green-400',
         bgClass: 'bg-green-50 dark:bg-green-950/20',
         title: () => trans('welcome.people_title'),
         description: () => trans('welcome.people_description'),
     },
     {
-        icon: 'pi pi-building',
+        icon: Building2,
         iconClass: 'text-green-800 dark:text-green-300',
         bgClass: 'bg-green-100 dark:bg-green-950/30',
         title: () => trans('welcome.properties_title'),
         description: () => trans('welcome.properties_description'),
     },
     {
-        icon: 'pi pi-shield',
+        icon: Shield,
         iconClass: 'text-emerald-600 dark:text-emerald-400',
         bgClass: 'bg-emerald-50 dark:bg-emerald-950/40',
         title: () => trans('welcome.security_title'),
@@ -52,7 +53,7 @@ const featureCards = [
 
     <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
         <div class="relative">
-  
+
             <nav class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex min-h-14 items-center justify-between gap-4 py-3">
@@ -90,28 +91,24 @@ const featureCards = [
                                     v-if="$page.props.auth.user"
                                     :href="route('dashboard')"
                                 >
-                                    <Button
-                                        :label="trans('welcome.primary_cta')"
-                                        icon="pi pi-arrow-right"
-                                        iconPos="right"
-                                    />
+                                    <Button>
+                                        {{ trans('welcome.primary_cta') }}
+                                        <ArrowRight class="size-4" />
+                                    </Button>
                                 </Link>
 
                                 <template v-else>
                                     <Link v-if="canRegister" :href="route('register')">
-                                        <Button
-                                            :label="trans('welcome.secondary_cta')"
-                                            icon="pi pi-user-plus"
-                                            iconPos="right"
-                                        />
+                                        <Button>
+                                            {{ trans('welcome.secondary_cta') }}
+                                            <UserPlus class="size-4" />
+                                        </Button>
                                     </Link>
                                     <Link v-if="canLogin" :href="route('login')">
-                                        <Button
-                                            :label="trans('auth.login')"
-                                            icon="pi pi-sign-in"
-                                            severity="secondary"
-                                            outlined
-                                        />
+                                        <Button variant="outline">
+                                            <LogIn class="size-4" />
+                                            {{ trans('auth.login') }}
+                                        </Button>
                                     </Link>
                                 </template>
                             </div>
@@ -136,7 +133,7 @@ const featureCards = [
                     <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6 sm:p-8">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-950/20 flex items-center justify-center">
-                                <i class="pi pi-chart-bar text-green-700 dark:text-green-400 text-xl" />
+                                <BarChart3 class="size-5 text-green-700 dark:text-green-400" />
                             </div>
                             <div>
                                 <p class="text-sm text-slate-500 dark:text-slate-400">{{ trans('welcome.quick_overview') }}</p>
@@ -168,11 +165,11 @@ const featureCards = [
                 <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div
                         v-for="card in featureCards"
-                        :key="card.icon"
+                        :key="card.title()"
                         class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm"
                     >
                         <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" :class="card.bgClass">
-                            <i :class="[card.icon, card.iconClass, 'text-xl']" />
+                            <component :is="card.icon" :class="[card.iconClass, 'size-5']" />
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                             {{ card.title() }}

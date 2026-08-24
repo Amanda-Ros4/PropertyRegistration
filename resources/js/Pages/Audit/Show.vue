@@ -5,7 +5,7 @@ import { trans } from 'laravel-vue-i18n';
 import { formatDateTimeDisplay } from '@/utils/formatting';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
-import Tag from 'primevue/tag';
+import StatusBadge from '@/Components/StatusBadge.vue';
 
 const props = defineProps({
     audit: { type: Object, required: true },
@@ -50,12 +50,12 @@ function tableLabel(labelKey) {
             <dl class="divide-y divide-gray-100 dark:divide-gray-800">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ trans('audit.fields.id') }}</dt>
-                    <dd class="sm:col-span-2 font-mono text-sm">#{{ audit.id }}</dd>
+                    <dd class="sm:col-span-2 text-sm">#{{ audit.id }}</dd>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ trans('audit.fields.datetime') }}</dt>
-                    <dd class="sm:col-span-2 font-mono text-sm">{{ formatDateTime(audit.created_at) }}</dd>
+                    <dd class="sm:col-span-2 text-sm">{{ formatDateTime(audit.created_at) }}</dd>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
@@ -69,7 +69,7 @@ function tableLabel(labelKey) {
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ trans('audit.fields.event') }}</dt>
                     <dd class="sm:col-span-2">
-                        <Tag
+                        <StatusBadge
                             :value="eventLabel(audit.event)"
                             :severity="eventSeverity[audit.event] || 'secondary'"
                         />
@@ -83,7 +83,7 @@ function tableLabel(labelKey) {
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ trans('audit.fields.audited_id') }}</dt>
-                    <dd class="sm:col-span-2 font-mono text-sm">{{ audit.auditable_id ?? '—' }}</dd>
+                    <dd class="sm:col-span-2 text-sm">{{ audit.auditable_id ?? '—' }}</dd>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
@@ -133,7 +133,7 @@ function tableLabel(labelKey) {
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ trans('audit.fields.ip') }}</dt>
-                    <dd class="sm:col-span-2 font-mono text-sm">{{ audit.ip_address || '—' }}</dd>
+                    <dd class="sm:col-span-2 text-sm">{{ audit.ip_address || '—' }}</dd>
                 </div>
             </dl>
         </div>

@@ -2,14 +2,19 @@
 import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import Select from 'primevue/select';
-import DatePicker from 'primevue/datepicker';
-import Button from 'primevue/button';
+import { FilterX } from '@lucide/vue';
+import { Button } from '@/Components/ui/button';
+import AppSelect from '@/Components/AppSelect.vue';
+import DatePickerField from '@/Components/DatePickerField.vue';
+import FilterPanel from '@/Components/FilterPanel.vue';
+import { useFilterSyncGuard } from '@/composables/useFilterSyncGuard';
 
 const props = defineProps({
     filters: { type: Object, default: () => ({}) },
     filterOptions: { type: Object, default: () => ({}) },
 });
+
+const { runSyncedFromProps, shouldSkipFilterApply } = useFilterSyncGuard();
 
 const userId = ref(props.filters.user_id ? Number(props.filters.user_id) : null);
 const event = ref(props.filters.event ?? null);
@@ -43,7 +48,24 @@ const hasActiveFilters = computed(() =>
     Boolean(userId.value || event.value || auditableType.value || date.value),
 );
 
+watch(
+    () => props.filters,
+    (filters) => {
+        runSyncedFromProps(() => {
+            userId.value = filters.user_id ? Number(filters.user_id) : null;
+            event.value = filters.event ?? null;
+            auditableType.value = filters.auditable_type ?? null;
+            date.value = filters.date ? new Date(`${filters.date}T12:00:00`) : null;
+        });
+    },
+    { deep: true },
+);
+
 watch([userId, event, auditableType], () => {
+    if (shouldSkipFilterApply()) {
+        return;
+    }
+
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => applyFilters(), 200);
 });
@@ -106,6 +128,10 @@ function applyFilters() {
 }
 
 function onDateFilterChange() {
+    if (shouldSkipFilterApply()) {
+        return;
+    }
+
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => applyFilters(), 200);
 }
@@ -125,61 +151,55 @@ function clearFilters() {
 </script>
 
 <template>
-    <div class="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <Select
+    <FilterPanel :title="trans('audit.filters.heading')">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <AppSelect
                 v-model="userId"
                 :options="userOptions"
-                optionLabel="label"
-                optionValue="value"
                 :placeholder="trans('audit.filters.user')"
-                showClear
+                show-clear
                 filter
                 class="w-full"
             />
 
-            <Select
+            <AppSelect
                 v-model="event"
                 :options="eventOptions"
-                optionLabel="label"
-                optionValue="value"
                 :placeholder="trans('audit.filters.event')"
-                showClear
+                show-clear
                 class="w-full"
             />
 
-            <DatePicker
+            <DatePickerField
                 v-model="date"
                 :placeholder="trans('audit.filters.date')"
-                dateFormat="dd/mm/yy"
-                showIcon
-                showClear
+                show-clear
                 class="w-full"
                 @date-select="onDateFilterChange"
                 @clear-click="onDateFilterChange"
             />
 
-            <Select
+            <AppSelect
                 v-model="auditableType"
                 :options="tableOptions"
-                optionLabel="label"
-                optionValue="value"
                 :placeholder="trans('audit.filters.table')"
-                showClear
+                show-clear
                 class="w-full"
             />
-
-            <div class="flex items-center">
-                <Button
-                    v-if="hasActiveFilters"
-                    :label="trans('common.clear')"
-                    icon="pi pi-filter-slash"
-                    outlined
-                    severity="secondary"
-                    class="w-full"
-                    @click="clearFilters"
-                />
-            </div>
         </div>
-    </div>
+
+        <template
+            v-if="hasActiveFilters"
+            #actions
+        >
+            <Button
+                variant="outline"
+                class="w-full sm:w-auto"
+                @click="clearFilters"
+            >
+                <FilterX class="size-4" />
+                {{ trans('common.clear') }}
+            </Button>
+        </template>
+    </FilterPanel>
 </template>

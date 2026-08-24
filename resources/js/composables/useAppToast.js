@@ -1,40 +1,29 @@
-import { useToast } from 'primevue/usetoast';
+import { toast } from 'vue-sonner';
 import { trans } from 'laravel-vue-i18n';
 
-const DEFAULT_SUCCESS_LIFE = 4500;
-const DEFAULT_WARN_LIFE = 5500;
-const DEFAULT_ERROR_LIFE = 6500;
+const DEFAULT_SUCCESS_DURATION = 4500;
+const DEFAULT_WARN_DURATION = 5500;
+const DEFAULT_ERROR_DURATION = 6500;
 
 export function useAppToast() {
-    const toast = useToast();
-
     function addErrorToast(detail, summary = null) {
-        toast.add({
-            severity: 'error',
-            summary: summary ?? trans('toast.error_summary'),
-            detail,
-            life: DEFAULT_ERROR_LIFE,
-            closable: true,
+        toast.error(summary ?? trans('toast.error_summary'), {
+            description: detail,
+            duration: DEFAULT_ERROR_DURATION,
         });
     }
 
     function addWarnToast(detail, summary = null) {
-        toast.add({
-            severity: 'warn',
-            summary: summary ?? trans('toast.warn_summary'),
-            detail,
-            life: DEFAULT_WARN_LIFE,
-            closable: true,
+        toast.warning(summary ?? trans('toast.warn_summary'), {
+            description: detail,
+            duration: DEFAULT_WARN_DURATION,
         });
     }
 
     function addSuccessToast(detail, summary = null) {
-        toast.add({
-            severity: 'success',
-            summary: summary ?? trans('toast.success_summary'),
-            detail,
-            life: DEFAULT_SUCCESS_LIFE,
-            closable: true,
+        toast.success(summary ?? trans('toast.success_summary'), {
+            description: detail,
+            duration: DEFAULT_SUCCESS_DURATION,
         });
     }
 

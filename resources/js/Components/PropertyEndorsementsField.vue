@@ -1,14 +1,22 @@
 <script setup>
 import { computed } from 'vue';
 import { trans } from 'laravel-vue-i18n';
+import { Loader2, Plus } from '@lucide/vue';
 import FormField from '@/Components/FormField.vue';
-import InputText from 'primevue/inputtext';
-import Textarea from 'primevue/textarea';
-import Select from 'primevue/select';
-import Button from 'primevue/button';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
+import AppSelect from '@/Components/AppSelect.vue';
 import EmptyState from '@/Components/EmptyState.vue';
+import { Input } from '@/Components/ui/input';
+import { Textarea } from '@/Components/ui/textarea';
+import { Button } from '@/Components/ui/button';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/Components/ui/table';
+import { cn } from '@/lib/utils';
 import {
     blockNonAreaBeforeInput,
     blockNonAreaKey,
@@ -104,11 +112,9 @@ function submit() {
                 :error="form.errors.event"
                 required
             >
-                <Select
+                <AppSelect
                     v-model="form.event"
                     :options="eventOptions"
-                    optionLabel="label"
-                    optionValue="value"
                     :placeholder="trans('properties.endorsements.placeholders.event')"
                     :invalid="!!form.errors.event"
                     class="w-full"
@@ -126,12 +132,11 @@ function submit() {
                     @keydown.capture="blockNonAreaKey"
                     @beforeinput.capture="blockNonAreaBeforeInput"
                 >
-                    <InputText
-                        :modelValue="form.measure"
+                    <Input
+                        :model-value="form.measure"
                         inputmode="decimal"
                         :placeholder="trans('properties.endorsements.placeholders.measure')"
-                        :invalid="!!form.errors.measure"
-                        class="w-full font-mono"
+                        :class="cn('w-full', form.errors.measure && 'border-destructive')"
                         @update:model-value="onMeasureInput"
                         @blur="validateField('measure')"
                         @change="form.clearErrors('measure')"
@@ -148,10 +153,8 @@ function submit() {
                 <Textarea
                     v-model="form.description"
                     rows="4"
-                    autoResize
                     :placeholder="trans('properties.endorsements.placeholders.description')"
-                    :invalid="!!form.errors.description"
-                    class="w-full"
+                    :class="cn('w-full', form.errors.description && 'border-destructive')"
                     @blur="validateField('description')"
                     @change="form.clearErrors('description')"
                 />
@@ -160,48 +163,60 @@ function submit() {
             <div class="md:col-span-2 flex justify-end">
                 <Button
                     type="submit"
-                    :label="trans('properties.endorsements.save')"
-                    icon="pi pi-plus"
-                    :loading="form.processing"
-                />
+                    :disabled="form.processing"
+                >
+                    <Loader2 v-if="form.processing" class="size-4 animate-spin" />
+                    <Plus v-else class="size-4" />
+                    {{ trans('properties.endorsements.save') }}
+                </Button>
             </div>
         </form>
 
         <EmptyState
             v-if="endorsements.length === 0"
-            icon="pi pi-file-edit"
+            icon="file-edit"
             :title="trans('properties.endorsements.empty')"
             :description="trans('properties.endorsements.empty_description')"
         />
 
-        <DataTable
+        <div
             v-else
-            :value="endorsements"
-            :rowHover="true"
             class="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800"
-            tableClass="w-full"
-            stripedRows
         >
-            <Column :header="trans('properties.endorsements.fields.date')" style="width: 120px">
-                <template #body="{ data }">
-                    <span class="font-mono text-sm">{{ formatDate(data.occurred_on) }}</span>
-                </template>
-            </Column>
-            <Column :header="trans('properties.endorsements.fields.event')">
-                <template #body="{ data }">
-                    {{ trans(eventLabelKey[data.event?.value ?? data.event] || eventLabelKey.O) }}
-                </template>
-            </Column>
-            <Column :header="trans('properties.endorsements.fields.measure')" style="width: 140px">
-                <template #body="{ data }">
-                    <span class="font-mono text-sm">{{ formatMeasure(data.measure) }}</span>
-                </template>
-            </Column>
-            <Column :header="trans('properties.endorsements.fields.description')">
-                <template #body="{ data }">
-                    <span class="whitespace-pre-wrap">{{ data.description }}</span>
-                </template>
-            </Column>
-        </DataTable>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead class="w-[120px]">
+                            {{ trans('properties.endorsements.fields.date') }}
+                        </TableHead>
+                        <TableHead>
+                            {{ trans('properties.endorsements.fields.event') }}
+                        </TableHead>
+                        <TableHead class="w-[140px]">
+                            {{ trans('properties.endorsements.fields.measure') }}
+                        </TableHead>
+                        <TableHead>
+                            {{ trans('properties.endorsements.fields.description') }}
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow v-for="endorsement in endorsements" :key="endorsement.id">
+                        <TableCell>
+                            <span class="text-sm">{{ formatDate(endorsement.occurred_on) }}</span>
+                        </TableCell>
+                        <TableCell>
+                            {{ trans(eventLabelKey[endorsement.event?.value ?? endorsement.event] || eventLabelKey.O) }}
+                        </TableCell>
+                        <TableCell>
+                            <span class="text-sm">{{ formatMeasure(endorsement.measure) }}</span>
+                        </TableCell>
+                        <TableCell>
+                            <span class="whitespace-pre-wrap">{{ endorsement.description }}</span>
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </div>
     </div>
 </template>

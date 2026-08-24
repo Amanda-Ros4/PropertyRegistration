@@ -22,7 +22,7 @@ defineExpose({ focus: () => input.value.focus() });
 <template>
     <input
         ref="input"
-        class="jetstream-text-input rounded-md shadow-sm
+        class="jetstream-text-input rounded-md shadow-sm text-sm font-sans
             border border-slate-300
             !bg-white !text-gray-900 !placeholder:text-slate-400
             focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-0

@@ -2,14 +2,15 @@
 import { computed } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import { Check, Loader2 } from '@lucide/vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FormCard from '@/Components/FormCard.vue';
 import FormField from '@/Components/FormField.vue';
-import InputText from 'primevue/inputtext';
-import Password from 'primevue/password';
-import Select from 'primevue/select';
-import Button from 'primevue/button';
+import AppSelect from '@/Components/AppSelect.vue';
+import { Input } from '@/Components/ui/input';
+import { Button } from '@/Components/ui/button';
+import { cn } from '@/lib/utils';
 import {
     CPF_INPUT_MAX_LENGTH,
     blockNonDigitBeforeInput,
@@ -99,11 +100,10 @@ function submit() {
                             @keydown.capture="blockNonLetterNameKey"
                             @beforeinput.capture="blockNonLetterNameBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.name"
+                            <Input
+                                :model-value="form.name"
                                 :placeholder="trans('users.placeholders.name')"
-                                :invalid="!!form.errors.name"
-                                class="w-full"
+                                :class="cn('w-full', form.errors.name && 'border-destructive')"
                                 @update:model-value="onNameInput"
                                 @blur="validateField('name')"
                             />
@@ -120,11 +120,10 @@ function submit() {
                             @keydown.capture="blockNonDigitKey"
                             @beforeinput.capture="blockNonDigitBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.cpf"
+                            <Input
+                                :model-value="form.cpf"
                                 :placeholder="trans('users.placeholders.cpf')"
-                                :invalid="!!form.errors.cpf"
-                                class="w-full font-mono"
+                                :class="cn('w-full', form.errors.cpf && 'border-destructive')"
                                 inputmode="numeric"
                                 :maxlength="CPF_INPUT_MAX_LENGTH"
                                 @update:model-value="onCpfInput"
@@ -138,12 +137,11 @@ function submit() {
                         :error="form.errors.email"
                         required
                     >
-                        <InputText
+                        <Input
                             v-model="form.email"
                             type="email"
                             :placeholder="trans('users.placeholders.email')"
-                            :invalid="!!form.errors.email"
-                            class="w-full"
+                            :class="cn('w-full', form.errors.email && 'border-destructive')"
                             @blur="validateField('email')"
                         />
                     </FormField>
@@ -153,11 +151,9 @@ function submit() {
                         :error="form.errors.profile"
                         required
                     >
-                        <Select
+                        <AppSelect
                             v-model="form.profile"
                             :options="profileSelectOptions"
-                            optionLabel="label"
-                            optionValue="value"
                             :placeholder="trans('users.placeholders.profile')"
                             :invalid="!!form.errors.profile"
                             class="w-full"
@@ -170,13 +166,10 @@ function submit() {
                         :error="form.errors.password"
                         required
                     >
-                        <Password
+                        <Input
                             v-model="form.password"
-                            :invalid="!!form.errors.password"
-                            toggleMask
-                            :feedback="false"
-                            class="w-full"
-                            inputClass="w-full"
+                            type="password"
+                            :class="cn('w-full', form.errors.password && 'border-destructive')"
                             @blur="validateField('password')"
                         />
                     </FormField>
@@ -186,13 +179,10 @@ function submit() {
                         :error="form.errors.password_confirmation"
                         required
                     >
-                        <Password
+                        <Input
                             v-model="form.password_confirmation"
-                            :invalid="!!form.errors.password_confirmation"
-                            toggleMask
-                            :feedback="false"
-                            class="w-full"
-                            inputClass="w-full"
+                            type="password"
+                            :class="cn('w-full', form.errors.password_confirmation && 'border-destructive')"
                             @blur="validateField('password_confirmation')"
                         />
                     </FormField>
@@ -201,17 +191,19 @@ function submit() {
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
                     <Button
                         type="button"
-                        :label="trans('common.cancel')"
-                        severity="secondary"
-                        outlined
+                        variant="outline"
                         @click="router.visit(route('users.index'))"
-                    />
+                    >
+                        {{ trans('common.cancel') }}
+                    </Button>
                     <Button
                         type="submit"
-                        :label="trans('common.save')"
-                        icon="pi pi-check"
-                        :loading="form.processing || form.validating"
-                    />
+                        :disabled="form.processing || form.validating"
+                    >
+                        <Loader2 v-if="form.processing || form.validating" class="size-4 animate-spin" />
+                        <Check v-else class="size-4" />
+                        {{ trans('common.save') }}
+                    </Button>
                 </div>
             </form>
         </FormCard>

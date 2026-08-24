@@ -1,8 +1,9 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import { Building2, Pencil, UserPlus, Users } from '@lucide/vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import Button from 'primevue/button';
+import { Button } from '@/Components/ui/button';
 import { formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
@@ -10,13 +11,6 @@ const props = defineProps({
     recentPeople: { type: Array, default: () => [] },
     recentProperties: { type: Array, default: () => [] },
 });
-
-const genderLabel = {
-    male: () => trans('genders.male'),
-    female: () => trans('genders.female'),
-    other: () => trans('genders.other'),
-    prefer_not_to_say: () => trans('genders.prefer_not_to_say'),
-};
 </script>
 
 <template>
@@ -33,10 +27,16 @@ const genderLabel = {
 
                 <div class="mt-5 flex flex-wrap gap-3">
                     <Link :href="route('people.create')">
-                        <Button :label="trans('people.create')" icon="pi pi-user-plus" />
+                        <Button>
+                            <UserPlus class="size-4" />
+                            {{ trans('people.create') }}
+                        </Button>
                     </Link>
                     <Link :href="route('properties.create')">
-                        <Button :label="trans('properties.create')" icon="pi pi-building" outlined severity="secondary" />
+                        <Button variant="outline">
+                            <Building2 class="size-4" />
+                            {{ trans('properties.create') }}
+                        </Button>
                     </Link>
                 </div>
             </div>
@@ -57,7 +57,6 @@ const genderLabel = {
             </div>
         </div>
 
-        <!-- Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             <Link :href="route('people.index')" class="block">
                 <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:border-green-300 dark:hover:border-green-700 transition-colors cursor-pointer group">
@@ -67,7 +66,7 @@ const genderLabel = {
                             <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-1">{{ stats.totalPeople }}</p>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-950/20 flex items-center justify-center group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors">
-                            <i class="pi pi-users text-xl text-green-700 dark:text-green-400" />
+                            <Users class="size-5 text-green-700 dark:text-green-400" />
                         </div>
                     </div>
                 </div>
@@ -81,24 +80,24 @@ const genderLabel = {
                             <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-1">{{ stats.totalProperties }}</p>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-950/30 flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-900/30 transition-colors">
-                            <i class="pi pi-building text-xl text-green-800 dark:text-green-300" />
+                            <Building2 class="size-5 text-green-800 dark:text-green-300" />
                         </div>
                     </div>
                 </div>
             </Link>
         </div>
 
-        <!-- Recent Tables -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Recent People -->
             <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
                     <h2 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                        <i class="pi pi-users text-green-700 dark:text-green-400" />
+                        <Users class="size-4 text-green-700 dark:text-green-400" />
                         {{ trans('dashboard.recent_people') }}
                     </h2>
                     <Link :href="route('people.index')">
-                        <Button :label="trans('dashboard.view_all')" text size="small" />
+                        <Button variant="ghost" size="sm">
+                            {{ trans('dashboard.view_all') }}
+                        </Button>
                     </Link>
                 </div>
                 <div v-if="recentPeople.length === 0" class="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">
@@ -112,24 +111,27 @@ const genderLabel = {
                     >
                         <div>
                             <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ person.name }}</p>
-                            <p class="text-xs text-slate-400 font-mono">{{ formatCpfDisplay(person.cpf) }}</p>
+                            <p class="text-xs text-slate-400">{{ formatCpfDisplay(person.cpf) }}</p>
                         </div>
                         <Link :href="route('people.edit', person.id)">
-                            <Button icon="pi pi-pencil" text rounded size="small" severity="secondary" />
+                            <Button variant="ghost" size="icon-sm" :aria-label="trans('common.edit')">
+                                <Pencil class="size-4" />
+                            </Button>
                         </Link>
                     </li>
                 </ul>
             </div>
 
-            <!-- Recent Properties -->
             <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
                     <h2 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                        <i class="pi pi-building text-green-800 dark:text-green-300" />
+                        <Building2 class="size-4 text-green-800 dark:text-green-300" />
                         {{ trans('dashboard.recent_properties') }}
                     </h2>
                     <Link :href="route('properties.index')">
-                        <Button :label="trans('dashboard.view_all')" text size="small" />
+                        <Button variant="ghost" size="sm">
+                            {{ trans('dashboard.view_all') }}
+                        </Button>
                     </Link>
                 </div>
                 <div v-if="recentProperties.length === 0" class="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">
@@ -151,9 +153,11 @@ const genderLabel = {
                             </p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-mono text-slate-600 dark:text-slate-300">#{{ property.id }}</span>
+                            <span class="text-xs text-slate-600 dark:text-slate-300">#{{ property.id }}</span>
                             <Link :href="route('properties.edit', property.id)">
-                                <Button icon="pi pi-pencil" text rounded size="small" severity="secondary" />
+                                <Button variant="ghost" size="icon-sm" :aria-label="trans('common.edit')">
+                                    <Pencil class="size-4" />
+                                </Button>
                             </Link>
                         </div>
                     </li>

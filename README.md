@@ -2,7 +2,7 @@
 
 > **Languages:** English | [Português (BR)](README.pt-BR.md)
 
-Real estate registration system built with Laravel 12, Vue 3, Inertia.js (SSR), Jetstream, PrimeVue, and multi-language support.
+Real estate registration system built with Laravel 12, Vue 3, Inertia.js (SSR), Jetstream, shadcn-vue, and multi-language support.
 
 ---
 
@@ -13,7 +13,7 @@ Real estate registration system built with Laravel 12, Vue 3, Inertia.js (SSR), 
 | Backend      | Laravel 12, PHP 8.2+                |
 | Auth         | Laravel Jetstream (Fortify + Sanctum) |
 | Frontend     | Vue 3, Inertia.js v2 (SSR)          |
-| UI           | PrimeVue 4 (Aura theme)             |
+| UI           | shadcn-vue (Reka UI + Tailwind)     |
 | Styling      | Tailwind CSS v3                     |
 | i18n         | laravel-vue-i18n                    |
 | Database     | MariaDB (`mariadb` driver)          |
@@ -21,7 +21,7 @@ Real estate registration system built with Laravel 12, Vue 3, Inertia.js (SSR), 
 | Reports      | barryvdh/laravel-dompdf             |
 | Build        | Vite 7 + SSR                        |
 
-> **Note:** The project specification mentions Vuetify; the implemented UI library is **PrimeVue**, integrated throughout the frontend.
+> **Note:** The project specification mentions Vuetify; the implemented UI library is **shadcn-vue**, integrated throughout the frontend.
 
 ---
 

@@ -2,12 +2,13 @@
 import { nextTick, ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import Button from 'primevue/button';
+import { Loader2, LogIn } from '@lucide/vue';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { Button } from '@/Components/ui/button';
 import {
     AUTHENTICATOR_CODE_LENGTH,
     blockNonDigitBeforeInput,
@@ -81,7 +82,7 @@ function submit() {
                         type="text"
                         inputmode="numeric"
                         :maxlength="AUTHENTICATOR_CODE_LENGTH"
-                        class="mt-1 block w-full font-mono tracking-widest"
+                        class="mt-1 block w-full tracking-widest"
                         autofocus
                         autocomplete="one-time-code"
                         @update:model-value="onCodeInput"
@@ -97,7 +98,7 @@ function submit() {
                     ref="recoveryCodeInput"
                     v-model="form.recovery_code"
                     type="text"
-                    class="mt-1 block w-full font-mono"
+                    class="mt-1 block w-full"
                     autocomplete="one-time-code"
                 />
                 <InputError class="mt-2" :message="form.errors.recovery_code" />
@@ -114,12 +115,13 @@ function submit() {
 
                 <Button
                     type="submit"
-                    :label="trans('auth.login')"
-                    icon="pi pi-sign-in"
-                    :loading="form.processing"
-                    :disabled="form.processing"
                     class="w-full sm:w-auto"
-                />
+                    :disabled="form.processing"
+                >
+                    <Loader2 v-if="form.processing" class="size-4 animate-spin" />
+                    <LogIn v-else class="size-4" />
+                    {{ trans('auth.login') }}
+                </Button>
             </div>
         </form>
     </AuthenticationCard>

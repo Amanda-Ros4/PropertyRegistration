@@ -65,7 +65,7 @@ const submit = () => {
                     id="cpf"
                     v-model="cpfModel"
                     type="text"
-                    class="mt-1 block w-full font-mono"
+                    class="mt-1 block w-full"
                     required
                     inputmode="numeric"
                     autocomplete="off"
