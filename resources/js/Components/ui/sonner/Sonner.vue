@@ -10,6 +10,14 @@ import {
 import { reactiveOmit } from "@vueuse/core";
 import { Toaster as Sonner } from "vue-sonner";
 import { cn } from "@/lib/utils";
+import { TOAST_DURATION } from '@/lib/toast-config';
+
+const defaultToastOptions = {
+  classes: {
+    toast: 'rounded-2xl',
+    closeButton: 'app-toast-close',
+  },
+};
 
 const props = defineProps({
   id: { type: String, required: false },
@@ -34,12 +42,15 @@ const props = defineProps({
   icons: { type: Object, required: false },
   containerAriaLabel: { type: String, required: false },
 });
-const delegatedProps = reactiveOmit(props, "class", "toastOptions");
+const delegatedProps = reactiveOmit(props, "class", "toastOptions", "duration", "closeButton", "closeButtonPosition");
 </script>
 
 <template>
   <Sonner
     :class="cn('toaster group', props.class)"
+    :duration="props.duration ?? TOAST_DURATION.success"
+    :close-button="props.closeButton ?? true"
+    :close-button-position="props.closeButtonPosition ?? 'top-right'"
     :style="{
       '--normal-bg': 'hsl(var(--popover))',
       '--normal-text': 'hsl(var(--popover-foreground))',
@@ -51,13 +62,7 @@ const delegatedProps = reactiveOmit(props, "class", "toastOptions");
       '--gray5': 'hsl(var(--border))',
       '--gray12': 'hsl(var(--popover-foreground))',
     }"
-    :toast-options="
-      props.toastOptions ?? {
-        classes: {
-          toast: 'rounded-2xl',
-        },
-      }
-    "
+    :toast-options="props.toastOptions ?? defaultToastOptions"
     v-bind="delegatedProps"
   >
     <template #success-icon>

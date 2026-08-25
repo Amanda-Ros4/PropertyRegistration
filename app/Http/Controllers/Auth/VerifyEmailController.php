@@ -32,9 +32,15 @@ class VerifyEmailController extends Controller
             }
         }
 
-        Auth::guard(config('fortify.guard', 'web'))->login($user, true);
+        $guard = Auth::guard(config('fortify.guard', 'web'));
 
-        $request->session()->regenerate();
+        if (! $guard->check()) {
+            $guard->login($user, true);
+            $request->session()->regenerate();
+        } elseif ((int) $guard->id() !== (int) $user->id) {
+            $guard->login($user, true);
+            $request->session()->regenerate();
+        }
 
         return app(VerifyEmailResponse::class);
     }

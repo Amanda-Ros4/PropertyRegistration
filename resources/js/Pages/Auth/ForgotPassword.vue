@@ -1,6 +1,7 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import AutoDismissAlert from '@/Components/AutoDismissAlert.vue';
 import AuthTextLink from '@/Components/AuthTextLink.vue';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
@@ -8,7 +9,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { AUTH_INTRO_CLASS, AUTH_STATUS_SUCCESS_CLASS } from '@/lib/auth-ui';
+import { AUTH_INTRO_CLASS } from '@/lib/auth-ui';
 
 defineProps({
     status: String,
@@ -35,9 +36,7 @@ const submit = () => {
             {{ trans('auth.forgot_password_intro') }}
         </div>
 
-        <div v-if="status" class="mb-4" :class="AUTH_STATUS_SUCCESS_CLASS">
-            {{ status }}
-        </div>
+        <AutoDismissAlert :message="status ?? ''" />
 
         <form @submit.prevent="submit">
             <div>

@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import ActionMessage from '@/Components/ActionMessage.vue';
+import AutoDismissAlert from '@/Components/AutoDismissAlert.vue';
 import FormSection from '@/Components/FormSection.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -171,9 +172,10 @@ const clearPhotoFileInput = () => {
                         </Link>
                     </p>
 
-                    <div v-show="verificationLinkSent" class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
-                        {{ trans('profile.information.verification_sent') }}
-                    </div>
+                    <AutoDismissAlert
+                        v-if="verificationLinkSent"
+                        :message="trans('profile.information.verification_sent')"
+                    />
                 </div>
             </div>
         </template>

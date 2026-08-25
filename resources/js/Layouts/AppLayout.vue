@@ -2,7 +2,6 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { toast } from 'vue-sonner';
 import {
     Building2,
     ChevronDown,
@@ -30,6 +29,7 @@ import { Toaster } from '@/Components/ui/sonner';
 import AppBrandMark from '@/Components/AppBrandMark.vue';
 import { useTheme } from '@/composables/useTheme';
 import { useLocale, SUPPORTED_LOCALES } from '@/composables/useLocale';
+import { useAppToast } from '@/composables/useAppToast';
 
 defineProps({ title: String });
 
@@ -39,52 +39,15 @@ const { currentLocale, setLocale } = useLocale();
 
 const sidebarOpen = ref(true);
 const lastFlashId = ref(null);
-
-function showFlashToast(flash) {
-    if (!flash?.message) {
-        return;
-    }
-
-    const flashId = flash.id ?? `${flash.type}:${flash.message}`;
-    if (flashId === lastFlashId.value) {
-        return;
-    }
-    lastFlashId.value = flashId;
-
-    const summary =
-        flash.type === 'error'
-            ? trans('toast.error_summary')
-            : flash.type === 'warn' || flash.type === 'warning'
-                ? trans('toast.warn_summary')
-                : flash.type === 'info'
-                    ? trans('toast.info_summary')
-                    : trans('toast.success_summary');
-
-    if (flash.type === 'error') {
-        toast.error(summary, { description: flash.message, duration: 6500 });
-        return;
-    }
-
-    if (flash.type === 'warn' || flash.type === 'warning') {
-        toast.warning(summary, { description: flash.message, duration: 5500 });
-        return;
-    }
-
-    if (flash.type === 'info') {
-        toast.info(summary, { description: flash.message, duration: 4500 });
-        return;
-    }
-
-    toast.success(summary, { description: flash.message, duration: 4500 });
-}
+const { showFlashToast } = useAppToast();
 
 let removeInertiaSuccessListener = null;
 
 onMounted(() => {
-    showFlashToast(page.props.flash);
+    showFlashToast(page.props.flash, lastFlashId);
 
     removeInertiaSuccessListener = router.on('success', (event) => {
-        showFlashToast(event.detail.page.props.flash);
+        showFlashToast(event.detail.page.props.flash, lastFlashId);
     });
 });
 
@@ -151,7 +114,7 @@ function isActiveRoute(routeName) {
     <div class="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
 
         <Head :title="title" />
-        <Toaster class="pointer-events-auto" position="top-right" rich-colors close-button
+        <Toaster class="pointer-events-auto" position="top-right" rich-colors
             :theme="isDark ? 'dark' : 'light'" />
 
         <aside v-if="sidebarOpen"

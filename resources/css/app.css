@@ -103,3 +103,16 @@ html.dark input.jetstream-text-input:-webkit-autofill:active {
     @apply font-sans;
     }
 }
+
+[data-sonner-toast][data-styled='true'] {
+  padding-right: 2.75rem;
+}
+
+[data-sonner-toast][data-styled='true'] [data-close-button] {
+  left: auto !important;
+  right: 0.75rem !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+  opacity: 1;
+}
