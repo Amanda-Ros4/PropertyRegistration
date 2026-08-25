@@ -2,12 +2,13 @@
 import { nextTick, ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import Button from 'primevue/button';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { AUTH_INTRO_CLASS, AUTH_LINK_CLASS } from '@/lib/auth-ui';
 import {
     AUTHENTICATOR_CODE_LENGTH,
     blockNonDigitBeforeInput,
@@ -59,15 +60,16 @@ function submit() {
             <AuthenticationCardLogo />
         </template>
 
-        <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-            {{ trans('auth.two_factor.title') }}
-        </h1>
+        <div class="mb-4">
+            <p class="font-semibold text-sm text-gray-700 dark:text-gray-100 mb-2">
+                {{ trans('auth.two_factor.title') }}
+            </p>
+            <p :class="AUTH_INTRO_CLASS">
+                {{ recovery ? trans('auth.two_factor.recovery_prompt') : trans('auth.two_factor.code_prompt') }}
+            </p>
+        </div>
 
-        <p class="mb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-            {{ recovery ? trans('auth.two_factor.recovery_prompt') : trans('auth.two_factor.code_prompt') }}
-        </p>
-
-        <form @submit.prevent="submit" class="space-y-4">
+        <form @submit.prevent="submit">
             <div v-if="!recovery">
                 <InputLabel for="code" :value="trans('auth.two_factor.code')" />
                 <div
@@ -81,7 +83,7 @@ function submit() {
                         type="text"
                         inputmode="numeric"
                         :maxlength="AUTHENTICATOR_CODE_LENGTH"
-                        class="mt-1 block w-full font-mono tracking-widest"
+                        class="mt-1 block w-full tracking-widest"
                         autofocus
                         autocomplete="one-time-code"
                         @update:model-value="onCodeInput"
@@ -97,29 +99,32 @@ function submit() {
                     ref="recoveryCodeInput"
                     v-model="form.recovery_code"
                     type="text"
-                    class="mt-1 block w-full font-mono"
+                    class="mt-1 block w-full"
                     autocomplete="one-time-code"
                 />
                 <InputError class="mt-2" :message="form.errors.recovery_code" />
             </div>
 
-            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4">
                 <button
                     type="button"
-                    class="text-sm text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 underline-offset-2 hover:underline text-left"
+                    :class="AUTH_LINK_CLASS"
+                    class="text-left bg-transparent border-0 p-0 cursor-pointer"
                     @click="toggleRecovery"
                 >
                     {{ recovery ? trans('auth.two_factor.use_code') : trans('auth.two_factor.use_recovery') }}
                 </button>
+            </div>
 
-                <Button
+            <div class="mt-6">
+                <PrimaryButton
                     type="submit"
-                    :label="trans('auth.login')"
-                    icon="pi pi-sign-in"
-                    :loading="form.processing"
+                    class="w-full"
+                    :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
-                    class="w-full sm:w-auto"
-                />
+                >
+                    {{ trans('auth.login') }}
+                </PrimaryButton>
             </div>
         </form>
     </AuthenticationCard>

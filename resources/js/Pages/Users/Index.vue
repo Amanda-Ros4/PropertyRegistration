@@ -1,16 +1,22 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import TableIconButton from '@/Components/TableIconButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FilterBar from '@/Components/FilterBar.vue';
 import EmptyState from '@/Components/EmptyState.vue';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Button from 'primevue/button';
-import Tag from 'primevue/tag';
-import Paginator from 'primevue/paginator';
+import StatusBadge from '@/Components/StatusBadge.vue';
+import InertiaPagination from '@/Components/InertiaPagination.vue';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/Components/ui/table';
 
 const props = defineProps({
     users: { type: Object, required: true },
@@ -19,6 +25,12 @@ const props = defineProps({
 });
 
 const page = usePage();
+
+const paginationQuery = computed(() =>
+    Object.fromEntries(
+        Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
+    ),
+);
 
 const profileSeverity = {
     T: 'danger',
@@ -43,16 +55,6 @@ const activeLabelKey = {
 };
 
 const showCreateButton = computed(() => props.canCreate && page.props.permissions?.canManageUsers);
-
-function onPageChange(event) {
-    router.get(route('users.index'), {
-        ...props.filters,
-        page: event.page + 1,
-    }, {
-        preserveState: true,
-        preserveScroll: true,
-    });
-}
 </script>
 
 <template>
@@ -68,6 +70,7 @@ function onPageChange(event) {
 
         <FilterBar
             routeName="users.index"
+            :heading="trans('users.filters.heading')"
             :searchPlaceholder="trans('users.search_placeholder')"
             :initialSearch="filters.search"
         />
@@ -75,7 +78,7 @@ function onPageChange(event) {
         <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
             <EmptyState
                 v-if="users.data.length === 0"
-                icon="pi pi-user"
+                icon="user"
                 :title="trans('users.empty')"
                 :description="trans('users.empty_description')"
                 :actionLabel="showCreateButton ? trans('users.create') : null"
@@ -83,59 +86,65 @@ function onPageChange(event) {
             />
 
             <template v-else>
-                <DataTable
-                    :value="users.data"
-                    :rowHover="true"
-                    class="rounded-xl overflow-hidden"
-                    tableClass="w-full"
-                    stripedRows
-                >
-                    <Column field="id" :header="trans('common.id')" style="width: 80px" />
-                    <Column field="name" :header="trans('users.fields.name')" />
-                    <Column field="email" :header="trans('users.fields.email')" />
-                    <Column :header="trans('users.fields.profile')">
-                        <template #body="{ data }">
-                            <Tag
-                                :value="trans(profileLabelKey[data.profile] || 'users.profiles.attendant')"
-                                :severity="profileSeverity[data.profile] || 'secondary'"
-                            />
-                        </template>
-                    </Column>
-                    <Column :header="trans('users.fields.active')">
-                        <template #body="{ data }">
-                            <Tag
-                                :value="trans(activeLabelKey[data.active] || 'users.active_status.inactive')"
-                                :severity="activeSeverity[data.active] || 'secondary'"
-                            />
-                        </template>
-                    </Column>
-                    <Column :header="trans('common.actions')" style="width: 100px">
-                        <template #body="{ data }">
-                            <Button
-                                :icon="data.can_update ? 'pi pi-pencil' : 'pi pi-eye'"
-                                text
-                                rounded
-                                size="small"
-                                severity="secondary"
-                                :aria-label="data.can_update ? trans('common.edit') : trans('common.view')"
-                                :title="data.can_update ? trans('common.edit') : trans('common.view')"
-                                @click="router.visit(route('users.edit', data.id))"
-                            />
-                        </template>
-                    </Column>
-                </DataTable>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead class="w-20">
+                                {{ trans('common.id') }}
+                            </TableHead>
+                            <TableHead>
+                                {{ trans('users.fields.name') }}
+                            </TableHead>
+                            <TableHead>
+                                {{ trans('users.fields.email') }}
+                            </TableHead>
+                            <TableHead>
+                                {{ trans('users.fields.profile') }}
+                            </TableHead>
+                            <TableHead>
+                                {{ trans('users.fields.active') }}
+                            </TableHead>
+                            <TableHead class="w-[100px]">
+                                {{ trans('common.actions') }}
+                            </TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow v-for="user in users.data" :key="user.id">
+                            <TableCell>{{ user.id }}</TableCell>
+                            <TableCell>{{ user.name }}</TableCell>
+                            <TableCell>{{ user.email }}</TableCell>
+                            <TableCell>
+                                <StatusBadge
+                                    :value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
+                                    :severity="profileSeverity[user.profile] || 'secondary'"
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <StatusBadge
+                                    :value="trans(activeLabelKey[user.active] || 'users.active_status.inactive')"
+                                    :severity="activeSeverity[user.active] || 'secondary'"
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <TableIconButton
+                                    :icon="user.can_update ? 'pencil' : 'eye'"
+                                    :label="user.can_update ? trans('common.edit') : trans('common.view')"
+                                    @click="router.visit(route('users.edit', user.id))"
+                                />
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
 
                 <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
                     <span class="text-sm text-gray-500 dark:text-gray-400">
                         {{ trans('common.showing') }} {{ users.from }} {{ trans('common.to') }} {{ users.to }} {{ trans('common.of') }} {{ users.total }} {{ trans('common.records') }}
                     </span>
-                    <Paginator
-                        :rows="users.per_page"
-                        :totalRecords="users.total"
-                        :first="(users.current_page - 1) * users.per_page"
-                        template="PrevPageLink PageLinks NextPageLink"
-                        class="border-none p-0"
-                        @page="onPageChange"
+                    <InertiaPagination
+                        :paginator="users"
+                        route-name="users.index"
+                        :query="paginationQuery"
                     />
                 </div>
             </template>

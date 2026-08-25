@@ -1,12 +1,12 @@
 import './bootstrap';
 import '../css/app.css';
+import 'vue-sonner/style.css';
 
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { client } from 'laravel-precognition-vue-inertia';
-import { installPrimeVue } from '@/plugins/primevue';
 import { installI18n, getStoredLocale, storeLocale } from '@/plugins/i18n';
 
 client.use(window.axios);
@@ -48,7 +48,6 @@ createInertiaApp({
 
         app.use(plugin);
         app.use(ZiggyVue);
-        installPrimeVue(app);
         installI18n(app, locale);
 
         return app.mount(el);

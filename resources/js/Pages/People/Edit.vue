@@ -2,15 +2,18 @@
 import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import { Check, Loader2, Trash2 } from '@lucide/vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FormCard from '@/Components/FormCard.vue';
 import FormField from '@/Components/FormField.vue';
 import BirthDateInput from '@/Components/BirthDateInput.vue';
 import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
-import InputText from 'primevue/inputtext';
-import Select from 'primevue/select';
-import Button from 'primevue/button';
+import AppSelect from '@/Components/AppSelect.vue';
+import { Input } from '@/Components/ui/input';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { cn } from '@/lib/utils';
 import {
     blockNonDigitBeforeInput,
     blockNonDigitKey,
@@ -113,11 +116,10 @@ function deletePerson() {
                             @keydown.capture="blockNonLetterNameKey"
                             @beforeinput.capture="blockNonLetterNameBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.name"
+                            <Input
+                                :model-value="form.name"
                                 :placeholder="trans('people.placeholders.name')"
-                                :invalid="!!form.errors.name"
-                                class="w-full"
+                                :class="cn('w-full', form.errors.name && 'border-destructive')"
                                 @update:model-value="onNameInput"
                                 @blur="validateField('name')"
                             />
@@ -125,20 +127,18 @@ function deletePerson() {
                     </FormField>
 
                     <FormField :label="trans('people.fields.cpf')" required>
-                        <InputText
-                            :modelValue="formatCpfDisplay(person.cpf)"
+                        <Input
+                            :model-value="formatCpfDisplay(person.cpf)"
                             :placeholder="trans('people.placeholders.cpf')"
-                            class="w-full font-mono"
+                            class="w-full"
                             disabled
                         />
                     </FormField>
 
                     <FormField :label="trans('people.fields.gender')" :error="form.errors.gender" required>
-                        <Select
+                        <AppSelect
                             v-model="form.gender"
                             :options="genderOptions"
-                            optionLabel="label"
-                            optionValue="value"
                             :placeholder="trans('people.placeholders.gender')"
                             :invalid="!!form.errors.gender"
                             class="w-full"
@@ -162,11 +162,10 @@ function deletePerson() {
                             @keydown.capture="blockNonDigitKey"
                             @beforeinput.capture="blockNonDigitBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.phone"
+                            <Input
+                                :model-value="form.phone"
                                 :placeholder="trans('people.placeholders.phone')"
-                                :invalid="!!form.errors.phone"
-                                class="w-full"
+                                :class="cn('w-full', form.errors.phone && 'border-destructive')"
                                 inputmode="numeric"
                                 :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
                                 @update:model-value="onPhoneInput"
@@ -176,42 +175,40 @@ function deletePerson() {
                     </FormField>
 
                     <FormField :label="trans('people.fields.email')" :error="form.errors.email">
-                        <InputText
+                        <Input
                             v-model="form.email"
                             type="email"
                             :placeholder="trans('people.placeholders.email')"
-                            :invalid="!!form.errors.email"
-                            class="w-full"
+                            :class="cn('w-full', form.errors.email && 'border-destructive')"
                             @blur="validateField('email')"
                         />
                     </FormField>
                 </div>
 
                 <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <Button
+                    <SecondaryButton
                         v-if="canDelete"
                         type="button"
-                        :label="trans('common.delete')"
-                        icon="pi pi-trash"
-                        severity="danger"
-                        outlined
+                        class="text-destructive border-destructive/50 hover:bg-destructive/10"
                         @click="openDeleteConfirm"
-                    />
+                    >
+                        {{ trans('common.delete') }}
+                    </SecondaryButton>
 
                     <div class="flex justify-end gap-3" :class="{ 'sm:ml-auto': canDelete }">
-                        <Button
+                        <SecondaryButton
                             type="button"
-                            :label="trans('common.cancel')"
-                            severity="secondary"
-                            outlined
                             @click="router.visit(route('people.index'))"
-                        />
-                        <Button
+                        >
+                            {{ trans('common.cancel') }}
+                        </SecondaryButton>
+                        <PrimaryButton
                             type="submit"
-                            :label="trans('common.save')"
-                            icon="pi pi-check"
-                            :loading="form.processing || form.validating"
-                        />
+                            :class="{ 'opacity-25': form.processing || form.validating }"
+                            :disabled="form.processing || form.validating"
+                        >
+                            {{ trans('common.save') }}
+                        </PrimaryButton>
                     </div>
                 </div>
             </form>

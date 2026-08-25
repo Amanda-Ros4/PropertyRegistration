@@ -1,18 +1,29 @@
 @extends('reports.layout', ['title' => __('properties.reports.synthetic_title')])
 
 @section('content')
-    <table>
+    <table class="report-table">
+        <colgroup>
+            <col style="width: 5%">
+            <col style="width: 15%">
+            <col style="width: 8%">
+            <col style="width: 20%">
+            <col style="width: 5%">
+            <col style="width: 14%">
+            <col style="width: 11%">
+            <col style="width: 11%">
+            <col style="width: 11%">
+        </colgroup>
         <thead>
             <tr>
-                <th style="width: 9%">{{ __('properties.fields.municipal_registration') }}</th>
-                <th style="width: 16%">{{ __('properties.fields.owner') }}</th>
-                <th style="width: 8%">{{ __('properties.fields.type') }}</th>
-                <th style="width: 16%">{{ __('properties.fields.street') }}</th>
-                <th style="width: 5%">{{ __('properties.fields.number') }}</th>
-                <th style="width: 12%">{{ __('properties.fields.neighborhood') }}</th>
-                <th class="num" style="width: 11%">{{ __('properties.fields.land_area') }}</th>
-                <th class="num" style="width: 12%">{{ __('properties.fields.building_area') }}</th>
-                <th style="width: 11%">{{ __('properties.fields.status') }}</th>
+                <th>{{ __('properties.reports.columns.registration') }}</th>
+                <th>{{ __('properties.reports.columns.owner') }}</th>
+                <th>{{ __('properties.reports.columns.type') }}</th>
+                <th>{{ __('properties.reports.columns.street') }}</th>
+                <th>{{ __('properties.reports.columns.number') }}</th>
+                <th>{{ __('properties.reports.columns.neighborhood') }}</th>
+                <th class="num">{{ __('properties.reports.columns.land_area') }}</th>
+                <th class="num">{{ __('properties.reports.columns.building_area') }}</th>
+                <th>{{ __('properties.reports.columns.status') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -24,8 +35,8 @@
                     <td>{{ $property->street }}</td>
                     <td>{{ $property->number }}</td>
                     <td>{{ $property->neighborhood }}</td>
-                    <td class="num">{{ number_format((float) $property->land_area, 2, ',', '.') }}</td>
-                    <td class="num">{{ number_format((float) $property->building_area, 2, ',', '.') }}</td>
+                    <td class="num">{{ \App\Support\ReportFormatting::area($property->land_area) }}</td>
+                    <td class="num">{{ \App\Support\ReportFormatting::area($property->building_area) }}</td>
                     <td>{{ __('properties.statuses.'.$property->status->value) }}</td>
                 </tr>
             @empty

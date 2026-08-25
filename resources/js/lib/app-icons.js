@@ -1,0 +1,90 @@
+import {
+    ArrowLeft,
+    ArrowRight,
+    Ban,
+    BarChart3,
+    Building2,
+    Check,
+    CheckCircle,
+    ChevronDown,
+    CloudUpload,
+    Download,
+    Eye,
+    FileEdit,
+    FileImage,
+    FileText,
+    FilterX,
+    Hash,
+    History,
+    Home,
+    Inbox,
+    Languages,
+    Loader2,
+    LogIn,
+    LogOut,
+    Moon,
+    Paperclip,
+    Pencil,
+    Plus,
+    Search,
+    Settings,
+    Shield,
+    Sun,
+    Trash2,
+    User,
+    UserPlus,
+    Users,
+    X,
+} from '@lucide/vue';
+
+export const appIcons = {
+    inbox: Inbox,
+    home: Home,
+    users: Users,
+    user: User,
+    building: Building2,
+    history: History,
+    settings: Settings,
+    shield: Shield,
+    'file-edit': FileEdit,
+    'user-plus': UserPlus,
+    'log-in': LogIn,
+    'log-out': LogOut,
+    'chart-bar': BarChart3,
+    search: Search,
+    plus: Plus,
+    check: Check,
+    'check-circle': CheckCircle,
+    ban: Ban,
+    eye: Eye,
+    pencil: Pencil,
+    trash: Trash2,
+    download: Download,
+    paperclip: Paperclip,
+    'cloud-upload': CloudUpload,
+    'filter-x': FilterX,
+    'arrow-left': ArrowLeft,
+    'arrow-right': ArrowRight,
+    languages: Languages,
+    sun: Sun,
+    moon: Moon,
+    x: X,
+    hash: Hash,
+    'file-pdf': FileText,
+    image: FileImage,
+    file: FileText,
+    spinner: Loader2,
+    'chevron-down': ChevronDown,
+};
+
+export function resolveAppIcon(name) {
+    if (!name) {
+        return appIcons.inbox;
+    }
+
+    const normalized = String(name)
+        .replace(/^pi pi-/, '')
+        .replace(/\s+/g, '-');
+
+    return appIcons[normalized] ?? appIcons.inbox;
+}

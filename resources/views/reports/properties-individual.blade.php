@@ -52,7 +52,7 @@
 
     <div class="section-title">{{ Str::upper(__('properties.endorsements.title')) }}</div>
 
-    <table>
+    <table class="report-table">
         <thead>
             <tr>
                 <th style="width: 15%">{{ __('properties.endorsements.fields.date') }}</th>

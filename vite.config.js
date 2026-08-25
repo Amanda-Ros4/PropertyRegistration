@@ -24,4 +24,7 @@ export default defineConfig({
             '@': fileURLToPath(new URL('./resources/js', import.meta.url)),
         },
     },
+    server: {
+        host: '127.0.0.1',
+    },
 });

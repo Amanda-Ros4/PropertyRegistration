@@ -2,15 +2,17 @@
 import { computed, ref } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import { Ban, Check, CheckCircle, Loader2 } from '@lucide/vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FormCard from '@/Components/FormCard.vue';
 import FormField from '@/Components/FormField.vue';
-import InputText from 'primevue/inputtext';
-import Password from 'primevue/password';
-import Select from 'primevue/select';
-import Tag from 'primevue/tag';
-import Button from 'primevue/button';
+import StatusBadge from '@/Components/StatusBadge.vue';
+import AppSelect from '@/Components/AppSelect.vue';
+import { Input } from '@/Components/ui/input';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { cn } from '@/lib/utils';
 import {
     blockNonLetterNameBeforeInput,
     blockNonLetterNameKey,
@@ -64,12 +66,6 @@ const activeActionLabel = computed(() =>
     activeValue.value === 'S'
         ? trans('users.actions.deactivate')
         : trans('users.actions.activate'),
-);
-const activeActionSeverity = computed(() =>
-    activeValue.value === 'S' ? 'secondary' : 'success',
-);
-const activeActionIcon = computed(() =>
-    activeValue.value === 'S' ? 'pi pi-ban' : 'pi pi-check-circle',
 );
 
 function toggleActive() {
@@ -152,19 +148,15 @@ function submit() {
                     {{ trans('users.fields.active') }}
                 </p>
                 <div class="flex flex-wrap items-center gap-3">
-                    <Tag :value="activeLabel" :severity="activeSeverity" />
-                    <Button
+                    <StatusBadge :value="activeLabel" :severity="activeSeverity" />
+                    <SecondaryButton
                         v-if="canUpdate && !isSelf"
                         type="button"
-                        :label="activeActionLabel"
-                        :icon="activeActionIcon"
-                        :severity="activeActionSeverity"
-                        size="small"
-                        outlined
-                        :loading="activeUpdating"
                         :disabled="activeUpdating"
                         @click="toggleActive"
-                    />
+                    >
+                        {{ activeActionLabel }}
+                    </SecondaryButton>
                 </div>
                 <p class="text-xs text-slate-400 mt-2">
                     {{
@@ -183,9 +175,9 @@ function submit() {
                         :label="trans('common.id')"
                         class="md:col-span-2"
                     >
-                        <InputText
-                            :modelValue="String(user.id)"
-                            class="w-full max-w-xs font-mono"
+                        <Input
+                            :model-value="String(user.id)"
+                            class="w-full max-w-xs"
                             disabled
                             readonly
                         />
@@ -202,11 +194,10 @@ function submit() {
                             @keydown.capture="canUpdate ? blockNonLetterNameKey : null"
                             @beforeinput.capture="canUpdate ? blockNonLetterNameBeforeInput : null"
                         >
-                            <InputText
-                                :modelValue="form.name"
+                            <Input
+                                :model-value="form.name"
                                 :placeholder="trans('users.placeholders.name')"
-                                :invalid="!!form.errors.name"
-                                class="w-full"
+                                :class="cn('w-full', form.errors.name && 'border-destructive')"
                                 :disabled="!canUpdate"
                                 @update:model-value="onNameInput"
                                 @blur="canUpdate ? validateField('name') : null"
@@ -217,9 +208,9 @@ function submit() {
                     <FormField
                         :label="trans('users.fields.cpf')"
                     >
-                        <InputText
-                            :modelValue="formatCpfDisplay(user.cpf)"
-                            class="w-full font-mono"
+                        <Input
+                            :model-value="formatCpfDisplay(user.cpf)"
+                            class="w-full"
                             disabled
                             readonly
                         />
@@ -230,18 +221,17 @@ function submit() {
                         :error="form.errors.email"
                         :required="canEditUserEmail"
                     >
-                        <InputText
+                        <Input
                             v-if="canEditUserEmail"
                             v-model="form.email"
                             type="email"
                             :placeholder="trans('users.placeholders.email')"
-                            :invalid="!!form.errors.email"
-                            class="w-full"
+                            :class="cn('w-full', form.errors.email && 'border-destructive')"
                             @blur="validateField('email')"
                         />
-                        <InputText
+                        <Input
                             v-else
-                            :modelValue="user.email"
+                            :model-value="user.email"
                             type="email"
                             class="w-full"
                             disabled
@@ -255,20 +245,18 @@ function submit() {
                         :required="canChangeProfile"
                         :hint="isSelf && canUpdate && !canChangeProfile ? trans('users.hint_profile_self_readonly') : null"
                     >
-                        <Select
+                        <AppSelect
                             v-if="canChangeProfile"
                             v-model="form.profile"
                             :options="profileSelectOptions"
-                            optionLabel="label"
-                            optionValue="value"
                             :placeholder="trans('users.placeholders.profile')"
                             :invalid="!!form.errors.profile"
                             class="w-full"
                             @change="validateField('profile')"
                         />
-                        <InputText
+                        <Input
                             v-else
-                            :modelValue="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
+                            :model-value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
                             class="w-full"
                             disabled
                             readonly
@@ -282,14 +270,11 @@ function submit() {
                         :hint="trans('users.password_optional_hint')"
                         :error="form.errors.password"
                     >
-                        <Password
+                        <Input
                             v-model="form.password"
-                            :invalid="!!form.errors.password"
-                            toggleMask
-                            :feedback="false"
-                            class="w-full"
-                            inputClass="w-full"
+                            type="password"
                             :placeholder="trans('users.placeholders.password_optional')"
+                            :class="cn('w-full', form.errors.password && 'border-destructive')"
                             @blur="validateField('password')"
                         />
                     </FormField>
@@ -300,33 +285,30 @@ function submit() {
                         :label="trans('users.fields.password_confirmation')"
                         :error="form.errors.password_confirmation"
                     >
-                        <Password
+                        <Input
                             v-model="form.password_confirmation"
-                            :invalid="!!form.errors.password_confirmation"
-                            toggleMask
-                            :feedback="false"
-                            class="w-full"
-                            inputClass="w-full"
+                            type="password"
+                            :class="cn('w-full', form.errors.password_confirmation && 'border-destructive')"
                             @blur="validateField('password_confirmation')"
                         />
                     </FormField>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <Button
+                    <SecondaryButton
                         type="button"
-                        :label="trans('common.back')"
-                        severity="secondary"
-                        outlined
                         @click="router.visit(route('users.index'))"
-                    />
-                    <Button
+                    >
+                        {{ trans('common.back') }}
+                    </SecondaryButton>
+                    <PrimaryButton
                         v-if="canUpdate"
                         type="submit"
-                        :label="trans('common.save')"
-                        icon="pi pi-check"
-                        :loading="form.processing || form.validating"
-                    />
+                        :class="{ 'opacity-25': form.processing || form.validating }"
+                        :disabled="form.processing || form.validating"
+                    >
+                        {{ trans('common.save') }}
+                    </PrimaryButton>
                 </div>
             </form>
         </FormCard>

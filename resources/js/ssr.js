@@ -4,7 +4,6 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import createServer from '@inertiajs/vue3/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
-import { installPrimeVue } from '@/plugins/primevue';
 import { installI18n } from '@/plugins/i18n';
 
 const appNames = {
@@ -38,7 +37,6 @@ createServer((page) =>
                 ...page.props.ziggy,
                 location: new URL(page.props.ziggy.location),
             });
-            installPrimeVue(app);
             installI18n(app, locale);
 
             return app;

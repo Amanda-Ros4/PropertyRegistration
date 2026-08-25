@@ -2,16 +2,23 @@
 import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import TableIconButton from '@/Components/TableIconButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import PropertyFilters from '@/Components/PropertyFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Button from 'primevue/button';
-import Tag from 'primevue/tag';
-import Paginator from 'primevue/paginator';
+import StatusBadge from '@/Components/StatusBadge.vue';
+import InertiaPagination from '@/Components/InertiaPagination.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/Components/ui/table';
 import { formatCepDisplay, formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
@@ -22,6 +29,12 @@ const props = defineProps({
 
 const deleteConfirmRef = ref(null);
 const propertyToDelete = ref(null);
+
+const paginationQuery = computed(() =>
+    Object.fromEntries(
+        Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
+    ),
+);
 
 const deleteConfirmMessage = computed(() => {
     if (!propertyToDelete.value) {
@@ -52,26 +65,8 @@ const hasActiveFilters = computed(() =>
     ),
 );
 
-function reportQuery() {
-    return Object.fromEntries(
-        Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
-    );
-}
-
 function openSyntheticReport() {
-    window.open(route('properties.report.synthetic', reportQuery()), '_blank');
-}
-
-function onPageChange(event) {
-    router.get(route('properties.index'), {
-        ...Object.fromEntries(
-            Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
-        ),
-        page: event.page + 1,
-    }, {
-        preserveState: true,
-        preserveScroll: true,
-    });
+    window.open(route('properties.report.synthetic', paginationQuery.value), '_blank');
 }
 
 function confirmDelete(property) {
@@ -104,13 +99,9 @@ function deleteProperty() {
             :createLabel="trans('properties.create')"
         >
             <template #actions>
-                <Button
-                    :label="trans('properties.reports.synthetic')"
-                    icon="pi pi-file-pdf"
-                    severity="secondary"
-                    outlined
-                    @click="openSyntheticReport"
-                />
+                <SecondaryButton type="button" @click="openSyntheticReport">
+                    {{ trans('properties.reports.synthetic') }}
+                </SecondaryButton>
             </template>
         </PageHeader>
 
@@ -122,7 +113,7 @@ function deleteProperty() {
         <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
             <EmptyState
                 v-if="properties.data.length === 0"
-                icon="pi pi-building"
+                icon="building"
                 :title="hasActiveFilters ? trans('properties.empty_filtered') : trans('properties.empty')"
                 :description="hasActiveFilters ? trans('properties.empty_filtered_description') : trans('properties.empty_description')"
                 :actionLabel="hasActiveFilters ? null : trans('properties.create')"
@@ -130,89 +121,97 @@ function deleteProperty() {
             />
 
             <template v-else>
-                <DataTable
-                    :value="properties.data"
-                    :rowHover="true"
-                    class="rounded-xl overflow-hidden"
-                    stripedRows
-                >
-                    <Column :header="trans('properties.fields.municipal_registration')" style="width: 80px">
-                        <template #body="{ data }">
-                            <span class="font-mono font-medium text-indigo-600 dark:text-indigo-400">#{{ data.id }}</span>
-                        </template>
-                    </Column>
-                    <Column :header="trans('properties.fields.type')" style="width: 120px">
-                        <template #body="{ data }">
-                            {{ data.type ? trans('properties.types.' + (data.type.value ?? data.type)) : '—' }}
-                        </template>
-                    </Column>
-                    <Column field="street" :header="trans('properties.fields.street')" />
-                    <Column field="number" :header="trans('properties.fields.number')" style="width: 100px" />
-                    <Column field="neighborhood" :header="trans('properties.fields.neighborhood')" />
-                    <Column :header="trans('properties.fields.owner')">
-                        <template #body="{ data }">
-                            <div v-if="data.person" class="flex flex-col">
-                                <span class="font-medium">{{ data.person.name }}</span>
-                                <span class="text-xs text-gray-400 font-mono">{{ formatCpfDisplay(data.person.cpf) }}</span>
-                            </div>
-                            <span v-else class="text-gray-400">—</span>
-                        </template>
-                    </Column>
-                    <Column :header="trans('properties.fields.cep')" style="width: 110px">
-                        <template #body="{ data }">
-                            <span class="font-mono text-sm">{{ data.cep ? formatCepDisplay(data.cep) : '—' }}</span>
-                        </template>
-                    </Column>
-                    <Column :header="trans('properties.fields.complement')">
-                        <template #body="{ data }">
-                            {{ data.complement || '—' }}
-                        </template>
-                    </Column>
-                    <Column :header="trans('properties.fields.status')" style="width: 110px">
-                        <template #body="{ data }">
-                            <Tag
-                                :value="trans('properties.statuses.' + (data.status?.value ?? data.status))"
-                                :severity="(data.status?.value ?? data.status) === 'active' ? 'success' : 'secondary'"
-                            />
-                        </template>
-                    </Column>
-                    <Column :header="trans('common.actions')" style="width: 140px">
-                        <template #body="{ data }">
-                            <Button
-                                icon="pi pi-eye"
-                                text
-                                rounded
-                                size="small"
-                                severity="secondary"
-                                :aria-label="trans('common.view')"
-                                :title="trans('common.view')"
-                                @click="router.visit(route('properties.edit', data.id))"
-                            />
-                            <Button
-                                icon="pi pi-trash"
-                                text
-                                rounded
-                                size="small"
-                                severity="danger"
-                                :aria-label="trans('common.delete')"
-                                :title="trans('common.delete')"
-                                @click="confirmDelete(data)"
-                            />
-                        </template>
-                    </Column>
-                </DataTable>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead class="w-20">
+                                {{ trans('properties.fields.municipal_registration') }}
+                            </TableHead>
+                            <TableHead class="w-[120px]">
+                                {{ trans('properties.fields.type') }}
+                            </TableHead>
+                            <TableHead>
+                                {{ trans('properties.fields.street') }}
+                            </TableHead>
+                            <TableHead class="w-[100px]">
+                                {{ trans('properties.fields.number') }}
+                            </TableHead>
+                            <TableHead>
+                                {{ trans('properties.fields.neighborhood') }}
+                            </TableHead>
+                            <TableHead>
+                                {{ trans('properties.fields.owner') }}
+                            </TableHead>
+                            <TableHead class="w-[110px]">
+                                {{ trans('properties.fields.cep') }}
+                            </TableHead>
+                            <TableHead>
+                                {{ trans('properties.fields.complement') }}
+                            </TableHead>
+                            <TableHead class="w-[110px]">
+                                {{ trans('properties.fields.status') }}
+                            </TableHead>
+                            <TableHead class="w-[140px]">
+                                {{ trans('common.actions') }}
+                            </TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow v-for="property in properties.data" :key="property.id">
+                            <TableCell>
+                                <span class="font-medium text-indigo-600 dark:text-indigo-400">#{{ property.id }}</span>
+                            </TableCell>
+                            <TableCell>
+                                {{ property.type ? trans('properties.types.' + (property.type.value ?? property.type)) : '—' }}
+                            </TableCell>
+                            <TableCell>{{ property.street }}</TableCell>
+                            <TableCell>{{ property.number }}</TableCell>
+                            <TableCell>{{ property.neighborhood }}</TableCell>
+                            <TableCell>
+                                <div v-if="property.person" class="flex flex-col">
+                                    <span class="font-medium">{{ property.person.name }}</span>
+                                    <span class="text-xs text-gray-400">{{ formatCpfDisplay(property.person.cpf) }}</span>
+                                </div>
+                                <span v-else class="text-gray-400">—</span>
+                            </TableCell>
+                            <TableCell>
+                                <span class="text-sm">{{ property.cep ? formatCepDisplay(property.cep) : '—' }}</span>
+                            </TableCell>
+                            <TableCell>
+                                {{ property.complement || '—' }}
+                            </TableCell>
+                            <TableCell>
+                                <StatusBadge
+                                    :value="trans('properties.statuses.' + (property.status?.value ?? property.status))"
+                                    :severity="(property.status?.value ?? property.status) === 'active' ? 'success' : 'secondary'"
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex items-center gap-1">
+                                    <TableIconButton
+                                        icon="eye"
+                                        :label="trans('common.view')"
+                                        @click="router.visit(route('properties.edit', property.id))"
+                                    />
+                                    <TableIconButton
+                                        icon="trash"
+                                        :label="trans('common.delete')"
+                                        @click="confirmDelete(property)"
+                                    />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
 
                 <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
                     <span class="text-sm text-gray-500 dark:text-gray-400">
                         {{ trans('common.showing') }} {{ properties.from }} {{ trans('common.to') }} {{ properties.to }} {{ trans('common.of') }} {{ properties.total }} {{ trans('common.records') }}
                     </span>
-                    <Paginator
-                        :rows="properties.per_page"
-                        :totalRecords="properties.total"
-                        :first="(properties.current_page - 1) * properties.per_page"
-                        @page="onPageChange"
-                        template="PrevPageLink PageLinks NextPageLink"
-                        class="border-none p-0"
+                    <InertiaPagination
+                        :paginator="properties"
+                        route-name="properties.index"
+                        :query="paginationQuery"
                     />
                 </div>
             </template>

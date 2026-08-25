@@ -88,6 +88,7 @@ class PropertyReportTest extends TestCase
         $text = $this->pdfText($response->getContent());
 
         $this->assertStringContainsString('RELAT', $text);
+        $this->assertStringContainsString('Inscri', $text);
         $this->assertStringContainsString('Bairro', $text);
     }
 

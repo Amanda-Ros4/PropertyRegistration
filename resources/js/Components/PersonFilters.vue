@@ -2,12 +2,13 @@
 import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import InputText from 'primevue/inputtext';
-import Select from 'primevue/select';
-import Button from 'primevue/button';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
+import { FilterX, Search } from '@lucide/vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { Input } from '@/Components/ui/input';
+import AppSelect from '@/Components/AppSelect.vue';
 import BirthDateInput from '@/Components/BirthDateInput.vue';
+import FilterPanel from '@/Components/FilterPanel.vue';
+import { useFilterSyncGuard } from '@/composables/useFilterSyncGuard';
 import {
     blockDisallowedSearchBeforeInput,
     blockDisallowedSearchKey,
@@ -24,6 +25,8 @@ import {
 const props = defineProps({
     filters: { type: Object, default: () => ({}) },
 });
+
+const { runSyncedFromProps, shouldSkipFilterApply } = useFilterSyncGuard();
 
 const name = ref(props.filters.name ?? '');
 const birthDate = ref(toBirthDateInputValue(props.filters.birth_date ?? ''));
@@ -50,12 +53,34 @@ const hasActiveFilters = computed(() =>
     ),
 );
 
+watch(
+    () => props.filters,
+    (filters) => {
+        runSyncedFromProps(() => {
+            name.value = filters.name ?? '';
+            birthDate.value = toBirthDateInputValue(filters.birth_date ?? '');
+            cpf.value = filters.cpf ? formatCpfInput(filters.cpf) : '';
+            gender.value = filters.gender ?? null;
+            search.value = formatSearchInput(filters.search ?? '');
+        });
+    },
+    { deep: true },
+);
+
 watch([name, cpf], () => {
+    if (shouldSkipFilterApply()) {
+        return;
+    }
+
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => applyFilters(), 220);
 });
 
 watch(birthDate, () => {
+    if (shouldSkipFilterApply()) {
+        return;
+    }
+
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
         const digits = stripNonDigits(birthDate.value);
@@ -65,9 +90,19 @@ watch(birthDate, () => {
     }, 220);
 });
 
-watch(gender, () => applyFilters());
+watch(gender, () => {
+    if (shouldSkipFilterApply()) {
+        return;
+    }
+
+    applyFilters();
+});
 
 watch(search, () => {
+    if (shouldSkipFilterApply()) {
+        return;
+    }
+
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => applyFilters(), 180);
 });
@@ -132,13 +167,9 @@ function clearFilters() {
 </script>
 
 <template>
-    <div class="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm space-y-3">
-        <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
-            {{ trans('people.filters.heading') }}
-        </p>
-
+    <FilterPanel :title="trans('people.filters.heading')">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <InputText
+            <Input
                 v-model="name"
                 :placeholder="trans('people.filters.name')"
                 class="w-full"
@@ -153,53 +184,50 @@ function clearFilters() {
                 @keydown.capture="blockNonDigitKey"
                 @beforeinput.capture="blockNonDigitBeforeInput"
             >
-                <InputText
-                    :modelValue="cpf"
+                <Input
+                    :model-value="cpf"
                     :placeholder="trans('people.filters.cpf')"
-                    class="w-full font-mono"
+                    class="w-full"
                     inputmode="numeric"
                     :maxlength="CPF_INPUT_MAX_LENGTH"
                     @update:model-value="onCpfInput"
                 />
             </div>
 
-            <Select
+            <AppSelect
                 v-model="gender"
                 :options="genderOptions"
-                optionLabel="label"
-                optionValue="value"
                 :placeholder="trans('people.filters.gender')"
-                showClear
+                show-clear
                 class="w-full"
             />
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-3">
-            <div
-                class="flex-1"
-                @keydown.capture="blockDisallowedSearchKey"
-                @beforeinput.capture="blockDisallowedSearchBeforeInput"
-            >
-                <IconField class="w-full">
-                    <InputIcon class="pi pi-search" />
-                    <InputText
-                        :modelValue="search"
-                        :placeholder="trans('people.search_placeholder')"
-                        class="w-full"
-                        @update:model-value="onSearchInput"
-                    />
-                </IconField>
-            </div>
-
-            <Button
-                v-if="hasActiveFilters"
-                :label="trans('common.clear')"
-                icon="pi pi-filter-slash"
-                outlined
-                severity="secondary"
-                class="w-full sm:w-auto"
-                @click="clearFilters"
+        <div
+            class="relative w-full"
+            @keydown.capture="blockDisallowedSearchKey"
+            @beforeinput.capture="blockDisallowedSearchBeforeInput"
+        >
+            <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+                :model-value="search"
+                :placeholder="trans('people.search_placeholder')"
+                class="w-full pl-9"
+                @update:model-value="onSearchInput"
             />
         </div>
-    </div>
+
+        <template
+            v-if="hasActiveFilters"
+            #actions
+        >
+            <SecondaryButton
+                type="button"
+                class="w-full sm:w-auto"
+                @click="clearFilters"
+            >
+                {{ trans('common.clear') }}
+            </SecondaryButton>
+        </template>
+    </FilterPanel>
 </template>

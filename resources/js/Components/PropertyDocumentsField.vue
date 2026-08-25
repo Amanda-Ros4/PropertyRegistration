@@ -2,15 +2,17 @@
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import Button from 'primevue/button';
+import { CloudUpload, Download, Loader2, Paperclip, Trash2, X } from '@lucide/vue';
 import FormField from '@/Components/FormField.vue';
 import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
+import { Button } from '@/Components/ui/button';
+import { resolveAppIcon } from '@/lib/app-icons';
 import { useAppToast } from '@/composables/useAppToast';
 import {
     PROPERTY_DOCUMENT_ACCEPT,
     PROPERTY_DOCUMENT_MAX_BYTES,
     PROPERTY_DOCUMENT_MAX_FILES,
-    documentIconClass,
+    documentIconType,
     downloadPendingFile,
     fileExtension,
     formatDocumentSize,
@@ -60,6 +62,22 @@ const fieldError = computed(() => {
     const value = errors[key];
     return Array.isArray(value) ? value[0] : value;
 });
+
+function iconFor(fileOrDoc) {
+    return resolveAppIcon(documentIconType(fileOrDoc));
+}
+
+function iconClassFor(fileOrDoc) {
+    const type = documentIconType(fileOrDoc);
+
+    if (type === 'file-pdf') {
+        return 'text-red-500';
+    }
+    if (type === 'image') {
+        return 'text-sky-500';
+    }
+    return 'text-slate-400';
+}
 
 function nextPendingId() {
     return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -273,14 +291,15 @@ onBeforeUnmount(() => {
             </p>
             <Button
                 type="button"
-                :label="trans('properties.documents.attach')"
-                icon="pi pi-paperclip"
-                size="small"
-                outlined
+                variant="outline"
+                size="sm"
                 :disabled="atLimit || uploading"
-                :loading="uploading"
                 @click="openFilePicker"
-            />
+            >
+                <Loader2 v-if="uploading" class="size-4 animate-spin" />
+                <Paperclip v-else class="size-4" />
+                {{ trans('properties.documents.attach') }}
+            </Button>
         </div>
 
         <ul v-if="existingDocuments.length || pending.length" class="space-y-2 mb-3">
@@ -295,7 +314,11 @@ onBeforeUnmount(() => {
                     :alt="document.original_name"
                     class="h-11 w-11 rounded object-cover border border-slate-200 dark:border-slate-700 shrink-0"
                 />
-                <i v-else :class="[documentIconClass(document), 'text-xl shrink-0']" />
+                <component
+                    v-else
+                    :is="iconFor(document)"
+                    :class="['size-5 shrink-0', iconClassFor(document)]"
+                />
                 <div class="min-w-0 flex-1">
                     <a
                         :href="documentDownloadUrl(document)"
@@ -310,25 +333,26 @@ onBeforeUnmount(() => {
                 </div>
                 <Button
                     type="button"
-                    :label="trans('properties.documents.download')"
-                    icon="pi pi-download"
-                    size="small"
-                    outlined
-                    severity="secondary"
+                    variant="outline"
+                    size="sm"
                     :aria-label="trans('properties.documents.download')"
                     @click="downloadSaved(document)"
-                />
+                >
+                    <Download class="size-4" />
+                    {{ trans('properties.documents.download') }}
+                </Button>
                 <Button
                     v-if="isEdit"
                     type="button"
-                    icon="pi pi-trash"
-                    severity="danger"
-                    text
-                    rounded
+                    variant="ghost"
+                    size="icon-sm"
+                    class="text-destructive hover:text-destructive"
                     :disabled="deleting"
                     :aria-label="trans('common.delete')"
                     @click="confirmDelete(document)"
-                />
+                >
+                    <Trash2 class="size-4" />
+                </Button>
             </li>
 
             <li
@@ -342,7 +366,11 @@ onBeforeUnmount(() => {
                     :alt="item.name"
                     class="h-11 w-11 rounded object-cover border border-slate-200 dark:border-slate-700 shrink-0"
                 />
-                <i v-else :class="[documentIconClass(item.file), 'text-xl shrink-0']" />
+                <component
+                    v-else
+                    :is="iconFor(item.file)"
+                    :class="['size-5 shrink-0', iconClassFor(item.file)]"
+                />
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
                         {{ item.name }}
@@ -354,23 +382,23 @@ onBeforeUnmount(() => {
                 </div>
                 <Button
                     type="button"
-                    :label="trans('properties.documents.download')"
-                    icon="pi pi-download"
-                    size="small"
-                    outlined
-                    severity="secondary"
+                    variant="outline"
+                    size="sm"
                     :aria-label="trans('properties.documents.download')"
                     @click="downloadPendingFile(item)"
-                />
+                >
+                    <Download class="size-4" />
+                    {{ trans('properties.documents.download') }}
+                </Button>
                 <Button
                     type="button"
-                    icon="pi pi-times"
-                    severity="secondary"
-                    text
-                    rounded
+                    variant="ghost"
+                    size="icon-sm"
                     :aria-label="trans('common.delete')"
                     @click="removePending(item)"
-                />
+                >
+                    <X class="size-4" />
+                </Button>
             </li>
         </ul>
 
@@ -393,8 +421,8 @@ onBeforeUnmount(() => {
             @dragover.prevent="onDragOver"
             @drop.prevent="onDrop"
         >
-            <i
-                class="pi pi-cloud-upload text-xl mb-2 block"
+            <CloudUpload
+                class="size-5 mx-auto mb-2"
                 :class="dragActive ? 'text-green-600 dark:text-green-400' : 'text-slate-400'"
                 aria-hidden="true"
             />

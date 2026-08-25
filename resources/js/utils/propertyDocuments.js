@@ -51,15 +51,27 @@ export function downloadPendingFile(item) {
     URL.revokeObjectURL(url);
 }
 
-export function documentIconClass(fileOrDoc) {
+export function documentIconType(fileOrDoc) {
     const mime = String(fileOrDoc?.mime_type || fileOrDoc?.type || '').toLowerCase();
     const name = String(fileOrDoc?.original_name || fileOrDoc?.name || '').toLowerCase();
 
     if (mime === 'application/pdf' || name.endsWith('.pdf')) {
-        return 'pi pi-file-pdf text-red-500';
+        return 'file-pdf';
     }
     if (mime.startsWith('image/') || /\.(jpe?g|png)$/.test(name)) {
-        return 'pi pi-image text-sky-500';
+        return 'image';
     }
-    return 'pi pi-file text-slate-400';
+    return 'file';
+}
+
+export function documentIconClass(fileOrDoc) {
+    const type = documentIconType(fileOrDoc);
+
+    if (type === 'file-pdf') {
+        return 'text-red-500';
+    }
+    if (type === 'image') {
+        return 'text-sky-500';
+    }
+    return 'text-slate-400';
 }

@@ -2,13 +2,16 @@
 import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import { Check, Loader2 } from '@lucide/vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FormCard from '@/Components/FormCard.vue';
 import FormField from '@/Components/FormField.vue';
-import InputText from 'primevue/inputtext';
-import Select from 'primevue/select';
-import Button from 'primevue/button';
+import AppSelect from '@/Components/AppSelect.vue';
+import { Input } from '@/Components/ui/input';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { cn } from '@/lib/utils';
 import {
     CEP_INPUT_MAX_LENGTH,
     blockDisallowedAddressBeforeInput,
@@ -197,11 +200,9 @@ function submit() {
                         :error="form.errors.person_id"
                         required
                     >
-                        <Select
+                        <AppSelect
                             v-model="form.person_id"
                             :options="peopleOptions"
-                            optionLabel="label"
-                            optionValue="value"
                             :placeholder="trans('properties.placeholders.owner')"
                             :invalid="!!form.errors.person_id"
                             filter
@@ -215,11 +216,9 @@ function submit() {
                         :error="form.errors.type"
                         required
                     >
-                        <Select
+                        <AppSelect
                             v-model="form.type"
                             :options="typeOptions"
-                            optionLabel="label"
-                            optionValue="value"
                             :placeholder="trans('properties.placeholders.type')"
                             :invalid="!!form.errors.type"
                             class="w-full"
@@ -237,12 +236,11 @@ function submit() {
                             @keydown.capture="blockNonAreaKey"
                             @beforeinput.capture="blockNonAreaBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.land_area"
+                            <Input
+                                :model-value="form.land_area"
                                 inputmode="decimal"
                                 :placeholder="trans('properties.placeholders.land_area')"
-                                :invalid="!!form.errors.land_area"
-                                class="w-full font-mono"
+                                :class="cn('w-full', form.errors.land_area && 'border-destructive')"
                                 :disabled="landAreaLocked"
                                 @update:model-value="onLandAreaInput"
                                 @blur="validateField('land_area')"
@@ -261,12 +259,11 @@ function submit() {
                             @keydown.capture="blockNonAreaKey"
                             @beforeinput.capture="blockNonAreaBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.building_area"
+                            <Input
+                                :model-value="form.building_area"
                                 inputmode="decimal"
                                 :placeholder="trans('properties.placeholders.building_area')"
-                                :invalid="!!form.errors.building_area"
-                                class="w-full font-mono"
+                                :class="cn('w-full', form.errors.building_area && 'border-destructive')"
                                 :disabled="buildingAreaLocked"
                                 @update:model-value="onBuildingAreaInput"
                                 @blur="validateField('building_area')"
@@ -282,23 +279,22 @@ function submit() {
                         :hint="trans('properties.hint_cep')"
                     >
                         <div class="relative">
-                            <InputText
-                                :modelValue="form.cep"
+                            <Input
+                                :model-value="form.cep"
                                 type="text"
                                 inputmode="numeric"
                                 autocomplete="postal-code"
                                 :placeholder="trans('properties.placeholders.cep')"
-                                :invalid="!!(form.errors.cep || cepLookupError)"
-                                class="w-full font-mono pr-10"
+                                :class="cn('w-full pr-10', (form.errors.cep || cepLookupError) && 'border-destructive')"
                                 :maxlength="CEP_INPUT_MAX_LENGTH"
                                 :disabled="cepLoading"
                                 @update:model-value="onCepInput"
                                 @blur="validateField('cep')"
                                 @change="form.clearErrors('cep')"
                             />
-                            <i
+                            <Loader2
                                 v-show="cepLoading"
-                                class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                                class="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-slate-400 pointer-events-none"
                                 aria-hidden="true"
                             />
                         </div>
@@ -314,11 +310,10 @@ function submit() {
                             @keydown.capture="blockDisallowedAddressKey"
                             @beforeinput.capture="blockDisallowedAddressBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.street"
+                            <Input
+                                :model-value="form.street"
                                 :placeholder="trans('properties.placeholders.street')"
-                                :invalid="!!form.errors.street"
-                                class="w-full"
+                                :class="cn('w-full', form.errors.street && 'border-destructive')"
                                 @update:model-value="onStreetInput"
                                 @blur="validateField('street')"
                                 @change="form.clearErrors('street')"
@@ -335,12 +330,11 @@ function submit() {
                             @keydown.capture="blockNonDigitKey"
                             @beforeinput.capture="blockNonDigitBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.number"
+                            <Input
+                                :model-value="form.number"
                                 inputmode="numeric"
                                 :placeholder="trans('properties.placeholders.number')"
-                                :invalid="!!form.errors.number"
-                                class="w-full font-mono"
+                                :class="cn('w-full', form.errors.number && 'border-destructive')"
                                 @update:model-value="onNumberInput"
                                 @blur="validateField('number')"
                                 @change="form.clearErrors('number')"
@@ -357,11 +351,10 @@ function submit() {
                             @keydown.capture="blockDisallowedAddressKey"
                             @beforeinput.capture="blockDisallowedAddressBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.neighborhood"
+                            <Input
+                                :model-value="form.neighborhood"
                                 :placeholder="trans('properties.placeholders.neighborhood')"
-                                :invalid="!!form.errors.neighborhood"
-                                class="w-full"
+                                :class="cn('w-full', form.errors.neighborhood && 'border-destructive')"
                                 @update:model-value="onNeighborhoodInput"
                                 @blur="validateField('neighborhood')"
                                 @change="form.clearErrors('neighborhood')"
@@ -378,11 +371,10 @@ function submit() {
                             @keydown.capture="blockDisallowedAddressKey"
                             @beforeinput.capture="blockDisallowedAddressBeforeInput"
                         >
-                            <InputText
-                                :modelValue="form.complement"
+                            <Input
+                                :model-value="form.complement"
                                 :placeholder="trans('properties.placeholders.complement')"
-                                :invalid="!!form.errors.complement"
-                                class="w-full"
+                                :class="cn('w-full', form.errors.complement && 'border-destructive')"
                                 @update:model-value="onComplementInput"
                                 @blur="validateField('complement')"
                                 @change="form.clearErrors('complement')"
@@ -397,19 +389,19 @@ function submit() {
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <Button
+                    <SecondaryButton
                         type="button"
-                        :label="trans('common.cancel')"
-                        severity="secondary"
-                        outlined
                         @click="router.visit(route('properties.index'))"
-                    />
-                    <Button
+                    >
+                        {{ trans('common.cancel') }}
+                    </SecondaryButton>
+                    <PrimaryButton
                         type="submit"
-                        :label="trans('common.save')"
-                        icon="pi pi-check"
-                        :loading="form.processing"
-                    />
+                        :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing"
+                    >
+                        {{ trans('common.save') }}
+                    </PrimaryButton>
                 </div>
             </form>
         </FormCard>

@@ -1,7 +1,12 @@
 <script setup>
-import { computed } from 'vue';
-import InputText from 'primevue/inputtext';
-import DatePicker from 'primevue/datepicker';
+import { computed, ref, watch } from 'vue';
+import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date';
+import { CalendarIcon } from '@lucide/vue';
+import { Button } from '@/Components/ui/button';
+import { Calendar } from '@/Components/ui/calendar';
+import { Input } from '@/Components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
+import { cn } from '@/lib/utils';
 import {
     BIRTH_DATE_INPUT_MAX_LENGTH,
     blockNonDigitBeforeInput,
@@ -20,7 +25,23 @@ defineProps({
 
 defineEmits(['blur']);
 
-const pickerValue = computed(() => parseBirthDateInput(model.value));
+const popoverOpen = ref(false);
+const maxDate = today(getLocalTimeZone());
+
+const calendarValue = computed({
+    get() {
+        const parsed = parseBirthDateInput(model.value);
+        if (!parsed) {
+            return undefined;
+        }
+
+        return new CalendarDate(parsed.getFullYear(), parsed.getMonth() + 1, parsed.getDate());
+    },
+    set(value) {
+        model.value = value ? toBirthDateInputValue(value.toDate(getLocalTimeZone())) : '';
+        popoverOpen.value = false;
+    },
+});
 
 function syncMasked(value) {
     const formatted = formatBirthDateInput(value);
@@ -33,10 +54,6 @@ function syncMasked(value) {
     }
     model.value = formatted;
 }
-
-function onPicked(date) {
-    model.value = date ? toBirthDateInputValue(date) : '';
-}
 </script>
 
 <template>
@@ -45,51 +62,29 @@ function onPicked(date) {
         @keydown.capture="blockNonDigitKey"
         @beforeinput.capture="blockNonDigitBeforeInput"
     >
-        <InputText
-            :modelValue="model"
+        <Input
+            :model-value="model"
             :placeholder="placeholder"
-            :invalid="invalid"
-            class="w-full font-mono pe-10"
+            :class="cn('w-full pe-10', invalid && 'border-destructive')"
             inputmode="numeric"
             :maxlength="BIRTH_DATE_INPUT_MAX_LENGTH"
             @update:model-value="syncMasked"
             @blur="$emit('blur')"
         />
-        <DatePicker
-            :modelValue="pickerValue"
-            :maxDate="new Date()"
-            :manualInput="false"
-            showIcon
-            iconDisplay="button"
-            dateFormat="dd/mm/yy"
-            class="birth-date-single-picker"
-            @update:model-value="onPicked"
-        />
+        <Popover v-model:open="popoverOpen">
+            <PopoverTrigger as-child>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    class="absolute right-1 top-1/2 -translate-y-1/2"
+                >
+                    <CalendarIcon class="size-4" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent class="w-auto p-0" align="end">
+                <Calendar v-model="calendarValue" :max-value="maxDate" />
+            </PopoverContent>
+        </Popover>
     </div>
 </template>
-
-<style scoped>
-.birth-date-single-picker {
-    position: absolute;
-    inset-inline-end: 0.15rem;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.birth-date-single-picker :deep(input) {
-    display: none !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    padding: 0 !important;
-    border: 0 !important;
-    position: absolute !important;
-}
-
-.birth-date-single-picker :deep(button) {
-    border: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    width: 2.25rem;
-    height: 2.25rem;
-}
-</style>

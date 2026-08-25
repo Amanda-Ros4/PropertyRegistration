@@ -2,9 +2,12 @@
 import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import InputText from 'primevue/inputtext';
-import Select from 'primevue/select';
-import Button from 'primevue/button';
+import { FilterX } from '@lucide/vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { Input } from '@/Components/ui/input';
+import AppSelect from '@/Components/AppSelect.vue';
+import FilterPanel from '@/Components/FilterPanel.vue';
+import { useFilterSyncGuard } from '@/composables/useFilterSyncGuard';
 import {
     blockDisallowedAddressBeforeInput,
     blockDisallowedAddressKey,
@@ -18,6 +21,8 @@ const props = defineProps({
     filters: { type: Object, default: () => ({}) },
     peopleOptions: { type: Array, default: () => [] },
 });
+
+const { runSyncedFromProps, shouldSkipFilterApply } = useFilterSyncGuard();
 
 const id = ref(props.filters.id ? String(props.filters.id) : '');
 const type = ref(props.filters.type ?? null);
@@ -52,12 +57,38 @@ const hasActiveFilters = computed(() =>
     ),
 );
 
+watch(
+    () => props.filters,
+    (filters) => {
+        runSyncedFromProps(() => {
+            id.value = filters.id ? String(filters.id) : '';
+            type.value = filters.type ?? null;
+            street.value = filters.street ?? '';
+            number.value = filters.number ? String(filters.number) : '';
+            neighborhood.value = filters.neighborhood ?? '';
+            personId.value = filters.person_id ? Number(filters.person_id) : null;
+            status.value = filters.status ?? null;
+        });
+    },
+    { deep: true },
+);
+
 watch([id, street, number, neighborhood], () => {
+    if (shouldSkipFilterApply()) {
+        return;
+    }
+
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => applyFilters(), 220);
 });
 
-watch([type, personId, status], () => applyFilters());
+watch([type, personId, status], () => {
+    if (shouldSkipFilterApply()) {
+        return;
+    }
+
+    applyFilters();
+});
 
 function syncMasked(fieldRef, formatter, value) {
     const formatted = formatter(value);
@@ -132,32 +163,26 @@ function clearFilters() {
 </script>
 
 <template>
-    <div class="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm space-y-3">
-        <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
-            {{ trans('properties.filters.heading') }}
-        </p>
-
+    <FilterPanel :title="trans('properties.filters.heading')">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div
                 @keydown.capture="blockNonDigitKey"
                 @beforeinput.capture="blockNonDigitBeforeInput"
             >
-                <InputText
-                    :modelValue="id"
+                <Input
+                    :model-value="id"
                     :placeholder="trans('properties.filters.municipal_registration')"
-                    class="w-full font-mono"
+                    class="w-full"
                     inputmode="numeric"
                     @update:model-value="onIdInput"
                 />
             </div>
 
-            <Select
+            <AppSelect
                 v-model="type"
                 :options="typeOptions"
-                optionLabel="label"
-                optionValue="value"
                 :placeholder="trans('properties.filters.type')"
-                showClear
+                show-clear
                 class="w-full"
             />
 
@@ -165,8 +190,8 @@ function clearFilters() {
                 @keydown.capture="blockDisallowedAddressKey"
                 @beforeinput.capture="blockDisallowedAddressBeforeInput"
             >
-                <InputText
-                    :modelValue="street"
+                <Input
+                    :model-value="street"
                     :placeholder="trans('properties.filters.street')"
                     class="w-full"
                     @update:model-value="onStreetInput"
@@ -177,10 +202,10 @@ function clearFilters() {
                 @keydown.capture="blockNonDigitKey"
                 @beforeinput.capture="blockNonDigitBeforeInput"
             >
-                <InputText
-                    :modelValue="number"
+                <Input
+                    :model-value="number"
                     :placeholder="trans('properties.filters.number')"
-                    class="w-full font-mono"
+                    class="w-full"
                     inputmode="numeric"
                     @update:model-value="onNumberInput"
                 />
@@ -190,46 +215,43 @@ function clearFilters() {
                 @keydown.capture="blockDisallowedAddressKey"
                 @beforeinput.capture="blockDisallowedAddressBeforeInput"
             >
-                <InputText
-                    :modelValue="neighborhood"
+                <Input
+                    :model-value="neighborhood"
                     :placeholder="trans('properties.filters.neighborhood')"
                     class="w-full"
                     @update:model-value="onNeighborhoodInput"
                 />
             </div>
 
-            <Select
+            <AppSelect
                 v-model="personId"
                 :options="peopleOptions"
-                optionLabel="label"
-                optionValue="value"
                 :placeholder="trans('properties.filters.owner')"
                 filter
-                showClear
+                show-clear
                 class="w-full"
             />
 
-            <Select
+            <AppSelect
                 v-model="status"
                 :options="statusOptions"
-                optionLabel="label"
-                optionValue="value"
                 :placeholder="trans('properties.filters.status')"
-                showClear
+                show-clear
                 class="w-full"
             />
-
-            <div class="flex items-center">
-                <Button
-                    v-if="hasActiveFilters"
-                    :label="trans('common.clear')"
-                    icon="pi pi-filter-slash"
-                    outlined
-                    severity="secondary"
-                    class="w-full"
-                    @click="clearFilters"
-                />
-            </div>
         </div>
-    </div>
+
+        <template
+            v-if="hasActiveFilters"
+            #actions
+        >
+            <SecondaryButton
+                type="button"
+                class="w-full sm:w-auto"
+                @click="clearFilters"
+            >
+                {{ trans('common.clear') }}
+            </SecondaryButton>
+        </template>
+    </FilterPanel>
 </template>

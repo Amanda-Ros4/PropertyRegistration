@@ -1,7 +1,8 @@
 <script setup>
 import { computed } from 'vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import AuthTextLink from '@/Components/AuthTextLink.vue';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import Checkbox from '@/Components/Checkbox.vue';
@@ -9,6 +10,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { AUTH_LINK_CLASS } from '@/lib/auth-ui';
 import { CPF_INPUT_MAX_LENGTH, formatCpfInput } from '@/utils/formatting';
 
 const form = useForm({
@@ -65,7 +67,7 @@ const submit = () => {
                     id="cpf"
                     v-model="cpfModel"
                     type="text"
-                    class="mt-1 block w-full font-mono"
+                    class="mt-1 block w-full"
                     required
                     inputmode="numeric"
                     autocomplete="off"
@@ -114,31 +116,34 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
-            <div v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature" class="mt-4">
+            <div v-if="$page.props.jetstream?.hasTermsAndPrivacyPolicyFeature" class="mt-4">
                 <InputLabel for="terms">
                     <div class="flex items-center">
                         <Checkbox id="terms" v-model:checked="form.terms" name="terms" required />
 
-                        <div class="ms-2">
-                            I agree to the <a target="_blank" :href="route('terms.show')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Terms of Service</a> and <a target="_blank" :href="route('policy.show')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Privacy Policy</a>
+                        <div class="ms-2 text-sm text-gray-600 dark:text-gray-100">
+                            I agree to the <a target="_blank" :href="route('terms.show')" :class="AUTH_LINK_CLASS">Terms of Service</a> and <a target="_blank" :href="route('policy.show')" :class="AUTH_LINK_CLASS">Privacy Policy</a>
                         </div>
                     </div>
                     <InputError class="mt-2" :message="form.errors.terms" />
                 </InputLabel>
             </div>
 
-            <div class="flex flex-col gap-4 mt-6">
+            <div class="mt-6">
                 <PrimaryButton
                     type="submit"
-                    class="w-full sm:w-auto shrink-0"
+                    class="w-full"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
                     {{ trans('auth.register') }}
                 </PrimaryButton>
-                <Link :href="route('login')" class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
+            </div>
+
+            <div class="mt-4 text-center sm:text-left">
+                <AuthTextLink :href="route('login')">
                     {{ trans('auth.already_registered') }} {{ trans('auth.login') }}
-                </Link>
+                </AuthTextLink>
             </div>
         </form>
     </AuthenticationCard>

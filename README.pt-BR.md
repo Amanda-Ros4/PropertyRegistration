@@ -2,7 +2,7 @@
 
 > **Idiomas:** [English](README.md) | Português (BR)
 
-Sistema de cadastro de imóveis com Laravel 12, Vue 3, Inertia.js (SSR), Jetstream, PrimeVue e suporte a múltiplos idiomas.
+Sistema de cadastro de imóveis com Laravel 12, Vue 3, Inertia.js (SSR), Jetstream, shadcn-vue e suporte a múltiplos idiomas.
 
 ---
 
@@ -13,7 +13,7 @@ Sistema de cadastro de imóveis com Laravel 12, Vue 3, Inertia.js (SSR), Jetstre
 | Backend      | Laravel 12, PHP 8.2+                |
 | Auth         | Laravel Jetstream (Fortify + Sanctum) |
 | Frontend     | Vue 3, Inertia.js v2 (SSR)          |
-| UI           | PrimeVue 4 (tema Aura)              |
+| UI           | shadcn-vue (Reka UI + Tailwind)     |
 | Estilo       | Tailwind CSS v3                     |
 | i18n         | laravel-vue-i18n                    |
 | Banco        | MariaDB (driver `mariadb`)          |
@@ -21,7 +21,7 @@ Sistema de cadastro de imóveis com Laravel 12, Vue 3, Inertia.js (SSR), Jetstre
 | Relatórios   | barryvdh/laravel-dompdf             |
 | Build        | Vite 7 + SSR                        |
 
-> **Observação:** o edital do projeto cita **Vuetify**; a biblioteca de UI implementada é o **PrimeVue**, integrada em todo o frontend.
+> **Observação:** o edital do projeto cita **Vuetify**; a biblioteca de UI implementada é o **shadcn-vue**, integrada em todo o frontend.
 
 ---
 

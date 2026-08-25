@@ -2,14 +2,14 @@
 import { computed } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import TableIconButton from '@/Components/TableIconButton.vue';
 import { formatDateTimeDisplay } from '@/utils/formatting';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import AuditFilters from '@/Components/AuditFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
-import Tag from 'primevue/tag';
-import Button from 'primevue/button';
-import Paginator from 'primevue/paginator';
+import StatusBadge from '@/Components/StatusBadge.vue';
+import InertiaPagination from '@/Components/InertiaPagination.vue';
 
 const props = defineProps({
     logs: { type: Object, required: true },
@@ -18,6 +18,12 @@ const props = defineProps({
 });
 
 const page = usePage();
+
+const paginationQuery = computed(() =>
+    Object.fromEntries(
+        Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
+    ),
+);
 
 const eventSeverity = {
     created: 'success',
@@ -48,18 +54,6 @@ function tableLabel(labelKey) {
 function formatDateTime(value) {
     return formatDateTimeDisplay(value, page.props.locale);
 }
-
-function onPageChange(event) {
-    router.get(route('audit.index'), {
-        ...Object.fromEntries(
-            Object.entries(props.filters).filter(([, value]) => value !== null && value !== ''),
-        ),
-        page: event.page + 1,
-    }, {
-        preserveState: true,
-        preserveScroll: true,
-    });
-}
 </script>
 
 <template>
@@ -79,7 +73,7 @@ function onPageChange(event) {
         <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
             <EmptyState
                 v-if="rows.length === 0"
-                icon="pi pi-history"
+                icon="history"
                 :title="hasActiveFilters ? trans('audit.empty_filtered') : trans('audit.empty')"
                 :description="hasActiveFilters ? trans('audit.empty_filtered_description') : trans('audit.empty_description')"
             />
@@ -118,7 +112,7 @@ function onPageChange(event) {
                                 :key="row.id"
                                 class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                             >
-                                <td class="px-4 py-3 font-mono font-medium text-indigo-600 dark:text-indigo-400">
+                                <td class="px-4 py-3 font-medium text-indigo-600 dark:text-indigo-400">
                                     #{{ row.id }}
                                 </td>
                                 <td class="px-4 py-3">
@@ -126,26 +120,24 @@ function onPageChange(event) {
                                     <div class="text-xs text-gray-400">{{ row.user_email || '—' }}</div>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <Tag
+                                    <StatusBadge
                                         :value="eventLabel(row.event)"
                                         :severity="eventSeverity[row.event] || 'secondary'"
                                     />
                                 </td>
-                                <td class="px-4 py-3 font-mono text-sm whitespace-nowrap">
+                                <td class="px-4 py-3 text-sm whitespace-nowrap">
                                     {{ formatDateTime(row.created_at) }}
                                 </td>
                                 <td class="px-4 py-3">
                                     {{ tableLabel(row.table_label_key) }}
                                 </td>
-                                <td class="px-4 py-3 font-mono">
+                                <td class="px-4 py-3">
                                     {{ row.auditable_id ?? '—' }}
                                 </td>
                                 <td class="px-4 py-3">
-                                    <Button
+                                    <TableIconButton
+                                        icon="eye"
                                         :label="trans('audit.details')"
-                                        icon="pi pi-eye"
-                                        text
-                                        size="small"
                                         @click="router.visit(route('audit.show', row.id))"
                                     />
                                 </td>
@@ -158,13 +150,10 @@ function onPageChange(event) {
                     <span class="text-sm text-gray-500 dark:text-gray-400">
                         {{ trans('common.showing') }} {{ logs.from }} {{ trans('common.to') }} {{ logs.to }} {{ trans('common.of') }} {{ logs.total }} {{ trans('common.records') }}
                     </span>
-                    <Paginator
-                        :rows="logs.per_page"
-                        :totalRecords="logs.total"
-                        :first="(logs.current_page - 1) * logs.per_page"
-                        template="PrevPageLink PageLinks NextPageLink"
-                        class="border-none p-0"
-                        @page="onPageChange"
+                    <InertiaPagination
+                        :paginator="logs"
+                        route-name="audit.index"
+                        :query="paginationQuery"
                     />
                 </div>
             </template>
