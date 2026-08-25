@@ -1,10 +1,12 @@
 <script setup>
 import { computed } from 'vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import AuthTextLink from '@/Components/AuthTextLink.vue';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { AUTH_INTRO_CLASS, AUTH_STATUS_SUCCESS_CLASS } from '@/lib/auth-ui';
 
 const props = defineProps({
     status: String,
@@ -27,37 +29,33 @@ const verificationLinkSent = computed(() => props.status === 'verification-link-
             <AuthenticationCardLogo />
         </template>
 
-        <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        <div class="mb-4" :class="AUTH_INTRO_CLASS">
             {{ trans('auth.verify_email.intro') }}
         </div>
 
-        <div v-if="verificationLinkSent" class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
+        <div v-if="verificationLinkSent" class="mb-4" :class="AUTH_STATUS_SUCCESS_CLASS">
             {{ trans('auth.verify_email.link_sent') }}
         </div>
 
         <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between gap-3 flex-wrap">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+            <div class="mt-6">
+                <PrimaryButton
+                    type="submit"
+                    class="w-full"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                >
                     {{ trans('auth.verify_email.resend') }}
                 </PrimaryButton>
+            </div>
 
-                <div>
-                    <Link
-                        :href="route('profile.show')"
-                        class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                        {{ trans('common.profile') }}
-                    </Link>
-
-                    <Link
-                        :href="route('logout')"
-                        method="post"
-                        as="button"
-                        class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ms-2"
-                    >
-                        {{ trans('auth.logout') }}
-                    </Link>
-                </div>
+            <div class="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:justify-start">
+                <AuthTextLink :href="route('profile.show')">
+                    {{ trans('common.profile') }}
+                </AuthTextLink>
+                <AuthTextLink :href="route('logout')" method="post" as="button">
+                    {{ trans('auth.logout') }}
+                </AuthTextLink>
             </div>
         </form>
     </AuthenticationCard>

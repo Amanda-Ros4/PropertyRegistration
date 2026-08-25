@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { FilterX } from '@lucide/vue';
-import { Button } from '@/Components/ui/button';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import AppSelect from '@/Components/AppSelect.vue';
 import DatePickerField from '@/Components/DatePickerField.vue';
 import FilterPanel from '@/Components/FilterPanel.vue';
@@ -192,14 +192,13 @@ function clearFilters() {
             v-if="hasActiveFilters"
             #actions
         >
-            <Button
-                variant="outline"
+            <SecondaryButton
+                type="button"
                 class="w-full sm:w-auto"
                 @click="clearFilters"
             >
-                <FilterX class="size-4" />
                 {{ trans('common.clear') }}
-            </Button>
+            </SecondaryButton>
         </template>
     </FilterPanel>
 </template>

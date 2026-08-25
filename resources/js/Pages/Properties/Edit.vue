@@ -10,7 +10,8 @@ import FormField from '@/Components/FormField.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import AppSelect from '@/Components/AppSelect.vue';
 import { Input } from '@/Components/ui/input';
-import { Button } from '@/Components/ui/button';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { cn } from '@/lib/utils';
 import {
     CEP_INPUT_MAX_LENGTH,
@@ -190,14 +191,12 @@ function submit() {
             :backLabel="trans('common.back')"
         >
             <template #actions>
-                <Button
+                <SecondaryButton
                     type="button"
-                    variant="outline"
                     @click="openIndividualReport"
                 >
-                    <FileText class="size-4" />
                     {{ trans('properties.reports.individual') }}
-                </Button>
+                </SecondaryButton>
             </template>
         </PageHeader>
 
@@ -408,21 +407,19 @@ function submit() {
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <Button
+                    <SecondaryButton
                         type="button"
-                        variant="outline"
                         @click="router.visit(route('properties.index'))"
                     >
                         {{ trans('common.cancel') }}
-                    </Button>
-                    <Button
+                    </SecondaryButton>
+                    <PrimaryButton
                         type="submit"
+                        :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                     >
-                        <Loader2 v-if="form.processing" class="size-4 animate-spin" />
-                        <Check v-else class="size-4" />
                         {{ trans('common.save') }}
-                    </Button>
+                    </PrimaryButton>
                 </div>
             </form>
         </FormCard>

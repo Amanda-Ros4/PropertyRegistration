@@ -2,14 +2,13 @@
 import { computed } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { Eye, Pencil } from '@lucide/vue';
+import TableIconButton from '@/Components/TableIconButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import FilterBar from '@/Components/FilterBar.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import InertiaPagination from '@/Components/InertiaPagination.vue';
-import { Button } from '@/Components/ui/button';
 import {
     Table,
     TableBody,
@@ -128,16 +127,11 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
                                 />
                             </TableCell>
                             <TableCell>
-                                <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    :aria-label="user.can_update ? trans('common.edit') : trans('common.view')"
-                                    :title="user.can_update ? trans('common.edit') : trans('common.view')"
+                                <TableIconButton
+                                    :icon="user.can_update ? 'pencil' : 'eye'"
+                                    :label="user.can_update ? trans('common.edit') : trans('common.view')"
                                     @click="router.visit(route('users.edit', user.id))"
-                                >
-                                    <Pencil v-if="user.can_update" class="size-4" />
-                                    <Eye v-else class="size-4" />
-                                </Button>
+                                />
                             </TableCell>
                         </TableRow>
                     </TableBody>

@@ -10,7 +10,8 @@ import FormField from '@/Components/FormField.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import AppSelect from '@/Components/AppSelect.vue';
 import { Input } from '@/Components/ui/input';
-import { Button } from '@/Components/ui/button';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { cn } from '@/lib/utils';
 import {
     blockNonLetterNameBeforeInput,
@@ -148,19 +149,14 @@ function submit() {
                 </p>
                 <div class="flex flex-wrap items-center gap-3">
                     <StatusBadge :value="activeLabel" :severity="activeSeverity" />
-                    <Button
+                    <SecondaryButton
                         v-if="canUpdate && !isSelf"
                         type="button"
-                        variant="outline"
-                        size="sm"
                         :disabled="activeUpdating"
                         @click="toggleActive"
                     >
-                        <Loader2 v-if="activeUpdating" class="size-4 animate-spin" />
-                        <Ban v-else-if="activeValue === 'S'" class="size-4" />
-                        <CheckCircle v-else class="size-4" />
                         {{ activeActionLabel }}
-                    </Button>
+                    </SecondaryButton>
                 </div>
                 <p class="text-xs text-slate-400 mt-2">
                     {{
@@ -299,22 +295,20 @@ function submit() {
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <Button
+                    <SecondaryButton
                         type="button"
-                        variant="outline"
                         @click="router.visit(route('users.index'))"
                     >
                         {{ trans('common.back') }}
-                    </Button>
-                    <Button
+                    </SecondaryButton>
+                    <PrimaryButton
                         v-if="canUpdate"
                         type="submit"
+                        :class="{ 'opacity-25': form.processing || form.validating }"
                         :disabled="form.processing || form.validating"
                     >
-                        <Loader2 v-if="form.processing || form.validating" class="size-4 animate-spin" />
-                        <Check v-else class="size-4" />
                         {{ trans('common.save') }}
-                    </Button>
+                    </PrimaryButton>
                 </div>
             </form>
         </FormCard>

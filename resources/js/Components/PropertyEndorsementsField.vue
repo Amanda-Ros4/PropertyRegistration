@@ -7,7 +7,7 @@ import AppSelect from '@/Components/AppSelect.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
-import { Button } from '@/Components/ui/button';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 import {
     Table,
     TableBody,
@@ -161,14 +161,13 @@ function submit() {
             </FormField>
 
             <div class="md:col-span-2 flex justify-end">
-                <Button
+                <PrimaryButton
                     type="submit"
+                    :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    <Loader2 v-if="form.processing" class="size-4 animate-spin" />
-                    <Plus v-else class="size-4" />
                     {{ trans('properties.endorsements.save') }}
-                </Button>
+                </PrimaryButton>
             </div>
         </form>
 

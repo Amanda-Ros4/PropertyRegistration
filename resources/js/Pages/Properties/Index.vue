@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { Eye, FileText, Trash2 } from '@lucide/vue';
+import TableIconButton from '@/Components/TableIconButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import PropertyFilters from '@/Components/PropertyFilters.vue';
@@ -10,7 +10,7 @@ import EmptyState from '@/Components/EmptyState.vue';
 import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import InertiaPagination from '@/Components/InertiaPagination.vue';
-import { Button } from '@/Components/ui/button';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import {
     Table,
     TableBody,
@@ -99,10 +99,9 @@ function deleteProperty() {
             :createLabel="trans('properties.create')"
         >
             <template #actions>
-                <Button variant="outline" @click="openSyntheticReport">
-                    <FileText class="size-4" />
+                <SecondaryButton type="button" @click="openSyntheticReport">
                     {{ trans('properties.reports.synthetic') }}
-                </Button>
+                </SecondaryButton>
             </template>
         </PageHeader>
 
@@ -189,25 +188,16 @@ function deleteProperty() {
                             </TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        :aria-label="trans('common.view')"
-                                        :title="trans('common.view')"
+                                    <TableIconButton
+                                        icon="eye"
+                                        :label="trans('common.view')"
                                         @click="router.visit(route('properties.edit', property.id))"
-                                    >
-                                        <Eye class="size-4" />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        class="text-destructive hover:text-destructive"
-                                        :aria-label="trans('common.delete')"
-                                        :title="trans('common.delete')"
+                                    />
+                                    <TableIconButton
+                                        icon="trash"
+                                        :label="trans('common.delete')"
                                         @click="confirmDelete(property)"
-                                    >
-                                        <Trash2 class="size-4" />
-                                    </Button>
+                                    />
                                 </div>
                             </TableCell>
                         </TableRow>

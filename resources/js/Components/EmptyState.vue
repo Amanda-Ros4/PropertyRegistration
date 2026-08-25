@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
-import { Button } from '@/Components/ui/button';
+import { router } from '@inertiajs/vue3';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { resolveAppIcon } from '@/lib/app-icons';
 
 const props = defineProps({
@@ -24,11 +24,14 @@ const ActionIcon = computed(() => resolveAppIcon(props.actionIcon));
         </div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">{{ title }}</h3>
         <p v-if="description" class="text-sm text-gray-500 dark:text-gray-400 max-w-sm mb-6">{{ description }}</p>
-        <Link v-if="actionRoute" :href="route(actionRoute)">
-            <Button>
-                <component :is="ActionIcon" class="size-4" />
-                {{ actionLabel }}
-            </Button>
-        </Link>
+        <PrimaryButton
+            v-if="actionRoute"
+            type="button"
+            class="gap-2"
+            @click="router.visit(route(actionRoute))"
+        >
+            <component :is="ActionIcon" class="size-4" />
+            {{ actionLabel }}
+        </PrimaryButton>
     </div>
 </template>

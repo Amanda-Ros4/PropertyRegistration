@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { Eye } from '@lucide/vue';
+import TableIconButton from '@/Components/TableIconButton.vue';
 import { formatDateTimeDisplay } from '@/utils/formatting';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
@@ -10,7 +10,6 @@ import AuditFilters from '@/Components/AuditFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import InertiaPagination from '@/Components/InertiaPagination.vue';
-import { Button } from '@/Components/ui/button';
 
 const props = defineProps({
     logs: { type: Object, required: true },
@@ -136,14 +135,11 @@ function formatDateTime(value) {
                                     {{ row.auditable_id ?? '—' }}
                                 </td>
                                 <td class="px-4 py-3">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
+                                    <TableIconButton
+                                        icon="eye"
+                                        :label="trans('audit.details')"
                                         @click="router.visit(route('audit.show', row.id))"
-                                    >
-                                        <Eye class="size-4" />
-                                        {{ trans('audit.details') }}
-                                    </Button>
+                                    />
                                 </td>
                             </tr>
                         </tbody>

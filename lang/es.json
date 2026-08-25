@@ -104,6 +104,9 @@
     "auth.verify_email.intro": "Antes de continuar, verifique su correo electrónico haciendo clic en el enlace que acabamos de enviarle. Si no recibió el correo, con gusto le enviaremos otro.",
     "auth.verify_email.link_sent": "Se ha enviado un nuevo enlace de verificación al correo indicado en su perfil.",
     "auth.verify_email.resend": "Reenviar correo de verificación",
+    "auth.reset_password": "Restablecer contraseña",
+    "auth.confirm_password_title": "Área segura",
+    "auth.confirm_password_intro": "Esta es un área segura de la aplicación. Confirme su contraseña antes de continuar.",
     "The provided two factor authentication code was invalid.": "El código de autenticación en dos pasos informado no es válido.",
     "The provided two factor recovery code was invalid.": "El código de recuperación informado no es válido.",
 

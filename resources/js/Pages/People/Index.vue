@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { Eye, Trash2 } from '@lucide/vue';
+import TableIconButton from '@/Components/TableIconButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import PersonFilters from '@/Components/PersonFilters.vue';
@@ -10,7 +10,6 @@ import EmptyState from '@/Components/EmptyState.vue';
 import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import InertiaPagination from '@/Components/InertiaPagination.vue';
-import { Button } from '@/Components/ui/button';
 import {
     Table,
     TableBody,
@@ -148,25 +147,16 @@ function deletePerson() {
                             </TableCell>
                             <TableCell class="text-right">
                                 <div class="flex items-center justify-end gap-1 shrink-0">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        :aria-label="trans('common.view')"
-                                        :title="trans('common.view')"
+                                    <TableIconButton
+                                        icon="eye"
+                                        :label="trans('common.view')"
                                         @click="router.visit(route('people.edit', person.id))"
-                                    >
-                                        <Eye class="size-4" />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        class="text-destructive hover:text-destructive"
-                                        :aria-label="trans('common.delete')"
-                                        :title="trans('common.delete')"
+                                    />
+                                    <TableIconButton
+                                        icon="trash"
+                                        :label="trans('common.delete')"
                                         @click="confirmDelete(person)"
-                                    >
-                                        <Trash2 class="size-4" />
-                                    </Button>
+                                    />
                                 </div>
                             </TableCell>
                         </TableRow>

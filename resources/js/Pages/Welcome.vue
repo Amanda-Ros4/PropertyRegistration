@@ -1,8 +1,9 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { ArrowRight, BarChart3, Building2, LogIn, Shield, UserPlus, Users } from '@lucide/vue';
-import { Button } from '@/Components/ui/button';
+import { BarChart3, Building2, Shield, Users } from '@lucide/vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import AppBrandMark from '@/Components/AppBrandMark.vue';
 import LocaleThemeControls from '@/Components/LocaleThemeControls.vue';
 
@@ -49,9 +50,11 @@ const featureCards = [
 </script>
 
 <template>
+
     <Head :title="trans('welcome.title')" />
 
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div
+        class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
         <div class="relative">
 
             <nav class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
@@ -61,8 +64,10 @@ const featureCards = [
                             <div class="flex items-center gap-3 min-w-0">
                                 <AppBrandMark class="h-10 w-10 shrink-0" />
                                 <div class="flex min-w-0 flex-col">
-                                    <span class="truncate font-bold text-slate-800 dark:text-slate-100 leading-tight">{{ trans('site.name') }}</span>
-                                    <span class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ trans('site.context_short') }}</span>
+                                    <span class="truncate font-bold text-slate-800 dark:text-slate-100 leading-tight">{{
+                                        trans('site.name') }}</span>
+                                    <span class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{
+                                        trans('site.context_short') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -74,12 +79,15 @@ const featureCards = [
 
             <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
                 <section class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6 items-stretch">
-                    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 sm:p-10 shadow-sm">
+                    <div
+                        class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 sm:p-10 shadow-sm">
                         <div class="max-w-3xl">
-                            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-green-700 dark:text-green-400 mb-4">
+                            <p
+                                class="text-sm font-semibold uppercase tracking-[0.2em] text-green-700 dark:text-green-400 mb-4">
                                 {{ trans('welcome.badge') }}
                             </p>
-                            <h1 class="text-3xl sm:text-4xl font-bold leading-tight mb-4 text-slate-900 dark:text-slate-100">
+                            <h1
+                                class="text-3xl sm:text-4xl font-bold leading-tight mb-4 text-slate-900 dark:text-slate-100">
                                 {{ trans('welcome.hero_title') }}
                             </h1>
                             <p class="text-slate-600 dark:text-slate-300 text-base sm:text-lg leading-relaxed mb-8">
@@ -87,87 +95,112 @@ const featureCards = [
                             </p>
 
                             <div class="flex flex-wrap gap-3">
-                                <Link
+                                <PrimaryButton
                                     v-if="$page.props.auth.user"
-                                    :href="route('dashboard')"
+                                    type="button"
+                                    @click="router.visit(route('dashboard'))"
                                 >
-                                    <Button>
-                                        {{ trans('welcome.primary_cta') }}
-                                        <ArrowRight class="size-4" />
-                                    </Button>
-                                </Link>
+                                    {{ trans('welcome.primary_cta') }}
+                                </PrimaryButton>
 
                                 <template v-else>
-                                    <Link v-if="canRegister" :href="route('register')">
-                                        <Button>
-                                            {{ trans('welcome.secondary_cta') }}
-                                            <UserPlus class="size-4" />
-                                        </Button>
-                                    </Link>
-                                    <Link v-if="canLogin" :href="route('login')">
-                                        <Button variant="outline">
-                                            <LogIn class="size-4" />
-                                            {{ trans('auth.login') }}
-                                        </Button>
-                                    </Link>
+                                    <PrimaryButton
+                                        v-if="canRegister"
+                                        type="button"
+                                        @click="router.visit(route('register'))"
+                                    >
+                                        {{ trans('welcome.secondary_cta') }}
+                                    </PrimaryButton>
+                                    <SecondaryButton
+                                        v-if="canLogin"
+                                        type="button"
+                                        @click="router.visit(route('login'))"
+                                    >
+                                        {{ trans('auth.login') }}
+                                    </SecondaryButton>
                                 </template>
                             </div>
 
                             <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
-                                    <p class="text-xs uppercase tracking-wide font-semibold text-slate-500 dark:text-slate-400 mb-1">{{ trans('dashboard.total_people') }}</p>
-                                    <p class="text-sm text-slate-700 dark:text-slate-200">{{ trans('welcome.people_summary') }}</p>
+                                <div
+                                    class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
+                                    <p
+                                        class="text-xs uppercase tracking-wide font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                                        {{ trans('dashboard.total_people') }}</p>
+                                    <p class="text-sm text-slate-700 dark:text-slate-200">{{
+                                        trans('welcome.people_summary') }}</p>
                                 </div>
-                                <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
-                                    <p class="text-xs uppercase tracking-wide font-semibold text-slate-500 dark:text-slate-400 mb-1">{{ trans('dashboard.total_properties') }}</p>
-                                    <p class="text-sm text-slate-700 dark:text-slate-200">{{ trans('welcome.properties_summary') }}</p>
+                                <div
+                                    class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
+                                    <p
+                                        class="text-xs uppercase tracking-wide font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                                        {{ trans('dashboard.total_properties') }}</p>
+                                    <p class="text-sm text-slate-700 dark:text-slate-200">{{
+                                        trans('welcome.properties_summary') }}</p>
                                 </div>
-                                <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
-                                    <p class="text-xs uppercase tracking-wide font-semibold text-slate-500 dark:text-slate-400 mb-1">{{ trans('welcome.workflow_title') }}</p>
-                                    <p class="text-sm text-slate-700 dark:text-slate-200">{{ trans('welcome.workflow_summary') }}</p>
+                                <div
+                                    class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
+                                    <p
+                                        class="text-xs uppercase tracking-wide font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                                        {{ trans('welcome.workflow_title') }}</p>
+                                    <p class="text-sm text-slate-700 dark:text-slate-200">{{
+                                        trans('welcome.workflow_summary') }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6 sm:p-8">
+                    <div
+                        class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6 sm:p-8">
                         <div class="flex items-center gap-3 mb-6">
-                            <div class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-950/20 flex items-center justify-center">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-950/20 flex items-center justify-center">
                                 <BarChart3 class="size-5 text-green-700 dark:text-green-400" />
                             </div>
                             <div>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ trans('welcome.quick_overview') }}</p>
-                                <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ trans('welcome.panel_title') }}</h2>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ trans('welcome.quick_overview')
+                                    }}</p>
+                                <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{
+                                    trans('welcome.panel_title') }}</h2>
                             </div>
                         </div>
 
                         <div class="space-y-4">
-                            <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 p-4">
-                                <p class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">{{ trans('welcome.step_one_title') }}</p>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ trans('welcome.step_one_description') }}</p>
+                            <div
+                                class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 p-4">
+                                <p class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">{{
+                                    trans('welcome.step_one_title') }}</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">{{
+                                    trans('welcome.step_one_description') }}</p>
                             </div>
-                            <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 p-4">
-                                <p class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">{{ trans('welcome.step_two_title') }}</p>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ trans('welcome.step_two_description') }}</p>
+                            <div
+                                class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 p-4">
+                                <p class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">{{
+                                    trans('welcome.step_two_title') }}</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">{{
+                                    trans('welcome.step_two_description') }}</p>
                             </div>
-                            <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 p-4">
-                                <p class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">{{ trans('welcome.step_three_title') }}</p>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ trans('welcome.step_three_description') }}</p>
+                            <div
+                                class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 p-4">
+                                <p class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">{{
+                                    trans('welcome.step_three_title') }}</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">{{
+                                    trans('welcome.step_three_description') }}</p>
                             </div>
-                            <div class="rounded-xl border border-green-200 dark:border-green-900/40 bg-green-50 dark:bg-green-950/20 p-4">
-                                <p class="text-sm font-semibold text-green-800 dark:text-green-300 mb-1">{{ trans('welcome.audience_title') }}</p>
-                                <p class="text-sm text-green-800/90 dark:text-green-200">{{ trans('welcome.audience_description') }}</p>
+                            <div
+                                class="rounded-xl border border-green-200 dark:border-green-900/40 bg-green-50 dark:bg-green-950/20 p-4">
+                                <p class="text-sm font-semibold text-green-800 dark:text-green-300 mb-1">{{
+                                    trans('welcome.audience_title') }}</p>
+                                <p class="text-sm text-green-800/90 dark:text-green-200">{{
+                                    trans('welcome.audience_description') }}</p>
                             </div>
                         </div>
                     </div>
                 </section>
 
                 <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div
-                        v-for="card in featureCards"
-                        :key="card.title()"
-                        class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm"
-                    >
+                    <div v-for="card in featureCards" :key="card.title()"
+                        class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
                         <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" :class="card.bgClass">
                             <component :is="card.icon" :class="[card.iconClass, 'size-5']" />
                         </div>

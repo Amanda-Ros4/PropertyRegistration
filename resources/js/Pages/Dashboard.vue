@@ -1,9 +1,11 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { Building2, Pencil, UserPlus, Users } from '@lucide/vue';
+import { Building2, Users } from '@lucide/vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Button } from '@/Components/ui/button';
+import TableIconButton from '@/Components/TableIconButton.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { formatCpfDisplay } from '@/utils/formatting';
 
 const props = defineProps({
@@ -26,18 +28,12 @@ const props = defineProps({
                 <p class="text-sm text-slate-600 dark:text-slate-400 max-w-3xl">{{ trans('dashboard.description') }}</p>
 
                 <div class="mt-5 flex flex-wrap gap-3">
-                    <Link :href="route('people.create')">
-                        <Button>
-                            <UserPlus class="size-4" />
-                            {{ trans('people.create') }}
-                        </Button>
-                    </Link>
-                    <Link :href="route('properties.create')">
-                        <Button variant="outline">
-                            <Building2 class="size-4" />
-                            {{ trans('properties.create') }}
-                        </Button>
-                    </Link>
+                    <PrimaryButton type="button" @click="router.visit(route('people.create'))">
+                        {{ trans('people.create') }}
+                    </PrimaryButton>
+                    <PrimaryButton type="button" @click="router.visit(route('properties.create'))">
+                        {{ trans('properties.create') }}
+                    </PrimaryButton>
                 </div>
             </div>
 
@@ -94,11 +90,9 @@ const props = defineProps({
                         <Users class="size-4 text-green-700 dark:text-green-400" />
                         {{ trans('dashboard.recent_people') }}
                     </h2>
-                    <Link :href="route('people.index')">
-                        <Button variant="ghost" size="sm">
-                            {{ trans('dashboard.view_all') }}
-                        </Button>
-                    </Link>
+                    <SecondaryButton type="button" @click="router.visit(route('people.index'))">
+                        {{ trans('dashboard.view_all') }}
+                    </SecondaryButton>
                 </div>
                 <div v-if="recentPeople.length === 0" class="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">
                     {{ trans('dashboard.no_people') }}
@@ -113,11 +107,11 @@ const props = defineProps({
                             <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ person.name }}</p>
                             <p class="text-xs text-slate-400">{{ formatCpfDisplay(person.cpf) }}</p>
                         </div>
-                        <Link :href="route('people.edit', person.id)">
-                            <Button variant="ghost" size="icon-sm" :aria-label="trans('common.edit')">
-                                <Pencil class="size-4" />
-                            </Button>
-                        </Link>
+                        <TableIconButton
+                            icon="eye"
+                            :label="trans('common.view')"
+                            @click="router.visit(route('people.edit', person.id))"
+                        />
                     </li>
                 </ul>
             </div>
@@ -128,11 +122,9 @@ const props = defineProps({
                         <Building2 class="size-4 text-green-800 dark:text-green-300" />
                         {{ trans('dashboard.recent_properties') }}
                     </h2>
-                    <Link :href="route('properties.index')">
-                        <Button variant="ghost" size="sm">
-                            {{ trans('dashboard.view_all') }}
-                        </Button>
-                    </Link>
+                    <SecondaryButton type="button" @click="router.visit(route('properties.index'))">
+                        {{ trans('dashboard.view_all') }}
+                    </SecondaryButton>
                 </div>
                 <div v-if="recentProperties.length === 0" class="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">
                     {{ trans('dashboard.no_properties') }}
@@ -154,11 +146,11 @@ const props = defineProps({
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs text-slate-600 dark:text-slate-300">#{{ property.id }}</span>
-                            <Link :href="route('properties.edit', property.id)">
-                                <Button variant="ghost" size="icon-sm" :aria-label="trans('common.edit')">
-                                    <Pencil class="size-4" />
-                                </Button>
-                            </Link>
+                            <TableIconButton
+                                icon="eye"
+                                :label="trans('common.view')"
+                                @click="router.visit(route('properties.edit', property.id))"
+                            />
                         </div>
                     </li>
                 </ul>

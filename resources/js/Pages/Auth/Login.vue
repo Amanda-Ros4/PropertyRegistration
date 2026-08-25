@@ -1,6 +1,7 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import AuthTextLink from '@/Components/AuthTextLink.vue';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import Checkbox from '@/Components/Checkbox.vue';
@@ -8,6 +9,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { AUTH_STATUS_SUCCESS_CLASS } from '@/lib/auth-ui';
 
 defineProps({
     canResetPassword: Boolean,
@@ -39,7 +41,7 @@ const submit = () => {
             <AuthenticationCardLogo />
         </template>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        <div v-if="status" class="mb-4" :class="AUTH_STATUS_SUCCESS_CLASS">
             {{ status }}
         </div>
 
@@ -71,30 +73,31 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="block mt-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4">
                 <label class="flex items-center">
                     <Checkbox v-model:checked="form.remember" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ trans('auth.remember_me') }}</span>
+                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-100">{{ trans('auth.remember_me') }}</span>
                 </label>
+                <AuthTextLink v-if="canResetPassword" :href="route('password.request')">
+                    {{ trans('auth.forgot_password') }}
+                </AuthTextLink>
             </div>
 
-            <div class="flex flex-col gap-4 mt-6">
+            <div class="mt-6">
                 <PrimaryButton
                     type="submit"
-                    class="w-full sm:w-auto shrink-0"
+                    class="w-full"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
                     {{ trans('auth.login') }}
                 </PrimaryButton>
-                <div class="flex flex-col gap-1">
-                    <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        {{ trans('auth.forgot_password') }}
-                    </Link>
-                    <Link v-if="canRegister" :href="route('register')" class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
-                        {{ trans('auth.no_account') }} {{ trans('auth.register') }}
-                    </Link>
-                </div>
+            </div>
+
+            <div v-if="canRegister" class="mt-4 text-center sm:text-left">
+                <AuthTextLink :href="route('register')">
+                    {{ trans('auth.no_account') }} {{ trans('auth.register') }}
+                </AuthTextLink>
             </div>
         </form>
     </AuthenticationCard>
