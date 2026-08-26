@@ -1,5 +1,6 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { BarChart3, Building2, Shield, Users } from '@lucide/vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -7,12 +8,14 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import AppBrandMark from '@/Components/AppBrandMark.vue';
 import LocaleThemeControls from '@/Components/LocaleThemeControls.vue';
 
-defineProps({
+const props = defineProps({
     canLogin: {
         type: Boolean,
+        default: true,
     },
     canRegister: {
         type: Boolean,
+        default: true,
     },
     laravelVersion: {
         type: String,
@@ -23,6 +26,18 @@ defineProps({
         required: true,
     },
 });
+
+const page = usePage();
+
+const showRegister = computed(() => {
+    if (props.canRegister === false || page.props.canRegister === false) {
+        return false;
+    }
+
+    return typeof route === 'function' ? route().has('register') : true;
+});
+
+const showLogin = computed(() => props.canLogin !== false && page.props.canLogin !== false);
 
 const featureCards = [
     {
@@ -105,14 +120,14 @@ const featureCards = [
 
                                 <template v-else>
                                     <PrimaryButton
-                                        v-if="canRegister"
+                                        v-if="showRegister"
                                         type="button"
                                         @click="router.visit(route('register'))"
                                     >
                                         {{ trans('welcome.secondary_cta') }}
                                     </PrimaryButton>
                                     <SecondaryButton
-                                        v-if="canLogin"
+                                        v-if="showLogin"
                                         type="button"
                                         @click="router.visit(route('login'))"
                                     >
