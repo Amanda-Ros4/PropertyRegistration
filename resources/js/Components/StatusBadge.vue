@@ -34,6 +34,10 @@ const extraClass = computed(() => {
         return 'border-transparent bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
     }
 
+    if (props.severity === 'danger' || props.severity === 'destructive') {
+        return 'border-transparent bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+    }
+
     return '';
 });
 </script>
