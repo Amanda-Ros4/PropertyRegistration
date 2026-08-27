@@ -191,9 +191,13 @@ function deleteProperty() {
                     </TableBody>
                 </Table>
 
-                <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
-                    {{ trans('common.showing') }} {{ properties.from }}–{{ properties.to }} {{ trans('common.of') }} {{
-                    properties.total }} {{ trans('common.records') }}
+                <!-- Rodapé da Paginação (fora da tabela) -->
+                <div
+                    class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-100 dark:border-gray-800">
+                    <span class="text-xs sm:text-sm text-gray-400 dark:text-gray-400 font-normal">
+                        {{ trans('common.showing') }} {{ properties.from }}–{{ properties.to }} {{ trans('common.of') }}
+                        {{ properties.total }} {{ trans('common.records') }}
+                    </span>
                     <InertiaPagination :paginator="properties" route-name="properties.index" :query="paginationQuery" />
                 </div>
             </template>
