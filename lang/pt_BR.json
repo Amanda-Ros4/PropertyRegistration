@@ -303,7 +303,7 @@
     "users.profiles.system_admin": "Administrador do sistema",
     "users.profiles.attendant": "Atendente",
     "users.active_status.active": "Ativo",
-    "users.active_status.inactive": "Desativado",
+    "users.active_status.inactive": "Inativo",
     "users.actions.deactivate": "Desativar usuário",
     "users.actions.activate": "Ativar usuário",
     "users.status_activated": "Usuário ativado com sucesso.",

@@ -22,6 +22,10 @@ const variant = computed(() => {
 });
 
 const extraClass = computed(() => {
+    if (props.value === 'Inactive' || props.value === 'Inativo') {
+        return 'border-transparent bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+    }
+
     if (props.severity === 'success') {
         return 'border-transparent bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
     }
