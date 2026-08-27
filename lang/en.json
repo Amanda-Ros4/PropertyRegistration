@@ -355,7 +355,7 @@
     "toast.error_summary": "Attention",
     "toast.warn_summary": "Warning",
     "toast.info_summary": "Information",
-    "toast.validation_summary": "Could not save",
+    "toast.validation_summary": "Unable to save changes",
     "toast.validation_generic": "Please check the form fields and try again.",
 
     "audit.title": "Audit log",
