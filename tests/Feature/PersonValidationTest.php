@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Enums\Gender;
+use App\Enums\PropertyStatus;
+use App\Enums\PropertyType;
 use App\Models\Person;
+use App\Models\Property;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -191,16 +194,16 @@ class PersonValidationTest extends TestCase
             'gender' => Gender::Male,
         ]);
 
-        \App\Models\Property::query()->create([
+        Property::query()->create([
             'user_id' => $user->id,
             'person_id' => $person->id,
-            'type' => \App\Enums\PropertyType::House,
+            'type' => PropertyType::House,
             'land_area' => 100,
             'building_area' => 80,
             'street' => 'Rua A',
             'number' => '10',
             'neighborhood' => 'Centro',
-            'status' => \App\Enums\PropertyStatus::Active,
+            'status' => PropertyStatus::Active,
         ]);
 
         $this->actingAs($user)

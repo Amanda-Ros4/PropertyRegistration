@@ -30,12 +30,7 @@ const visitBack = () => {
 <template>
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div class="flex items-center gap-3">
-            <SecondaryButton
-                v-if="backRoute"
-                type="button"
-                :aria-label="backLabel"
-                @click="visitBack"
-            >
+            <SecondaryButton v-if="backRoute" type="button" :aria-label="backLabel" @click="visitBack">
                 <component :is="BackIcon" class="size-4" />
             </SecondaryButton>
             <div>
@@ -46,12 +41,7 @@ const visitBack = () => {
 
         <div class="flex items-center gap-2">
             <slot name="actions" />
-            <PrimaryButton
-                v-if="createRoute"
-                type="button"
-                class="gap-2"
-                @click="router.visit(route(createRoute))"
-            >
+            <PrimaryButton v-if="createRoute" type="button" class="gap-2" @click="router.visit(route(createRoute))">
                 <component :is="CreateIcon" class="size-4" />
                 {{ createLabel }}
             </PrimaryButton>

@@ -9,6 +9,7 @@ use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rules\Exists;
 
 abstract class PropertyFormRequest extends FormRequest
 {
@@ -128,7 +129,7 @@ abstract class PropertyFormRequest extends FormRequest
         ];
     }
 
-    protected function personExistsRule(): \Illuminate\Validation\Rules\Exists
+    protected function personExistsRule(): Exists
     {
         $rule = Rule::exists('people', 'id')->whereNull('deleted_at');
 

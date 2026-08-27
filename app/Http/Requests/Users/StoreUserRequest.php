@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests\Users;
 
+use App\Models\User;
+
 class StoreUserRequest extends UserFormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', \App\Models\User::class) ?? false;
+        return $this->user()?->can('create', User::class) ?? false;
     }
 
     protected function prepareForValidation(): void

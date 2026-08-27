@@ -9,6 +9,7 @@ use App\Models\Property;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class PropertyService
@@ -28,7 +29,7 @@ class PropertyService
 
     /**
      * @param  array<string, mixed>  $filters
-     * @return \Illuminate\Support\Collection<int, Property>
+     * @return Collection<int, Property>
      */
     public function allForReport(User $user, array $filters = [])
     {

@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Gender;
 use App\Http\Requests\People\StorePersonRequest;
 use App\Http\Requests\People\UpdatePersonRequest;
 use App\Models\Person;
 use App\Services\PersonService;
-use App\Enums\Gender;
 use App\Support\BirthDate;
 use App\Support\Digits;
 use App\Support\Flash;
 use App\Support\SearchInput;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 

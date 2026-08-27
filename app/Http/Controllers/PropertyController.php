@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Properties\StorePropertyRequest;
-use App\Http\Requests\Properties\UpdatePropertyRequest;
 use App\Enums\PropertyStatus;
 use App\Enums\PropertyType;
+use App\Http\Requests\Properties\StorePropertyRequest;
+use App\Http\Requests\Properties\UpdatePropertyRequest;
 use App\Models\Property;
 use App\Services\PersonService;
 use App\Services\PropertyService;

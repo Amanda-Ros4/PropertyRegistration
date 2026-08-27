@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Contracts\Auditable;
 
 class Person extends Model implements Auditable
 {
@@ -72,14 +72,14 @@ class Person extends Model implements Auditable
         }
 
         $raw = trim($search);
-        $term = '%' . $raw . '%';
+        $term = '%'.$raw.'%';
         $digits = preg_replace('/[^0-9]/', '', $raw) ?? '';
         $normalized = mb_strtolower($raw);
 
         $genderMatches = [];
         foreach (Gender::cases() as $gender) {
             $value = $gender->value;
-            $label = mb_strtolower((string) __('genders.' . $value));
+            $label = mb_strtolower((string) __('genders.'.$value));
             if ($normalized === $value || $normalized === $label) {
                 $genderMatches[] = $value;
 
@@ -99,8 +99,8 @@ class Person extends Model implements Auditable
                 ->orWhere('email', 'like', $term);
 
             if ($digits !== '') {
-                $q->orWhere('cpf', 'like', '%' . $digits . '%')
-                    ->orWhere('phone', 'like', '%' . $digits . '%');
+                $q->orWhere('cpf', 'like', '%'.$digits.'%')
+                    ->orWhere('phone', 'like', '%'.$digits.'%');
             }
 
             foreach ($birthCriteria['exact'] as $date) {
@@ -330,9 +330,9 @@ class Person extends Model implements Auditable
         $cpf = preg_replace('/[^0-9]/', '', $this->cpf);
 
         if (strlen($cpf) === 11) {
-            return substr($cpf, 0, 3) . '.' .
-                substr($cpf, 3, 3) . '.' .
-                substr($cpf, 6, 3) . '-' .
+            return substr($cpf, 0, 3).'.'.
+                substr($cpf, 3, 3).'.'.
+                substr($cpf, 6, 3).'-'.
                 substr($cpf, 9, 2);
         }
 

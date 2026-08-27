@@ -1,5 +1,11 @@
 <?php
 
+use App\Models\Audit;
+use OwenIt\Auditing\Resolvers\IpAddressResolver;
+use OwenIt\Auditing\Resolvers\UrlResolver;
+use OwenIt\Auditing\Resolvers\UserAgentResolver;
+use OwenIt\Auditing\Resolvers\UserResolver;
+
 return [
 
     // Liga ou desliga a auditoria no sistema.
@@ -9,7 +15,7 @@ return [
      * Classe que representa cada registro salvo na tabela audits.
      * Usamos App\Models\Audit para adaptar rótulos e consultas ao projeto.
      */
-    'implementation' => App\Models\Audit::class,
+    'implementation' => Audit::class,
 
     /*
      * Identifica quem executou a ação.
@@ -21,7 +27,7 @@ return [
             'web',
             'api',
         ],
-        'resolver' => OwenIt\Auditing\Resolvers\UserResolver::class,
+        'resolver' => UserResolver::class,
     ],
 
     /*
@@ -29,9 +35,9 @@ return [
      * IP, navegador (user agent) e URL da requisição.
      */
     'resolvers' => [
-        'ip_address' => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
-        'user_agent' => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
-        'url' => OwenIt\Auditing\Resolvers\UrlResolver::class,
+        'ip_address' => IpAddressResolver::class,
+        'user_agent' => UserAgentResolver::class,
+        'url' => UrlResolver::class,
     ],
 
     /*
