@@ -2,17 +2,11 @@
 import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { FilterX, Search } from '@lucide/vue';
+import { Search } from '@lucide/vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Input } from '@/Components/ui/input';
 import AppSelect from '@/Components/AppSelect.vue';
 import FilterPanel from '@/Components/FilterPanel.vue';
-import { useFilterSyncGuard } from '@/composables/useFilterSyncGuard';
-import {
-    blockDisallowedSearchBeforeInput,
-    blockDisallowedSearchKey,
-    formatSearchInput,
-} from '@/utils/formatting';
 
 const props = defineProps({
     routeName: { type: String, required: true },
@@ -27,58 +21,36 @@ const props = defineProps({
     selectFilterKey: { type: String, default: 'person_id' },
 });
 
-const { runSyncedFromProps, shouldSkipFilterApply } = useFilterSyncGuard();
-
-const search = ref(formatSearchInput(props.initialSearch ?? ''));
+// Estado estritamente local para o formulário do filtro
+const search = ref(props.initialSearch ?? '');
 const selectedFilter = ref(props.initialSelectValue ?? null);
 let debounceTimer = null;
 
 const hasActiveFilters = computed(() =>
-    Boolean(formatSearchInput(search.value).trim() || selectedFilter.value),
+    Boolean(search.value.trim() || selectedFilter.value),
 );
 
-watch(
-    () => [props.initialSearch, props.initialSelectValue],
-    ([nextSearch, nextSelectValue]) => {
-        runSyncedFromProps(() => {
-            search.value = formatSearchInput(nextSearch ?? '');
-            selectedFilter.value = nextSelectValue ?? null;
-        });
-    },
-);
+// Intercepta e previne caracteres especiais inválidos antes de ir para o DOM
+function handleSearchBeforeInput(e) {
+    // Permite letras (com acentos), números, espaços, hífens, vírgulas, pontos, @ e _ (emails, CPF e nomes)
+    const allowedRegex = /^[a-zA-Z0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\-\,\.\@\_]*$/;
+    if (e.data && !allowedRegex.test(e.data)) {
+        e.preventDefault();
+    }
+}
 
 watch(search, () => {
-    if (shouldSkipFilterApply()) {
-        return;
-    }
-
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => applyFilters(), 180);
+    debounceTimer = setTimeout(() => applyFilters(), 220);
 });
 
 watch(selectedFilter, () => {
-    if (shouldSkipFilterApply()) {
-        return;
-    }
-
     applyFilters();
 });
 
-function onSearchInput(value) {
-    const sanitized = formatSearchInput(value);
-    if (sanitized === search.value) {
-        search.value = `${sanitized}\u200b`;
-        queueMicrotask(() => {
-            search.value = sanitized;
-        });
-        return;
-    }
-    search.value = sanitized;
-}
-
 function applyFilters() {
     const params = {};
-    const term = formatSearchInput(search.value).trim();
+    const term = search.value.trim();
     if (term) params.search = term;
     if (selectedFilter.value) params[props.selectFilterKey] = selectedFilter.value;
 
@@ -103,17 +75,13 @@ function clearFilters() {
 <template>
     <FilterPanel :title="heading">
         <div class="flex flex-col sm:flex-row gap-3">
-            <div
-                class="relative flex-1"
-                @keydown.capture="blockDisallowedSearchKey"
-                @beforeinput.capture="blockDisallowedSearchBeforeInput"
-            >
+            <div class="relative flex-1">
                 <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                 <Input
-                    :model-value="search"
+                    v-model="search"
                     :placeholder="searchPlaceholder"
                     class="w-full pl-9"
-                    @update:model-value="onSearchInput"
+                    @beforeinput="handleSearchBeforeInput"
                 />
             </div>
 
