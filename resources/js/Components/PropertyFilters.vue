@@ -2,18 +2,11 @@
 import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { FilterX } from '@lucide/vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Input } from '@/Components/ui/input';
 import AppSelect from '@/Components/AppSelect.vue';
 import FilterPanel from '@/Components/FilterPanel.vue';
-import { useFilterSyncGuard } from '@/composables/useFilterSyncGuard';
 import {
-    blockDisallowedAddressBeforeInput,
-    blockDisallowedAddressKey,
-    blockNonDigitBeforeInput,
-    blockNonDigitKey,
-    formatAddressInput,
     stripNonDigits,
 } from '@/utils/formatting';
 
@@ -22,8 +15,7 @@ const props = defineProps({
     peopleOptions: { type: Array, default: () => [] },
 });
 
-const { runSyncedFromProps, shouldSkipFilterApply } = useFilterSyncGuard();
-
+// Estado estritamente local
 const id = ref(props.filters.id ? String(props.filters.id) : '');
 const type = ref(props.filters.type ?? null);
 const street = ref(props.filters.street ?? '');
@@ -57,66 +49,32 @@ const hasActiveFilters = computed(() =>
     ),
 );
 
-watch(
-    () => props.filters,
-    (filters) => {
-        runSyncedFromProps(() => {
-            id.value = filters.id ? String(filters.id) : '';
-            type.value = filters.type ?? null;
-            street.value = filters.street ?? '';
-            number.value = filters.number ? String(filters.number) : '';
-            neighborhood.value = filters.neighborhood ?? '';
-            personId.value = filters.person_id ? Number(filters.person_id) : null;
-            status.value = filters.status ?? null;
-        });
-    },
-    { deep: true },
-);
-
-watch([id, street, number, neighborhood], () => {
-    if (shouldSkipFilterApply()) {
-        return;
+// Bloqueia a inserção de numéricos e caracteres especiais antes de entrarem no DOM
+function handleNumericBeforeInput(e) {
+    if (e.data && !/^\d+$/.test(e.data)) {
+        e.preventDefault();
     }
+}
 
+// Bloqueia caracteres especiais não permitidos em endereços
+function handleAddressBeforeInput(e) {
+    // Permite letras (com acentos), números, espaço, hífen, vírgula e ponto
+    const allowedRegex = /^[a-zA-Z0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\-\,\.]*$/;
+    if (e.data && !allowedRegex.test(e.data)) {
+        e.preventDefault();
+    }
+}
+
+// Executa a busca com debounce ao alterar os campos de texto
+watch([id, street, number, neighborhood], () => {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => applyFilters(), 220);
+    debounceTimer = setTimeout(() => applyFilters(), 300);
 });
 
+// Executa a busca imediatamente para selects
 watch([type, personId, status], () => {
-    if (shouldSkipFilterApply()) {
-        return;
-    }
-
     applyFilters();
 });
-
-function syncMasked(fieldRef, formatter, value) {
-    const formatted = formatter(value);
-    if (formatted === fieldRef.value) {
-        fieldRef.value = `${formatted}\u200b`;
-        queueMicrotask(() => {
-            fieldRef.value = formatted;
-        });
-        return;
-    }
-    fieldRef.value = formatted;
-}
-
-function onIdInput(value) {
-    syncMasked(id, (v) => stripNonDigits(v), value);
-}
-
-function onNumberInput(value) {
-    syncMasked(number, (v) => stripNonDigits(v), value);
-}
-
-function onStreetInput(value) {
-    syncMasked(street, formatAddressInput, value);
-}
-
-function onNeighborhoodInput(value) {
-    syncMasked(neighborhood, formatAddressInput, value);
-}
 
 function applyFilters() {
     const params = {};
@@ -126,13 +84,13 @@ function applyFilters() {
 
     if (type.value) params.type = type.value;
 
-    const streetValue = formatAddressInput(street.value).trim();
+    const streetValue = street.value.trim();
     if (streetValue) params.street = streetValue;
 
     const numberValue = stripNonDigits(number.value);
     if (numberValue) params.number = numberValue;
 
-    const neighborhoodValue = formatAddressInput(neighborhood.value).trim();
+    const neighborhoodValue = neighborhood.value.trim();
     if (neighborhoodValue) params.neighborhood = neighborhoodValue;
 
     if (personId.value) params.person_id = personId.value;
@@ -142,6 +100,7 @@ function applyFilters() {
         preserveState: true,
         preserveScroll: true,
         replace: true,
+        only: ['properties'],
     });
 }
 
@@ -165,91 +124,38 @@ function clearFilters() {
 <template>
     <FilterPanel :title="trans('properties.filters.heading')">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div
-                @keydown.capture="blockNonDigitKey"
-                @beforeinput.capture="blockNonDigitBeforeInput"
-            >
-                <Input
-                    :model-value="id"
-                    :placeholder="trans('properties.filters.municipal_registration')"
-                    class="w-full"
-                    inputmode="numeric"
-                    @update:model-value="onIdInput"
-                />
+            <div>
+                <Input v-model="id" :placeholder="trans('properties.filters.municipal_registration')" class="w-full"
+                    inputmode="numeric" @beforeinput="handleNumericBeforeInput" />
             </div>
 
-            <AppSelect
-                v-model="type"
-                :options="typeOptions"
-                :placeholder="trans('properties.filters.type')"
-                show-clear
-                class="w-full"
-            />
+            <AppSelect v-model="type" :options="typeOptions" :placeholder="trans('properties.filters.type')" show-clear
+                class="w-full" />
 
-            <div
-                @keydown.capture="blockDisallowedAddressKey"
-                @beforeinput.capture="blockDisallowedAddressBeforeInput"
-            >
-                <Input
-                    :model-value="street"
-                    :placeholder="trans('properties.filters.street')"
-                    class="w-full"
-                    @update:model-value="onStreetInput"
-                />
+            <div>
+                <Input v-model="street" :placeholder="trans('properties.filters.street')" class="w-full"
+                    @beforeinput="handleAddressBeforeInput" />
             </div>
 
-            <div
-                @keydown.capture="blockNonDigitKey"
-                @beforeinput.capture="blockNonDigitBeforeInput"
-            >
-                <Input
-                    :model-value="number"
-                    :placeholder="trans('properties.filters.number')"
-                    class="w-full"
-                    inputmode="numeric"
-                    @update:model-value="onNumberInput"
-                />
+            <div>
+                <Input v-model="number" :placeholder="trans('properties.filters.number')" class="w-full"
+                    inputmode="numeric" @beforeinput="handleNumericBeforeInput" />
             </div>
 
-            <div
-                @keydown.capture="blockDisallowedAddressKey"
-                @beforeinput.capture="blockDisallowedAddressBeforeInput"
-            >
-                <Input
-                    :model-value="neighborhood"
-                    :placeholder="trans('properties.filters.neighborhood')"
-                    class="w-full"
-                    @update:model-value="onNeighborhoodInput"
-                />
+            <div>
+                <Input v-model="neighborhood" :placeholder="trans('properties.filters.neighborhood')" class="w-full"
+                    @beforeinput="handleAddressBeforeInput" />
             </div>
 
-            <AppSelect
-                v-model="personId"
-                :options="peopleOptions"
-                :placeholder="trans('properties.filters.owner')"
-                filter
-                show-clear
-                class="w-full"
-            />
+            <AppSelect v-model="personId" :options="peopleOptions" :placeholder="trans('properties.filters.owner')"
+                filter show-clear class="w-full" />
 
-            <AppSelect
-                v-model="status"
-                :options="statusOptions"
-                :placeholder="trans('properties.filters.status')"
-                show-clear
-                class="w-full"
-            />
+            <AppSelect v-model="status" :options="statusOptions" :placeholder="trans('properties.filters.status')"
+                show-clear class="w-full" />
         </div>
 
-        <template
-            v-if="hasActiveFilters"
-            #actions
-        >
-            <SecondaryButton
-                type="button"
-                class="w-full sm:w-auto"
-                @click="clearFilters"
-            >
+        <template v-if="hasActiveFilters" #actions>
+            <SecondaryButton type="button" class="w-full sm:w-auto" @click="clearFilters">
                 {{ trans('common.clear') }}
             </SecondaryButton>
         </template>
