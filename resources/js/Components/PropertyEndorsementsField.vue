@@ -52,6 +52,7 @@ const { form, validateField } = usePrecognitiveForm('post', route('properties.en
     event: 'O',
     measure: '',
     description: '',
+    description_maxlength: 1000,
 });
 
 const requiresMeasure = computed(() => form.event === 'I' || form.event === 'D');
@@ -153,6 +154,7 @@ function submit() {
                 <Textarea
                     v-model="form.description"
                     rows="4"
+                    :maxlength="form.description_maxlength"
                     :placeholder="trans('properties.endorsements.placeholders.description')"
                     :class="cn('w-full', form.errors.description && 'border-destructive')"
                     @blur="validateField('description')"

@@ -126,7 +126,7 @@ function clearFilters() {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
                 <Input v-model="id" :placeholder="trans('properties.filters.municipal_registration')" class="w-full"
-                    inputmode="numeric" @beforeinput="handleNumericBeforeInput" />
+                    inputmode="numeric" maxlength="15" @beforeinput="handleNumericBeforeInput" />
             </div>
 
             <AppSelect v-model="type" :options="typeOptions" :placeholder="trans('properties.filters.type')" show-clear
@@ -134,17 +134,17 @@ function clearFilters() {
 
             <div>
                 <Input v-model="street" :placeholder="trans('properties.filters.street')" class="w-full"
-                    @beforeinput="handleAddressBeforeInput" />
+                    @beforeinput="handleAddressBeforeInput" maxlength="60" />
             </div>
 
             <div>
                 <Input v-model="number" :placeholder="trans('properties.filters.number')" class="w-full"
-                    inputmode="numeric" @beforeinput="handleNumericBeforeInput" />
+                    inputmode="numeric" @beforeinput="handleNumericBeforeInput" maxlength="60"/>
             </div>
 
             <div>
                 <Input v-model="neighborhood" :placeholder="trans('properties.filters.neighborhood')" class="w-full"
-                    @beforeinput="handleAddressBeforeInput" />
+                    @beforeinput="handleAddressBeforeInput" maxlength="60" />
             </div>
 
             <AppSelect v-model="personId" :options="peopleOptions" :placeholder="trans('properties.filters.owner')"

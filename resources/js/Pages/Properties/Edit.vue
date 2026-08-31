@@ -122,19 +122,19 @@ function onCepInput(value) {
 }
 
 function onNumberInput(value) {
-    syncMasked('number', (v) => stripNonDigits(v), value);
+    syncMasked('number', (v) => stripNonDigits(v).slice(0, 60), value);
 }
 
 function onStreetInput(value) {
-    syncMasked('street', formatAddressInput, value);
+    syncMasked('street', (v) => formatAddressInput(v).slice(0, 60), value);
 }
 
 function onNeighborhoodInput(value) {
-    syncMasked('neighborhood', formatAddressInput, value);
+    syncMasked('neighborhood', (v) => formatAddressInput(v).slice(0, 60), value);
 }
 
 function onComplementInput(value) {
-    syncMasked('complement', formatAddressInput, value);
+    syncMasked('complement', (v) => formatAddressInput(v).slice(0, 60), value);
 }
 
 async function lookupCepDigits(digits) {
@@ -327,6 +327,7 @@ function submit() {
                                 :model-value="form.street"
                                 :placeholder="trans('properties.placeholders.street')"
                                 :class="cn('w-full', form.errors.street && 'border-destructive')"
+                                :maxlength="60"
                                 @update:model-value="onStreetInput"
                                 @blur="validateField('street')"
                                 @change="form.clearErrors('street')"
@@ -348,6 +349,7 @@ function submit() {
                                 inputmode="numeric"
                                 :placeholder="trans('properties.placeholders.number')"
                                 :class="cn('w-full', form.errors.number && 'border-destructive')"
+                                :maxlength="60"
                                 @update:model-value="onNumberInput"
                                 @blur="validateField('number')"
                                 @change="form.clearErrors('number')"
@@ -368,6 +370,7 @@ function submit() {
                                 :model-value="form.neighborhood"
                                 :placeholder="trans('properties.placeholders.neighborhood')"
                                 :class="cn('w-full', form.errors.neighborhood && 'border-destructive')"
+                                :maxlength="60"
                                 @update:model-value="onNeighborhoodInput"
                                 @blur="validateField('neighborhood')"
                                 @change="form.clearErrors('neighborhood')"
@@ -388,6 +391,7 @@ function submit() {
                                 :model-value="form.complement"
                                 :placeholder="trans('properties.placeholders.complement')"
                                 :class="cn('w-full', form.errors.complement && 'border-destructive')"
+                                :maxlength="60"
                                 @update:model-value="onComplementInput"
                                 @blur="validateField('complement')"
                                 @change="form.clearErrors('complement')"

@@ -140,7 +140,9 @@ function clearFilters() {
                     v-model="name"
                     :placeholder="trans('people.filters.name')"
                     class="w-full"
+                    :maxlength="100"
                     @beforeinput="handleNameBeforeInput"
+                    @input="name = name.slice(0, 100)"
                 />
             </div>
 
@@ -176,7 +178,9 @@ function clearFilters() {
                 v-model="search"
                 :placeholder="trans('people.search_placeholder')"
                 class="w-full pl-9"
+                maxlength="100"
                 @beforeinput="handleSearchBeforeInput"
+                @input="search = search.slice(0, 100)"
             />
         </div>
 

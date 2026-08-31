@@ -47,10 +47,10 @@ abstract class PropertyFormRequest extends FormRequest
             'land_area' => $this->landAreaRules(),
             'building_area' => $this->buildingAreaRules(),
             'cep' => ['nullable', 'string', 'size:8', 'regex:/^[0-9]{8}$/'],
-            'street' => ['required', 'string', 'max:255', "regex:{$addressRegex}"],
-            'number' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/'],
-            'neighborhood' => ['required', 'string', 'max:255', "regex:{$addressRegex}"],
-            'complement' => ['nullable', 'string', 'max:255', "regex:{$addressRegex}"],
+            'street' => ['required', 'string', 'max:60', "regex:{$addressRegex}"],
+            'number' => ['required', 'string', 'max:60', 'regex:/^[0-9]+$/'],
+            'neighborhood' => ['required', 'string', 'max:60', "regex:{$addressRegex}"],
+            'complement' => ['nullable', 'string', 'max:60', "regex:{$addressRegex}"],
         ];
     }
 

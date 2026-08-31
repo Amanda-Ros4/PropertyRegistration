@@ -13,10 +13,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('person_id')->constrained('people');
             $table->string('cep', 8)->nullable();
-            $table->string('street');
-            $table->string('number', 20);
-            $table->string('neighborhood');
-            $table->string('complement')->nullable();
+            $table->string('street', 60);
+            $table->string('number', 60);
+            $table->string('neighborhood', 60);
+            $table->string('complement', 60)->nullable();
             $table->timestamps();
             $table->softDeletes();
 

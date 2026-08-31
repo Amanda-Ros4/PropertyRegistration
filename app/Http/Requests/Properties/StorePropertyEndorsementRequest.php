@@ -41,7 +41,7 @@ class StorePropertyEndorsementRequest extends FormRequest
     {
         return [
             'event' => ['required', new Enum(EndorsementEvent::class)],
-            'description' => ['required', 'string', 'max:2000'],
+            'description' => ['required', 'string', 'max:1000'],
             'measure' => [
                 Rule::requiredIf(fn () => $this->requiresMeasure()),
                 Rule::prohibitedIf(fn () => ! $this->requiresMeasure()),
