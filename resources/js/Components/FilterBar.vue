@@ -21,8 +21,8 @@ const props = defineProps({
     selectFilterKey: { type: String, default: 'person_id' },
 });
 
-// Estado estritamente local para o formulário do filtro
-const search = ref(props.initialSearch ?? '');
+// Estado local truncado para no máximo 100 caracteres
+const search = ref((props.initialSearch ?? '').slice(0, 100));
 const selectedFilter = ref(props.initialSelectValue ?? null);
 let debounceTimer = null;
 
@@ -30,9 +30,16 @@ const hasActiveFilters = computed(() =>
     Boolean(search.value.trim() || selectedFilter.value),
 );
 
-// Intercepta e previne caracteres especiais inválidos antes de ir para o DOM
+// Trunca o input diretamente no evento nativo de digitação/colagem
+function handleInput(e) {
+    if (e.target.value.length > 100) {
+        e.target.value = e.target.value.slice(0, 100);
+        search.value = e.target.value;
+    }
+}
+
+// Bloqueia caracteres inválidos sem interferir no tamanho do texto
 function handleSearchBeforeInput(e) {
-    // Permite letras (com acentos), números, espaços, hífens, vírgulas, pontos, @ e _ (emails, CPF e nomes)
     const allowedRegex = /^[a-zA-Z0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\-\,\.\@\_]*$/;
     if (e.data && !allowedRegex.test(e.data)) {
         e.preventDefault();
@@ -81,6 +88,8 @@ function clearFilters() {
                     v-model="search"
                     :placeholder="searchPlaceholder"
                     class="w-full pl-9"
+                    maxlength="100"
+                    @input="handleInput"
                     @beforeinput="handleSearchBeforeInput"
                 />
             </div>

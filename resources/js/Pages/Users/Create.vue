@@ -47,6 +47,16 @@ const { form, validateField } = usePrecognitiveForm('post', route('users.store')
     profile: profileSelectOptions.value[0]?.value ?? 'A',
 });
 
+const passwordRules = computed(() => {
+    const pwd = form.password || '';
+    return {
+        length: pwd.length >= 8 && pwd.length <= 128,
+        mixed: /[a-z]/.test(pwd) && /[A-Z]/.test(pwd),
+        number: /\d/.test(pwd),
+        symbol: /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+    };
+});
+
 function syncMaskedField(field, formatter, value) {
     const formatted = formatter(value);
     if (formatted === form[field]) {
@@ -170,9 +180,25 @@ function submit() {
                         <Input
                             v-model="form.password"
                             type="password"
+                            maxlength="128"
                             :class="cn('w-full', form.errors.password && 'border-destructive')"
                             @blur="validateField('password')"
                         />
+
+                        <ul class="mt-2 space-y-1 text-xs">
+                            <li :class="passwordRules.length ? 'text-green-600 dark:text-green-400 font-medium' : 'text-muted-foreground'">
+                                {{ passwordRules.length ? '✓' : '•' }} Mínimo de 8 e máximo de 128 caracteres
+                            </li>
+                            <li :class="passwordRules.mixed ? 'text-green-600 dark:text-green-400 font-medium' : 'text-muted-foreground'">
+                                {{ passwordRules.mixed ? '✓' : '•' }} Letras maiúsculas e minúsculas
+                            </li>
+                            <li :class="passwordRules.number ? 'text-green-600 dark:text-green-400 font-medium' : 'text-muted-foreground'">
+                                {{ passwordRules.number ? '✓' : '•' }} Pelo menos um número
+                            </li>
+                            <li :class="passwordRules.symbol ? 'text-green-600 dark:text-green-400 font-medium' : 'text-muted-foreground'">
+                                {{ passwordRules.symbol ? '✓' : '•' }} Pelo menos um caractere especial (!@#$%...)
+                            </li>
+                        </ul>
                     </FormField>
 
                     <FormField
@@ -183,6 +209,7 @@ function submit() {
                         <Input
                             v-model="form.password_confirmation"
                             type="password"
+                            maxlength="128"
                             :class="cn('w-full', form.errors.password_confirmation && 'border-destructive')"
                             @blur="validateField('password_confirmation')"
                         />
