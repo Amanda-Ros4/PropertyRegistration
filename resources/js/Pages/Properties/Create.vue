@@ -185,229 +185,245 @@ function submit() {
     <AppLayout :title="trans('properties.create')">
         <Head :title="trans('properties.create')" />
 
-        <PageHeader
-            :title="trans('properties.create')"
-            backRoute="properties.index"
-            :backLabel="trans('common.back')"
-        />
+        <!-- Container centralizado que previne que o formulário estique excessivamente -->
+        <div class="max-w-4xl mx-auto space-y-6">
+            <PageHeader
+                :title="trans('properties.create')"
+                backRoute="properties.index"
+                :backLabel="trans('common.back')"
+            />
 
-        <FormCard>
-            <form @submit.prevent="submit" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                        class="md:col-span-2"
-                        :label="trans('properties.fields.owner')"
-                        :error="form.errors.person_id"
-                        required
-                    >
-                        <AppSelect
-                            v-model="form.person_id"
-                            :options="peopleOptions"
-                            :placeholder="trans('properties.placeholders.owner')"
-                            :invalid="!!form.errors.person_id"
-                            filter
-                            class="w-full"
-                            @change="() => { form.clearErrors('person_id'); validateField('person_id'); }"
+            <FormCard>
+                <form @submit.prevent="submit" class="space-y-6">
+                    <!-- Grid em 3 colunas para distribuição equilibrada -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Contribuinte ocupa toda a largura -->
+                        <FormField
+                            class="md:col-span-3"
+                            :label="trans('properties.fields.owner')"
+                            :error="form.errors.person_id"
+                            required
+                        >
+                            <AppSelect
+                                v-model="form.person_id"
+                                :options="peopleOptions"
+                                :placeholder="trans('properties.placeholders.owner')"
+                                :invalid="!!form.errors.person_id"
+                                filter
+                                class="w-full"
+                                @change="() => { form.clearErrors('person_id'); validateField('person_id'); }"
+                            />
+                        </FormField>
+
+                        <!-- Tipo, Área Terreno, Área Edificação (1/3 cada) -->
+                        <FormField
+                            class="md:col-span-1"
+                            :label="trans('properties.fields.type')"
+                            :error="form.errors.type"
+                            required
+                        >
+                            <AppSelect
+                                v-model="form.type"
+                                :options="typeOptions"
+                                :placeholder="trans('properties.placeholders.type')"
+                                :invalid="!!form.errors.type"
+                                class="w-full"
+                                @change="() => { onTypeChange(); validateField('type'); validateField('land_area'); validateField('building_area'); }"
+                            />
+                        </FormField>
+
+                        <FormField
+                            class="md:col-span-1"
+                            :label="trans('properties.fields.land_area')"
+                            :error="form.errors.land_area"
+                            :required="landAreaRequired"
+                            :hint="landAreaLocked ? trans('properties.hint_land_area_apartment') : null"
+                        >
+                            <div
+                                @keydown.capture="blockNonAreaKey"
+                                @beforeinput.capture="blockNonAreaBeforeInput"
+                            >
+                                <Input
+                                    :model-value="form.land_area"
+                                    inputmode="decimal"
+                                    :placeholder="trans('properties.placeholders.land_area')"
+                                    :class="cn('w-full', form.errors.land_area && 'border-destructive')"
+                                    :disabled="landAreaLocked"
+                                    @update:model-value="onLandAreaInput"
+                                    @blur="validateField('land_area')"
+                                    @change="form.clearErrors('land_area')"
+                                />
+                            </div>
+                        </FormField>
+
+                        <FormField
+                            class="md:col-span-1"
+                            :label="trans('properties.fields.building_area')"
+                            :error="form.errors.building_area"
+                            :required="buildingAreaRequired"
+                            :hint="buildingAreaLocked ? trans('properties.hint_building_area_land') : null"
+                        >
+                            <div
+                                @keydown.capture="blockNonAreaKey"
+                                @beforeinput.capture="blockNonAreaBeforeInput"
+                            >
+                                <Input
+                                    :model-value="form.building_area"
+                                    inputmode="decimal"
+                                    :placeholder="trans('properties.placeholders.building_area')"
+                                    :class="cn('w-full', form.errors.building_area && 'border-destructive')"
+                                    :disabled="buildingAreaLocked"
+                                    @update:model-value="onBuildingAreaInput"
+                                    @blur="validateField('building_area')"
+                                    @change="form.clearErrors('building_area')"
+                                />
+                            </div>
+                        </FormField>
+
+                        <!-- CEP compacto (1/3) e Logradouro maior (2/3) -->
+                        <FormField
+                            class="md:col-span-1"
+                            :label="trans('properties.fields.cep')"
+                            :error="cepErrorDisplay"
+                            :hint="trans('properties.hint_cep')"
+                        >
+                            <div class="relative">
+                                <Input
+                                    :model-value="form.cep"
+                                    type="text"
+                                    inputmode="numeric"
+                                    autocomplete="postal-code"
+                                    :placeholder="trans('properties.placeholders.cep')"
+                                    :class="cn('w-full pr-10', (form.errors.cep || cepLookupError) && 'border-destructive')"
+                                    :maxlength="CEP_INPUT_MAX_LENGTH"
+                                    :disabled="cepLoading"
+                                    @update:model-value="onCepInput"
+                                    @blur="validateField('cep')"
+                                    @change="form.clearErrors('cep')"
+                                />
+                                <Loader2
+                                    v-show="cepLoading"
+                                    class="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-slate-400 pointer-events-none"
+                                    aria-hidden="true"
+                                />
+                            </div>
+                        </FormField>
+
+                        <FormField
+                            class="md:col-span-2"
+                            :label="trans('properties.fields.street')"
+                            :error="form.errors.street"
+                            required
+                        >
+                            <div
+                                @keydown.capture="blockDisallowedAddressKey"
+                                @beforeinput.capture="blockDisallowedAddressBeforeInput"
+                            >
+                                <Input
+                                    :model-value="form.street"
+                                    :placeholder="trans('properties.placeholders.street')"
+                                    :class="cn('w-full', form.errors.street && 'border-destructive')"
+                                    :maxlength="60"
+                                    @update:model-value="onStreetInput"
+                                    @blur="validateField('street')"
+                                    @change="form.clearErrors('street')"
+                                />
+                            </div>
+                        </FormField>
+
+                        <!-- Número menor (1/3) e Bairro (2/3) -->
+                        <FormField
+                            class="md:col-span-1"
+                            :label="trans('properties.fields.number')"
+                            :error="form.errors.number"
+                            required
+                        >
+                            <div
+                                @keydown.capture="blockNonDigitKey"
+                                @beforeinput.capture="blockNonDigitBeforeInput"
+                            >
+                                <Input
+                                    :model-value="form.number"
+                                    inputmode="numeric"
+                                    :placeholder="trans('properties.placeholders.number')"
+                                    :class="cn('w-full', form.errors.number && 'border-destructive')"
+                                    :maxlength="60"
+                                    @update:model-value="onNumberInput"
+                                    @blur="validateField('number')"
+                                    @change="form.clearErrors('number')"
+                                />
+                            </div>
+                        </FormField>
+
+                        <FormField
+                            class="md:col-span-2"
+                            :label="trans('properties.fields.neighborhood')"
+                            :error="form.errors.neighborhood"
+                            required
+                        >
+                            <div
+                                @keydown.capture="blockDisallowedAddressKey"
+                                @beforeinput.capture="blockDisallowedAddressBeforeInput"
+                            >
+                                <Input
+                                    :model-value="form.neighborhood"
+                                    :placeholder="trans('properties.placeholders.neighborhood')"
+                                    :class="cn('w-full', form.errors.neighborhood && 'border-destructive')"
+                                    :maxlength="60"
+                                    @update:model-value="onNeighborhoodInput"
+                                    @blur="validateField('neighborhood')"
+                                    @change="form.clearErrors('neighborhood')"
+                                />
+                            </div>
+                        </FormField>
+
+                        <!-- Complemento em linha inteira -->
+                        <FormField
+                            class="md:col-span-3"
+                            :label="trans('properties.fields.complement')"
+                            :error="form.errors.complement"
+                        >
+                            <div
+                                @keydown.capture="blockDisallowedAddressKey"
+                                @beforeinput.capture="blockDisallowedAddressBeforeInput"
+                            >
+                                <Input
+                                    :model-value="form.complement"
+                                    :placeholder="trans('properties.placeholders.complement')"
+                                    :class="cn('w-full', form.errors.complement && 'border-destructive')"
+                                    :maxlength="60"
+                                    @update:model-value="onComplementInput"
+                                    @blur="validateField('complement')"
+                                    @change="form.clearErrors('complement')"
+                                />
+                            </div>
+                        </FormField>
+
+                        <!-- Documentos em linha inteira -->
+                        <PropertyDocumentsField
+                            v-model="pendingDocuments"
+                            :errors="form.errors"
+                            class="md:col-span-3"
                         />
-                    </FormField>
+                    </div>
 
-                    <FormField
-                        :label="trans('properties.fields.type')"
-                        :error="form.errors.type"
-                        required
-                    >
-                        <AppSelect
-                            v-model="form.type"
-                            :options="typeOptions"
-                            :placeholder="trans('properties.placeholders.type')"
-                            :invalid="!!form.errors.type"
-                            class="w-full"
-                            @change="() => { onTypeChange(); validateField('type'); validateField('land_area'); validateField('building_area'); }"
-                        />
-                    </FormField>
-
-                    <FormField
-                        :label="trans('properties.fields.land_area')"
-                        :error="form.errors.land_area"
-                        :required="landAreaRequired"
-                        :hint="landAreaLocked ? trans('properties.hint_land_area_apartment') : null"
-                    >
-                        <div
-                            @keydown.capture="blockNonAreaKey"
-                            @beforeinput.capture="blockNonAreaBeforeInput"
+                    <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
+                        <SecondaryButton
+                            type="button"
+                            @click="router.visit(route('properties.index'))"
                         >
-                            <Input
-                                :model-value="form.land_area"
-                                inputmode="decimal"
-                                :placeholder="trans('properties.placeholders.land_area')"
-                                :class="cn('w-full', form.errors.land_area && 'border-destructive')"
-                                :disabled="landAreaLocked"
-                                @update:model-value="onLandAreaInput"
-                                @blur="validateField('land_area')"
-                                @change="form.clearErrors('land_area')"
-                            />
-                        </div>
-                    </FormField>
-
-                    <FormField
-                        :label="trans('properties.fields.building_area')"
-                        :error="form.errors.building_area"
-                        :required="buildingAreaRequired"
-                        :hint="buildingAreaLocked ? trans('properties.hint_building_area_land') : null"
-                    >
-                        <div
-                            @keydown.capture="blockNonAreaKey"
-                            @beforeinput.capture="blockNonAreaBeforeInput"
+                            {{ trans('common.cancel') }}
+                        </SecondaryButton>
+                        <PrimaryButton
+                            type="submit"
+                            :class="{ 'opacity-25': form.processing }"
+                            :disabled="form.processing"
                         >
-                            <Input
-                                :model-value="form.building_area"
-                                inputmode="decimal"
-                                :placeholder="trans('properties.placeholders.building_area')"
-                                :class="cn('w-full', form.errors.building_area && 'border-destructive')"
-                                :disabled="buildingAreaLocked"
-                                @update:model-value="onBuildingAreaInput"
-                                @blur="validateField('building_area')"
-                                @change="form.clearErrors('building_area')"
-                            />
-                        </div>
-                    </FormField>
-
-                    <FormField
-                        class="md:col-span-2"
-                        :label="trans('properties.fields.cep')"
-                        :error="cepErrorDisplay"
-                        :hint="trans('properties.hint_cep')"
-                    >
-                        <div class="relative">
-                            <Input
-                                :model-value="form.cep"
-                                type="text"
-                                inputmode="numeric"
-                                autocomplete="postal-code"
-                                :placeholder="trans('properties.placeholders.cep')"
-                                :class="cn('w-full pr-10', (form.errors.cep || cepLookupError) && 'border-destructive')"
-                                :maxlength="CEP_INPUT_MAX_LENGTH"
-                                :disabled="cepLoading"
-                                @update:model-value="onCepInput"
-                                @blur="validateField('cep')"
-                                @change="form.clearErrors('cep')"
-                            />
-                            <Loader2
-                                v-show="cepLoading"
-                                class="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-slate-400 pointer-events-none"
-                                aria-hidden="true"
-                            />
-                        </div>
-                    </FormField>
-
-                    <FormField
-                        class="md:col-span-2"
-                        :label="trans('properties.fields.street')"
-                        :error="form.errors.street"
-                        required
-                    >
-                        <div
-                            @keydown.capture="blockDisallowedAddressKey"
-                            @beforeinput.capture="blockDisallowedAddressBeforeInput"
-                        >
-                            <Input
-                                :model-value="form.street"
-                                :placeholder="trans('properties.placeholders.street')"
-                                :class="cn('w-full', form.errors.street && 'border-destructive')"
-                                :maxlength="60"
-                                @update:model-value="onStreetInput"
-                                @blur="validateField('street')"
-                                @change="form.clearErrors('street')"
-                            />
-                        </div>
-                    </FormField>
-
-                    <FormField
-                        :label="trans('properties.fields.number')"
-                        :error="form.errors.number"
-                        required
-                    >
-                        <div
-                            @keydown.capture="blockNonDigitKey"
-                            @beforeinput.capture="blockNonDigitBeforeInput"
-                        >
-                            <Input
-                                :model-value="form.number"
-                                inputmode="numeric"
-                                :placeholder="trans('properties.placeholders.number')"
-                                :class="cn('w-full', form.errors.number && 'border-destructive')"
-                                :maxlength="60"
-                                @update:model-value="onNumberInput"
-                                @blur="validateField('number')"
-                                @change="form.clearErrors('number')"
-                            />
-                        </div>
-                    </FormField>
-
-                    <FormField
-                        :label="trans('properties.fields.neighborhood')"
-                        :error="form.errors.neighborhood"
-                        required
-                    >
-                        <div
-                            @keydown.capture="blockDisallowedAddressKey"
-                            @beforeinput.capture="blockDisallowedAddressBeforeInput"
-                        >
-                            <Input
-                                :model-value="form.neighborhood"
-                                :placeholder="trans('properties.placeholders.neighborhood')"
-                                :class="cn('w-full', form.errors.neighborhood && 'border-destructive')"
-                                :maxlength="60"
-                                @update:model-value="onNeighborhoodInput"
-                                @blur="validateField('neighborhood')"
-                                @change="form.clearErrors('neighborhood')"
-                            />
-                        </div>
-                    </FormField>
-
-                    <FormField
-                        class="md:col-span-2"
-                        :label="trans('properties.fields.complement')"
-                        :error="form.errors.complement"
-                    >
-                        <div
-                            @keydown.capture="blockDisallowedAddressKey"
-                            @beforeinput.capture="blockDisallowedAddressBeforeInput"
-                        >
-                            <Input
-                                :model-value="form.complement"
-                                :placeholder="trans('properties.placeholders.complement')"
-                                :class="cn('w-full', form.errors.complement && 'border-destructive')"
-                                :maxlength="60"
-                                @update:model-value="onComplementInput"
-                                @blur="validateField('complement')"
-                                @change="form.clearErrors('complement')"
-                            />
-                        </div>
-                    </FormField>
-
-                    <PropertyDocumentsField
-                        v-model="pendingDocuments"
-                        :errors="form.errors"
-                    />
-                </div>
-
-                <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <SecondaryButton
-                        type="button"
-                        @click="router.visit(route('properties.index'))"
-                    >
-                        {{ trans('common.cancel') }}
-                    </SecondaryButton>
-                    <PrimaryButton
-                        type="submit"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                    >
-                        {{ trans('common.save') }}
-                    </PrimaryButton>
-                </div>
-            </form>
-        </FormCard>
+                            {{ trans('common.save') }}
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </FormCard>
+        </div>
     </AppLayout>
 </template>

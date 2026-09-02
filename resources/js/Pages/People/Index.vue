@@ -8,7 +8,6 @@ import PageHeader from '@/Components/PageHeader.vue';
 import PersonFilters from '@/Components/PersonFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import DeleteConfirmation from '@/Components/DeleteConfirmation.vue';
-import StatusBadge from '@/Components/StatusBadge.vue';
 import InertiaPagination from '@/Components/InertiaPagination.vue';
 import {
     Table,
@@ -44,13 +43,6 @@ const deleteConfirmMessage = computed(() => {
     });
 });
 
-const genderSeverity = {
-    male: 'info',
-    female: 'success',
-    other: 'secondary',
-    prefer_not_to_say: 'secondary',
-};
-
 function confirmDelete(person) {
     personToDelete.value = person;
     deleteConfirmRef.value?.open();
@@ -72,115 +64,97 @@ function deletePerson() {
 
 <template>
     <AppLayout :title="trans('people.title')">
+
         <Head :title="trans('people.title')" />
 
-        <PageHeader
-            :title="trans('people.title')"
-            :subtitle="trans('people.subtitle')"
-            :createRoute="'people.create'"
-            :createLabel="trans('people.create')"
-        />
+        <div class="max-w-7xl mx-auto space-y-6">
+            <PageHeader :title="trans('people.title')" :subtitle="trans('people.subtitle')"
+                :createRoute="'people.create'" :createLabel="trans('people.create')" />
 
-        <PersonFilters :filters="filters" />
+            <PersonFilters :filters="filters" />
 
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-            <EmptyState
-                v-if="people.data.length === 0"
-                icon="users"
-                :title="trans('people.empty')"
-                :description="trans('people.empty_description')"
-                :actionLabel="trans('people.create')"
-                actionRoute="people.create"
-            />
+            <div
+                class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                <EmptyState v-if="people.data.length === 0" icon="users" :title="trans('people.empty')"
+                    :description="trans('people.empty_description')" :actionLabel="trans('people.create')"
+                    actionRoute="people.create" />
 
-            <template v-else>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead class="w-20">
-                                {{ trans('common.id') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('people.fields.name') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('people.fields.cpf') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('people.fields.gender') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('people.fields.birth_date') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('people.fields.phone') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('people.fields.email') }}
-                            </TableHead>
-                            <TableHead class="w-36 text-right">
-                                {{ trans('common.actions') }}
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <TableRow v-for="person in people.data" :key="person.id">
-                            <TableCell>{{ person.id }}</TableCell>
-                            <TableCell>{{ person.name }}</TableCell>
-                            <TableCell>
-                                <span class="text-sm">{{ formatCpfDisplay(person.cpf) }}</span>
-                            </TableCell>
-                            <TableCell>
-                                <StatusBadge
-                                    :value="trans('genders.' + person.gender)"
-                                    :severity="genderSeverity[person.gender] || 'secondary'"
-                                />
-                            </TableCell>
-                            <TableCell>
-                                {{ formatDateDisplay(person.birth_date) }}
-                            </TableCell>
-                            <TableCell>
-                                {{ person.phone ? formatPhoneDisplay(person.phone) : '—' }}
-                            </TableCell>
-                            <TableCell>
-                                {{ person.email || '—' }}
-                            </TableCell>
-                            <TableCell class="text-right">
-                                <div class="flex items-center justify-end gap-1 shrink-0">
-                                    <TableIconButton
-                                        icon="eye"
-                                        :label="trans('common.view')"
-                                        @click="router.visit(route('people.edit', person.id))"
-                                    />
-                                    <TableIconButton
-                                        icon="trash"
-                                        :label="trans('common.delete')"
-                                        @click="confirmDelete(person)"
-                                    />
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
+                <template v-else>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead class="w-16 !pl-6">
+                                    {{ trans('common.id') }}
+                                </TableHead>
+                                <TableHead>
+                                    {{ trans('people.fields.name') }}
+                                </TableHead>
+                                <TableHead>
+                                    {{ trans('people.fields.cpf') }}
+                                </TableHead>
+                                <TableHead>
+                                    {{ trans('people.fields.gender') }}
+                                </TableHead>
+                                <TableHead>
+                                    {{ trans('people.fields.birth_date') }}
+                                </TableHead>
+                                <TableHead>
+                                    {{ trans('people.fields.phone') }}
+                                </TableHead>
+                                <TableHead>
+                                    {{ trans('people.fields.email') }}
+                                </TableHead>
+                                <TableHead class="w-28 text-right !pr-6">
+                                    {{ trans('common.actions') }}
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow v-for="person in people.data" :key="person.id">
+                                <TableCell class="w-16 font-medium !pl-6">{{ person.id }}</TableCell>
+                                <TableCell>{{ person.name }}</TableCell>
+                                <TableCell>
+                                    <span class="text-sm">{{ formatCpfDisplay(person.cpf) }}</span>
+                                </TableCell>
+                                <TableCell>
+                                    {{ person.gender ? trans('genders.' + person.gender) : '—' }}
+                                </TableCell>
+                                <TableCell>
+                                    {{ formatDateDisplay(person.birth_date) }}
+                                </TableCell>
+                                <TableCell>
+                                    <span v-if="person.phone">{{ formatPhoneDisplay(person.phone) }}</span>
+                                    <span v-else class="text-slate-300 dark:text-slate-700">—</span>
+                                </TableCell>
+                                <TableCell>
+                                    <span v-if="person.email">{{ person.email }}</span>
+                                    <span v-else class="text-slate-300 dark:text-slate-700">—</span>
+                                </TableCell>
+                                <TableCell class="w-28 text-right !pr-6">
+                                    <div class="flex items-center justify-end gap-1 shrink-0">
+                                        <TableIconButton icon="eye" :label="trans('common.view')"
+                                            @click="router.visit(route('people.edit', person.id))" />
+                                        <TableIconButton icon="trash" :label="trans('common.delete')"
+                                            @click="confirmDelete(person)" />
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
 
-                <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
-                    <span class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ trans('common.showing') }} {{ people.from }} {{ trans('common.to') }} {{ people.to }} {{ trans('common.of') }} {{ people.total }} {{ trans('common.records') }}
-                    </span>
-                    <InertiaPagination
-                        :paginator="people"
-                        route-name="people.index"
-                        :query="paginationQuery"
-                    />
-                </div>
-            </template>
+                    <div
+                        class="flex items-center justify-between px-6 py-4 border-t border-slate-100 dark:border-slate-800">
+                        <span class="text-sm text-slate-500 dark:text-slate-400">
+                            {{ trans('common.showing') }} {{ people.from }} {{ trans('common.to') }} {{ people.to }} {{
+                                trans('common.of') }} {{ people.total }} {{ trans('common.records') }}
+                        </span>
+                        <InertiaPagination :paginator="people" route-name="people.index" :query="paginationQuery" />
+                    </div>
+                </template>
+            </div>
+
+            <DeleteConfirmation ref="deleteConfirmRef" :title="trans('people.delete_confirm_title')"
+                :message="deleteConfirmMessage" @confirm="deletePerson" />
         </div>
-
-        <DeleteConfirmation
-            ref="deleteConfirmRef"
-            :title="trans('people.delete_confirm_title')"
-            :message="deleteConfirmMessage"
-            @confirm="deletePerson"
-        />
     </AppLayout>
 </template>

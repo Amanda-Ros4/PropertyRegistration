@@ -103,123 +103,84 @@ function deletePerson() {
 
 <template>
     <AppLayout :title="trans('people.edit')">
+
         <Head :title="trans('people.edit')" />
 
-        <PageHeader :title="trans('people.edit')" backRoute="people.index" :backLabel="trans('common.back')" />
+        <div class="max-w-4xl mx-auto space-y-6">
+            <PageHeader :title="trans('people.edit')" backRoute="people.index" :backLabel="trans('common.back')" />
 
-        <FormCard>
-            <form @submit.prevent="submit" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField class="md:col-span-2" :label="trans('people.fields.name')" :error="form.errors.name" required>
-                        <div
-                            class="w-full"
-                            @keydown.capture="blockNonLetterNameKey"
-                            @beforeinput.capture="blockNonLetterNameBeforeInput"
-                        >
-                            <Input
-                                :model-value="form.name"
-                                :placeholder="trans('people.placeholders.name')"
-                                :class="cn('w-full', form.errors.name && 'border-destructive')"
-                                @update:model-value="onNameInput"
-                                @blur="validateField('name')"
-                            />
-                        </div>
-                    </FormField>
+            <FormCard>
+                <form @submit.prevent="submit" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField class="md:col-span-2" :label="trans('people.fields.name')" :error="form.errors.name"
+                            required>
+                            <div class="w-full" @keydown.capture="blockNonLetterNameKey"
+                                @beforeinput.capture="blockNonLetterNameBeforeInput">
+                                <Input :model-value="form.name" :placeholder="trans('people.placeholders.name')"
+                                    :class="cn('w-full', form.errors.name && 'border-destructive')"
+                                    @update:model-value="onNameInput" @blur="validateField('name')" />
+                            </div>
+                        </FormField>
 
-                    <FormField :label="trans('people.fields.cpf')" required>
-                        <Input
-                            :model-value="formatCpfDisplay(person.cpf)"
-                            :placeholder="trans('people.placeholders.cpf')"
-                            class="w-full"
-                            disabled
-                        />
-                    </FormField>
+                        <FormField :label="trans('people.fields.cpf')" required>
+                            <Input :model-value="formatCpfDisplay(person.cpf)"
+                                :placeholder="trans('people.placeholders.cpf')" class="w-full" disabled />
+                        </FormField>
 
-                    <FormField :label="trans('people.fields.gender')" :error="form.errors.gender" required>
-                        <AppSelect
-                            v-model="form.gender"
-                            :options="genderOptions"
-                            :placeholder="trans('people.placeholders.gender')"
-                            :invalid="!!form.errors.gender"
-                            class="w-full"
-                            @change="validateField('gender')"
-                        />
-                    </FormField>
+                        <FormField :label="trans('people.fields.gender')" :error="form.errors.gender" required>
+                            <AppSelect v-model="form.gender" :options="genderOptions"
+                                :placeholder="trans('people.placeholders.gender')" :invalid="!!form.errors.gender"
+                                class="w-full" @change="validateField('gender')" />
+                        </FormField>
 
-                    <FormField :label="trans('people.fields.birth_date')" :error="form.errors.birth_date" required>
-                        <BirthDateInput
-                            v-model="form.birth_date"
-                            :placeholder="trans('people.placeholders.birth_date')"
-                            :invalid="!!form.errors.birth_date"
-                            @update:model-value="onBirthDateInput"
-                            @blur="validateField('birth_date')"
-                        />
-                    </FormField>
+                        <FormField :label="trans('people.fields.birth_date')" :error="form.errors.birth_date" required>
+                            <BirthDateInput v-model="form.birth_date"
+                                :placeholder="trans('people.placeholders.birth_date')"
+                                :invalid="!!form.errors.birth_date" @update:model-value="onBirthDateInput"
+                                @blur="validateField('birth_date')" />
+                        </FormField>
 
-                    <FormField :label="trans('people.fields.phone')" :error="form.errors.phone">
-                        <div
-                            class="w-full"
-                            @keydown.capture="blockNonDigitKey"
-                            @beforeinput.capture="blockNonDigitBeforeInput"
-                        >
-                            <Input
-                                :model-value="form.phone"
-                                :placeholder="trans('people.placeholders.phone')"
-                                :class="cn('w-full', form.errors.phone && 'border-destructive')"
-                                inputmode="numeric"
-                                :maxlength="PHONE_BR_INPUT_MAX_LENGTH"
-                                @update:model-value="onPhoneInput"
-                                @blur="validateField('phone')"
-                            />
-                        </div>
-                    </FormField>
+                        <FormField :label="trans('people.fields.phone')" :error="form.errors.phone">
+                            <div class="w-full" @keydown.capture="blockNonDigitKey"
+                                @beforeinput.capture="blockNonDigitBeforeInput">
+                                <Input :model-value="form.phone" :placeholder="trans('people.placeholders.phone')"
+                                    :class="cn('w-full', form.errors.phone && 'border-destructive')" inputmode="numeric"
+                                    :maxlength="PHONE_BR_INPUT_MAX_LENGTH" @update:model-value="onPhoneInput"
+                                    @blur="validateField('phone')" />
+                            </div>
+                        </FormField>
 
-                    <FormField :label="trans('people.fields.email')" :error="form.errors.email">
-                        <Input
-                            v-model="form.email"
-                            type="email"
-                            :placeholder="trans('people.placeholders.email')"
-                            :class="cn('w-full', form.errors.email && 'border-destructive')"
-                            @blur="validateField('email')"
-                        />
-                    </FormField>
-                </div>
-
-                <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <SecondaryButton
-                        v-if="canDelete"
-                        type="button"
-                        class="text-destructive border-destructive/50 hover:bg-destructive/10"
-                        @click="openDeleteConfirm"
-                    >
-                        {{ trans('common.delete') }}
-                    </SecondaryButton>
-
-                    <div class="flex justify-end gap-3" :class="{ 'sm:ml-auto': canDelete }">
-                        <SecondaryButton
-                            type="button"
-                            @click="router.visit(route('people.index'))"
-                        >
-                            {{ trans('common.cancel') }}
-                        </SecondaryButton>
-                        <PrimaryButton
-                            type="submit"
-                            :class="{ 'opacity-25': form.processing || form.validating }"
-                            :disabled="form.processing || form.validating"
-                        >
-                            {{ trans('common.save') }}
-                        </PrimaryButton>
+                        <FormField :label="trans('people.fields.email')" :error="form.errors.email">
+                            <Input v-model="form.email" type="email" :placeholder="trans('people.placeholders.email')"
+                                :class="cn('w-full', form.errors.email && 'border-destructive')"
+                                @blur="validateField('email')" />
+                        </FormField>
                     </div>
-                </div>
-            </form>
-        </FormCard>
 
-        <DeleteConfirmation
-            v-if="canDelete"
-            ref="deleteConfirmRef"
-            :title="trans('people.delete_confirm_title')"
-            :message="trans('people.delete_confirm_message_detail', { name: person.name })"
-            @confirm="deletePerson"
-        />
+                    <div
+                        class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
+                        <SecondaryButton v-if="canDelete" type="button"
+                            class="text-destructive border-destructive/50 hover:bg-destructive/10"
+                            @click="openDeleteConfirm">
+                            {{ trans('common.delete') }}
+                        </SecondaryButton>
+
+                        <div class="flex justify-end gap-3" :class="{ 'sm:ml-auto': canDelete }">
+                            <SecondaryButton type="button" @click="router.visit(route('people.index'))">
+                                {{ trans('common.cancel') }}
+                            </SecondaryButton>
+                            <PrimaryButton type="submit" :class="{ 'opacity-25': form.processing || form.validating }"
+                                :disabled="form.processing || form.validating">
+                                {{ trans('common.save') }}
+                            </PrimaryButton>
+                        </div>
+                    </div>
+                </form>
+            </FormCard>
+
+            <DeleteConfirmation v-if="canDelete" ref="deleteConfirmRef" :title="trans('people.delete_confirm_title')"
+                :message="trans('people.delete_confirm_message_detail', { name: person.name })"
+                @confirm="deletePerson" />
+        </div>
     </AppLayout>
 </template>

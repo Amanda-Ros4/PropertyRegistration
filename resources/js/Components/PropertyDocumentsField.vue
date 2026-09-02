@@ -358,7 +358,7 @@ onBeforeUnmount(() => {
             <li
                 v-for="item in pending"
                 :key="`pending-${item.id}`"
-                class="flex items-center gap-3 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 px-3 py-2"
+                class="flex items-center gap-3 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 px-3 py-8 min-h-[260px]"
             >
                 <img
                     v-if="item.previewUrl"
