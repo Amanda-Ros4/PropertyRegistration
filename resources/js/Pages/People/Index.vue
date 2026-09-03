@@ -68,13 +68,18 @@ function deletePerson() {
         <Head :title="trans('people.title')" />
 
         <div class="max-w-7xl mx-auto space-y-6">
+            <!-- Cabeçalho -->
             <PageHeader :title="trans('people.title')" :subtitle="trans('people.subtitle')"
                 :createRoute="'people.create'" :createLabel="trans('people.create')" />
 
-            <PersonFilters :filters="filters" />
+            <!-- Card dos Filtros -->
+            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+                <PersonFilters :filters="filters" />
+            </div>
 
+            <!-- Card da Tabela -->
             <div
-                class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-6">
                 <EmptyState v-if="people.data.length === 0" icon="users" :title="trans('people.empty')"
                     :description="trans('people.empty_description')" :actionLabel="trans('people.create')"
                     actionRoute="people.create" />
@@ -83,7 +88,7 @@ function deletePerson() {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead class="w-16 !pl-6">
+                                <TableHead class="w-16">
                                     {{ trans('common.id') }}
                                 </TableHead>
                                 <TableHead>
@@ -104,14 +109,14 @@ function deletePerson() {
                                 <TableHead>
                                     {{ trans('people.fields.email') }}
                                 </TableHead>
-                                <TableHead class="w-28 text-right !pr-6">
+                                <TableHead class="w-28 text-right">
                                     {{ trans('common.actions') }}
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             <TableRow v-for="person in people.data" :key="person.id">
-                                <TableCell class="w-16 font-medium !pl-6">{{ person.id }}</TableCell>
+                                <TableCell class="w-16 font-medium">{{ person.id }}</TableCell>
                                 <TableCell>{{ person.name }}</TableCell>
                                 <TableCell>
                                     <span class="text-sm">{{ formatCpfDisplay(person.cpf) }}</span>
@@ -130,7 +135,7 @@ function deletePerson() {
                                     <span v-if="person.email">{{ person.email }}</span>
                                     <span v-else class="text-slate-300 dark:text-slate-700">—</span>
                                 </TableCell>
-                                <TableCell class="w-28 text-right !pr-6">
+                                <TableCell class="w-28 text-right">
                                     <div class="flex items-center justify-end gap-1 shrink-0">
                                         <TableIconButton icon="eye" :label="trans('common.view')"
                                             @click="router.visit(route('people.edit', person.id))" />
@@ -143,7 +148,7 @@ function deletePerson() {
                     </Table>
 
                     <div
-                        class="flex items-center justify-between px-6 py-4 border-t border-slate-100 dark:border-slate-800">
+                        class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
                         <span class="text-sm text-slate-500 dark:text-slate-400">
                             {{ trans('common.showing') }} {{ people.from }} {{ trans('common.to') }} {{ people.to }} {{
                                 trans('common.of') }} {{ people.total }} {{ trans('common.records') }}
