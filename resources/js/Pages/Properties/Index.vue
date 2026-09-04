@@ -105,7 +105,8 @@ function deleteProperty() {
             </PageHeader>
 
             <!-- Card dos Filtros -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
                 <PropertyFilters :filters="filters" :peopleOptions="peopleOptions" />
             </div>
 
@@ -158,7 +159,8 @@ function deleteProperty() {
                             <TableRow v-for="property in properties.data" :key="property.id">
                                 <TableCell class="w-24 font-medium">#{{ property.id }}</TableCell>
                                 <TableCell>
-                                    {{ property.type ? trans('properties.types.' + (property.type.value ?? property.type)) : '—' }}
+                                    {{ property.type ? trans('properties.types.' + (property.type.value ??
+                                    property.type)) : '—' }}
                                 </TableCell>
                                 <TableCell>{{ property.street }}</TableCell>
                                 <TableCell>{{ property.number }}</TableCell>
@@ -166,12 +168,14 @@ function deleteProperty() {
                                 <TableCell>
                                     <div v-if="property.person" class="flex flex-col">
                                         <span class="font-medium">{{ property.person.name }}</span>
-                                        <span class="text-xs text-slate-400">{{ formatCpfDisplay(property.person.cpf) }}</span>
+                                        <span class="text-xs text-slate-400">{{ formatCpfDisplay(property.person.cpf)
+                                            }}</span>
                                     </div>
                                     <span v-else class="text-slate-300 dark:text-slate-700">—</span>
                                 </TableCell>
                                 <TableCell>
-                                    <span class="text-sm">{{ property.cep ? formatCepDisplay(property.cep) : '—' }}</span>
+                                    <span class="text-sm">{{ property.cep ? formatCepDisplay(property.cep) : '—'
+                                        }}</span>
                                 </TableCell>
                                 <TableCell>
                                     {{ property.complement || '—' }}
@@ -193,13 +197,14 @@ function deleteProperty() {
                         </TableBody>
                     </Table>
 
-                    <div
-                        class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
                         <span class="text-sm text-slate-500 dark:text-slate-400">
-                            {{ trans('common.showing') }} {{ properties.from }} {{ trans('common.to') }} {{ properties.to }} {{
+                            {{ trans('common.showing') }} {{ properties.from }} {{ trans('common.to') }} {{
+                            properties.to }} {{
                                 trans('common.of') }} {{ properties.total }} {{ trans('common.records') }}
                         </span>
-                        <InertiaPagination :paginator="properties" route-name="properties.index" :query="paginationQuery" />
+                        <InertiaPagination :paginator="properties" route-name="properties.index"
+                            :query="paginationQuery" />
                     </div>
                 </template>
             </div>

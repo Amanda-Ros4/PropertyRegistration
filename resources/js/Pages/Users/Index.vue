@@ -59,31 +59,21 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
 
 <template>
     <AppLayout :title="trans('users.title')">
+
         <Head :title="trans('users.title')" />
 
-        <PageHeader
-            :title="trans('users.title')"
-            :subtitle="trans('users.subtitle')"
-            :createRoute="showCreateButton ? 'users.create' : null"
-            :createLabel="trans('users.create')"
-        />
+        <PageHeader :title="trans('users.title')" :subtitle="trans('users.subtitle')"
+            :createRoute="showCreateButton ? 'users.create' : null" :createLabel="trans('users.create')" />
 
-        <FilterBar
-            routeName="users.index"
-            :heading="trans('users.filters.heading')"
-            :searchPlaceholder="trans('users.search_placeholder')"
-            :initialSearch="filters.search"
-        />
+        <FilterBar routeName="users.index" :heading="trans('users.filters.heading')"
+            :searchPlaceholder="trans('users.search_placeholder')" :initialSearch="filters.search" />
 
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-            <EmptyState
-                v-if="users.data.length === 0"
-                icon="user"
-                :title="trans('users.empty')"
+        <div
+            class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            <EmptyState v-if="users.data.length === 0" icon="user" :title="trans('users.empty')"
                 :description="trans('users.empty_description')"
                 :actionLabel="showCreateButton ? trans('users.create') : null"
-                :actionRoute="showCreateButton ? 'users.create' : null"
-            />
+                :actionRoute="showCreateButton ? 'users.create' : null" />
 
             <template v-else>
                 <Table>
@@ -115,23 +105,18 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
                             <TableCell>{{ user.name }}</TableCell>
                             <TableCell>{{ user.email }}</TableCell>
                             <TableCell>
-                                <StatusBadge
-                                    :value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
-                                    :severity="profileSeverity[user.profile] || 'secondary'"
-                                />
+                                <StatusBadge :value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
+                                    :severity="profileSeverity[user.profile] || 'secondary'" />
                             </TableCell>
                             <TableCell>
                                 <StatusBadge
                                     :value="trans(activeLabelKey[user.active] || 'users.active_status.inactive')"
-                                    :severity="activeSeverity[user.active] || 'secondary'"
-                                />
+                                    :severity="activeSeverity[user.active] || 'secondary'" />
                             </TableCell>
                             <TableCell>
-                                <TableIconButton
-                                    :icon="user.can_update ? 'pencil' : 'eye'"
+                                <TableIconButton :icon="user.can_update ? 'pencil' : 'eye'"
                                     :label="user.can_update ? trans('common.edit') : trans('common.view')"
-                                    @click="router.visit(route('users.edit', user.id))"
-                                />
+                                    @click="router.visit(route('users.edit', user.id))" />
                             </TableCell>
                         </TableRow>
                     </TableBody>
@@ -139,13 +124,10 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
 
                 <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
                     <span class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ trans('common.showing') }} {{ users.from }} {{ trans('common.to') }} {{ users.to }} {{ trans('common.of') }} {{ users.total }} {{ trans('common.records') }}
+                        {{ trans('common.showing') }} {{ users.from }} {{ trans('common.to') }} {{ users.to }} {{
+                        trans('common.of') }} {{ users.total }} {{ trans('common.records') }}
                     </span>
-                    <InertiaPagination
-                        :paginator="users"
-                        route-name="users.index"
-                        :query="paginationQuery"
-                    />
+                    <InertiaPagination :paginator="users" route-name="users.index" :query="paginationQuery" />
                 </div>
             </template>
         </div>

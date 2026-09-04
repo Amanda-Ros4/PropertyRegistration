@@ -73,7 +73,8 @@ function deletePerson() {
                 :createRoute="'people.create'" :createLabel="trans('people.create')" />
 
             <!-- Card dos Filtros -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
                 <PersonFilters :filters="filters" />
             </div>
 
@@ -147,8 +148,7 @@ function deletePerson() {
                         </TableBody>
                     </Table>
 
-                    <div
-                        class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
                         <span class="text-sm text-slate-500 dark:text-slate-400">
                             {{ trans('common.showing') }} {{ people.from }} {{ trans('common.to') }} {{ people.to }} {{
                                 trans('common.of') }} {{ people.total }} {{ trans('common.records') }}
