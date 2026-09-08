@@ -132,29 +132,21 @@ function submit() {
 
 <template>
     <AppLayout :title="pageTitle">
+
         <Head :title="pageTitle" />
 
-        <PageHeader
-            :title="pageTitle"
-            backRoute="users.index"
-            :backLabel="trans('common.back')"
-        />
+        <PageHeader :title="pageTitle" backRoute="users.index" :backLabel="trans('common.back')" />
 
         <FormCard>
             <div
-                class="mb-6 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-slate-200 dark:border-slate-800"
-            >
+                class="mb-6 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-slate-200 dark:border-slate-800">
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide mb-2">
                     {{ trans('users.fields.active') }}
                 </p>
                 <div class="flex flex-wrap items-center gap-3">
                     <StatusBadge :value="activeLabel" :severity="activeSeverity" />
-                    <SecondaryButton
-                        v-if="canUpdate && !isSelf"
-                        type="button"
-                        :disabled="activeUpdating"
-                        @click="toggleActive"
-                    >
+                    <SecondaryButton v-if="canUpdate && !isSelf" type="button" :disabled="activeUpdating"
+                        @click="toggleActive">
                         {{ activeActionLabel }}
                     </SecondaryButton>
                 </div>
@@ -163,150 +155,74 @@ function submit() {
                         isSelf
                             ? trans('users.hint_cannot_deactivate_self')
                             : canUpdate
-                              ? trans('users.hint_active_toggle')
-                              : trans('users.hint_active_readonly')
+                                ? trans('users.hint_active_toggle')
+                                : trans('users.hint_active_readonly')
                     }}
                 </p>
             </div>
 
             <form @submit.prevent="submit" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                        :label="trans('common.id')"
-                        class="md:col-span-2"
-                    >
-                        <Input
-                            :model-value="String(user.id)"
-                            class="w-full max-w-xs"
-                            disabled
-                            readonly
-                        />
+                    <FormField :label="trans('common.id')" class="md:col-span-2">
+                        <Input :model-value="String(user.id)" class="w-full max-w-xs" disabled readonly />
                     </FormField>
 
-                    <FormField
-                        class="md:col-span-2"
-                        :label="trans('users.fields.name')"
-                        :error="form.errors.name"
-                        :required="canUpdate"
-                    >
-                        <div
-                            class="w-full"
-                            @keydown.capture="canUpdate ? blockNonLetterNameKey : null"
-                            @beforeinput.capture="canUpdate ? blockNonLetterNameBeforeInput : null"
-                        >
-                            <Input
-                                :model-value="form.name"
-                                :placeholder="trans('users.placeholders.name')"
-                                :class="cn('w-full', form.errors.name && 'border-destructive')"
-                                :disabled="!canUpdate"
-                                @update:model-value="onNameInput"
-                                @blur="canUpdate ? validateField('name') : null"
-                            />
+                    <FormField class="md:col-span-2" :label="trans('users.fields.name')" :error="form.errors.name"
+                        :required="canUpdate">
+                        <div class="w-full" @keydown.capture="canUpdate ? blockNonLetterNameKey : null"
+                            @beforeinput.capture="canUpdate ? blockNonLetterNameBeforeInput : null">
+                            <Input :model-value="form.name" :placeholder="trans('users.placeholders.name')"
+                                :class="cn('w-full', form.errors.name && 'border-destructive')" :disabled="!canUpdate"
+                                @update:model-value="onNameInput" @blur="canUpdate ? validateField('name') : null" />
                         </div>
                     </FormField>
 
-                    <FormField
-                        :label="trans('users.fields.cpf')"
-                    >
-                        <Input
-                            :model-value="formatCpfDisplay(user.cpf)"
-                            class="w-full"
-                            disabled
-                            readonly
-                        />
+                    <FormField :label="trans('users.fields.cpf')">
+                        <Input :model-value="formatCpfDisplay(user.cpf)" class="w-full" disabled readonly />
                     </FormField>
 
-                    <FormField
-                        :label="trans('users.fields.email')"
-                        :error="form.errors.email"
-                        :required="canEditUserEmail"
-                    >
-                        <Input
-                            v-if="canEditUserEmail"
-                            v-model="form.email"
-                            type="email"
+                    <FormField :label="trans('users.fields.email')" :error="form.errors.email"
+                        :required="canEditUserEmail">
+                        <Input v-if="canEditUserEmail" v-model="form.email" type="email"
                             :placeholder="trans('users.placeholders.email')"
                             :class="cn('w-full', form.errors.email && 'border-destructive')"
-                            @blur="validateField('email')"
-                        />
-                        <Input
-                            v-else
-                            :model-value="user.email"
-                            type="email"
-                            class="w-full"
-                            disabled
-                            readonly
-                        />
+                            @blur="validateField('email')" />
+                        <Input v-else :model-value="user.email" type="email" class="w-full" disabled readonly />
                     </FormField>
 
-                    <FormField
-                        :label="trans('users.fields.profile')"
-                        :error="form.errors.profile"
+                    <FormField :label="trans('users.fields.profile')" :error="form.errors.profile"
                         :required="canChangeProfile"
-                        :hint="isSelf && canUpdate && !canChangeProfile ? trans('users.hint_profile_self_readonly') : null"
-                    >
-                        <AppSelect
-                            v-if="canChangeProfile"
-                            v-model="form.profile"
-                            :options="profileSelectOptions"
-                            :placeholder="trans('users.placeholders.profile')"
-                            :invalid="!!form.errors.profile"
-                            class="w-full"
-                            @change="validateField('profile')"
-                        />
-                        <Input
-                            v-else
-                            :model-value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
-                            class="w-full"
-                            disabled
-                            readonly
-                        />
+                        :hint="isSelf && canUpdate && !canChangeProfile ? trans('users.hint_profile_self_readonly') : null">
+                        <AppSelect v-if="canChangeProfile" v-model="form.profile" :options="profileSelectOptions"
+                            :placeholder="trans('users.placeholders.profile')" :invalid="!!form.errors.profile"
+                            class="w-full" @change="validateField('profile')" />
+                        <Input v-else :model-value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
+                            class="w-full" disabled readonly />
                     </FormField>
 
-                    <FormField
-                        v-if="canUpdate"
-                        class="md:col-span-2"
-                        :label="trans('users.fields.password')"
-                        :hint="trans('users.password_optional_hint')"
-                        :error="form.errors.password"
-                    >
-                        <Input
-                            v-model="form.password"
-                            type="password"
+                    <FormField v-if="canUpdate" class="md:col-span-2" :label="trans('users.fields.password')"
+                        :hint="trans('users.password_optional_hint')" :error="form.errors.password">
+                        <Input v-model="form.password" type="password"
                             :placeholder="trans('users.placeholders.password_optional')"
                             :class="cn('w-full', form.errors.password && 'border-destructive')"
-                            @blur="validateField('password')"
-                        />
+                            @blur="validateField('password')" />
                     </FormField>
 
-                    <FormField
-                        v-if="canUpdate"
-                        class="md:col-span-2"
-                        :label="trans('users.fields.password_confirmation')"
-                        :error="form.errors.password_confirmation"
-                    >
-                        <Input
-                            v-model="form.password_confirmation"
-                            type="password"
+                    <FormField v-if="canUpdate" class="md:col-span-2"
+                        :label="trans('users.fields.password_confirmation')" :error="form.errors.password_confirmation">
+                        <Input v-model="form.password_confirmation" type="password"
                             :class="cn('w-full', form.errors.password_confirmation && 'border-destructive')"
-                            @blur="validateField('password_confirmation')"
-                        />
+                            @blur="validateField('password_confirmation')" />
                     </FormField>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <SecondaryButton
-                        type="button"
-                        @click="router.visit(route('users.index'))"
-                    >
+                    <SecondaryButton type="button" @click="router.visit(route('users.index'))">
                         {{ trans('common.back') }}
                     </SecondaryButton>
-                    <PrimaryButton
-                        v-if="canUpdate"
-                        type="submit"
+                    <PrimaryButton v-if="canUpdate" type="submit"
                         :class="{ 'opacity-25': form.processing || form.validating }"
-                        :disabled="form.processing || form.validating"
-                    >
+                        :disabled="form.processing || form.validating">
                         {{ trans('common.save') }}
                     </PrimaryButton>
                 </div>
