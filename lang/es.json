@@ -301,7 +301,7 @@
     "users.placeholders.password_optional": "Nueva contraseña (opcional)",
     "users.profiles.ti_admin": "Administrador de TI",
     "users.profiles.system_admin": "Administrador del sistema",
-    "users.profiles.attendant": "Atendente",
+    "users.profiles.attendant": "Asistente",
     "users.active_status.active": "Activo",
     "users.active_status.inactive": "Inactivo",
     "users.actions.deactivate": "Desactivar usuario",
