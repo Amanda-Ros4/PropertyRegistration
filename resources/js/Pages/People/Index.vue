@@ -110,9 +110,10 @@ function deletePerson() {
                                 <TableHead>
                                     {{ trans('people.fields.email') }}
                                 </TableHead>
-                                <TableHead class="w-28 text-right">
-                                    {{ trans('common.actions') }}
+                                <TableHead class="w-28 flex justify-end items-center">
+                                    <span class="mr-4">{{ trans('common.actions') }}</span>
                                 </TableHead>
+
                             </TableRow>
                         </TableHeader>
                         <TableBody>
