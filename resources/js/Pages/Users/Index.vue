@@ -69,7 +69,7 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
             :searchPlaceholder="trans('users.search_placeholder')" :initialSearch="filters.search" />
 
         <div
-            class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden p-6">
             <EmptyState v-if="users.data.length === 0" icon="user" :title="trans('users.empty')"
                 :description="trans('users.empty_description')"
                 :actionLabel="showCreateButton ? trans('users.create') : null"

@@ -70,7 +70,7 @@ function formatDateTime(value) {
             :filterOptions="filterOptions"
         />
 
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden p-6">
             <EmptyState
                 v-if="rows.length === 0"
                 icon="history"
