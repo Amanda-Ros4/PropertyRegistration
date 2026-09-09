@@ -98,19 +98,19 @@ function deletePerson() {
                                 <TableHead>
                                     {{ trans('people.fields.cpf') }}
                                 </TableHead>
-                                <TableHead>
+                                <TableHead class="text-left pl-10">
                                     {{ trans('people.fields.gender') }}
                                 </TableHead>
-                                <TableHead>
+                                <TableHead class="text-left pl-10">
                                     {{ trans('people.fields.birth_date') }}
                                 </TableHead>
-                                <TableHead>
+                                <TableHead class="text-left pl-10">
                                     {{ trans('people.fields.phone') }}
                                 </TableHead>
-                                <TableHead>
+                                <TableHead class="text-left pl-16">
                                     {{ trans('people.fields.email') }}
                                 </TableHead>
-                                <TableHead class="w-28 flex justify-end items-center">
+                                <TableHead class="w-26 flex justify-end items-center">
                                     <span class="mr-4">{{ trans('common.actions') }}</span>
                                 </TableHead>
 
@@ -122,18 +122,20 @@ function deletePerson() {
                                 <TableCell>{{ person.name }}</TableCell>
                                 <TableCell>
                                     <span class="text-sm">{{ formatCpfDisplay(person.cpf) }}</span>
+                                </TableCell>    
+                                <TableCell class="text-left pl-10">
+                                    <span v-if="person.email">{{ person.gender ? trans('genders.' + person.gender) : '—' }}</span>
+                                    <span v-else class="text-slate-300 dark:text-slate-700">—</span>
                                 </TableCell>
-                                <TableCell>
-                                    {{ person.gender ? trans('genders.' + person.gender) : '—' }}
+                                <TableCell class="text-left pl-10">
+                                    <span v-if="person.email">{{ formatDateDisplay(person.birth_date) }}</span>
+                                    <span v-else class="text-slate-300 dark:text-slate-700">—</span>
                                 </TableCell>
-                                <TableCell>
-                                    {{ formatDateDisplay(person.birth_date) }}
-                                </TableCell>
-                                <TableCell>
+                                <TableCell class="text-left pl-10">
                                     <span v-if="person.phone">{{ formatPhoneDisplay(person.phone) }}</span>
                                     <span v-else class="text-slate-300 dark:text-slate-700">—</span>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell class="text-left pl-16">
                                     <span v-if="person.email">{{ person.email }}</span>
                                     <span v-else class="text-slate-300 dark:text-slate-700">—</span>
                                 </TableCell>
