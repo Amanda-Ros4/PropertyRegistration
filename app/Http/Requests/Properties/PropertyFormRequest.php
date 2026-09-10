@@ -64,6 +64,7 @@ abstract class PropertyFormRequest extends FormRequest
                 'required',
                 'numeric',
                 'decimal:0,2',
+                'max:9999999999.99',
                 $this->mustBeZero(__('validation.land_area_must_be_zero')),
             ];
         }
@@ -75,6 +76,7 @@ abstract class PropertyFormRequest extends FormRequest
             'nullable',
             'numeric',
             'decimal:0,2',
+            'max:9999999999.99', // limite de digitos
             $required ? 'gt:0' : 'min:0',
         ];
     }
@@ -89,6 +91,7 @@ abstract class PropertyFormRequest extends FormRequest
                 'required',
                 'numeric',
                 'decimal:0,2',
+                'max:9999999999.99',
                 $this->mustBeZero(__('validation.building_area_must_be_zero')),
             ];
         }
@@ -100,6 +103,7 @@ abstract class PropertyFormRequest extends FormRequest
             'nullable',
             'numeric',
             'decimal:0,2',
+            'max:9999999999.99',
             $required ? 'gt:0' : 'min:0',
         ];
     }

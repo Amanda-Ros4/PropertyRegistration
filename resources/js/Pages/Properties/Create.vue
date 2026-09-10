@@ -245,6 +245,9 @@ function submit() {
                             >
                                 <Input
                                     :model-value="form.land_area"
+                                    type="number"
+                                    max="9999999999.99"
+                                    step="0.01"
                                     inputmode="decimal"
                                     :placeholder="trans('properties.placeholders.land_area')"
                                     :class="cn('w-full', form.errors.land_area && 'border-destructive')"
@@ -269,6 +272,9 @@ function submit() {
                             >
                                 <Input
                                     :model-value="form.building_area"
+                                    type="number"
+                                    max="9999999999.99"
+                                    step="0.01"
                                     inputmode="decimal"
                                     :placeholder="trans('properties.placeholders.building_area')"
                                     :class="cn('w-full', form.errors.building_area && 'border-destructive')"
