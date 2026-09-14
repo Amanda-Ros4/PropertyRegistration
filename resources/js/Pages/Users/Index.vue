@@ -59,77 +59,74 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
 
 <template>
     <AppLayout :title="trans('users.title')">
-
         <Head :title="trans('users.title')" />
 
-        <PageHeader :title="trans('users.title')" :subtitle="trans('users.subtitle')"
-            :createRoute="showCreateButton ? 'users.create' : null" :createLabel="trans('users.create')" />
+        <div class="max-w-7xl mx-auto space-y-6">
+            <!-- Cabeçalho -->
+            <PageHeader :title="trans('users.title')" :subtitle="trans('users.subtitle')"
+                :createRoute="showCreateButton ? 'users.create' : null" :createLabel="trans('users.create')" />
 
-        <FilterBar routeName="users.index" :heading="trans('users.filters.heading')"
-            :searchPlaceholder="trans('users.search_placeholder')" :initialSearch="filters.search" />
+            <!-- Card dos Filtros encapsulado em sua própria div, igual a Imóveis -->
+            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+                <FilterBar routeName="users.index" :heading="trans('users.filters.heading')"
+                    :searchPlaceholder="trans('users.search_placeholder')" :initialSearch="filters.search" />
+            </div>
 
-        <div
-            class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden p-6">
-            <EmptyState v-if="users.data.length === 0" icon="user" :title="trans('users.empty')"
-                :description="trans('users.empty_description')"
-                :actionLabel="showCreateButton ? trans('users.create') : null"
-                :actionRoute="showCreateButton ? 'users.create' : null" />
+            <!-- Card da Tabela com as cores slate -->
+            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-6">
+                <EmptyState v-if="users.data.length === 0" icon="user" :title="trans('users.empty')"
+                    :description="trans('users.empty_description')"
+                    :actionLabel="showCreateButton ? trans('users.create') : null"
+                    :actionRoute="showCreateButton ? 'users.create' : null" />
 
-            <template v-else>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead class="w-20">
-                                {{ trans('common.id') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('users.fields.name') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('users.fields.email') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('users.fields.profile') }}
-                            </TableHead>
-                            <TableHead>
-                                {{ trans('users.fields.active') }}
-                            </TableHead>
-                            <TableHead class="w-[100px]">
-                                {{ trans('common.actions') }}
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <TableRow v-for="user in users.data" :key="user.id">
-                            <TableCell>{{ user.id }}</TableCell>
-                            <TableCell>{{ user.name }}</TableCell>
-                            <TableCell>{{ user.email }}</TableCell>
-                            <TableCell>
-                                <StatusBadge :value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
-                                    :severity="profileSeverity[user.profile] || 'secondary'" />
-                            </TableCell>
-                            <TableCell>
-                                <StatusBadge
-                                    :value="trans(activeLabelKey[user.active] || 'users.active_status.inactive')"
-                                    :severity="activeSeverity[user.active] || 'secondary'" />
-                            </TableCell>
-                            <TableCell>
-                                <TableIconButton :icon="user.can_update ? 'pencil' : 'eye'"
-                                    :label="user.can_update ? trans('common.edit') : trans('common.view')"
-                                    @click="router.visit(route('users.edit', user.id))" />
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
+                <template v-else>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead class="w-20">{{ trans('common.id') }}</TableHead>
+                                <TableHead>{{ trans('users.fields.name') }}</TableHead>
+                                <TableHead>{{ trans('users.fields.email') }}</TableHead>
+                                <TableHead class="w-40">{{ trans('users.fields.profile') }}</TableHead>
+                                <TableHead class="w-32">{{ trans('users.fields.active') }}</TableHead>
+                                <TableHead class="w-28 flex justify-end items-center">
+                                    <span class="mr-1">{{ trans('common.actions') }}</span>
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow v-for="user in users.data" :key="user.id">
+                                <TableCell class="font-medium">{{ user.id }}</TableCell>
+                                <TableCell>{{ user.name }}</TableCell>
+                                <TableCell>{{ user.email }}</TableCell>
+                                <TableCell>
+                                    <StatusBadge
+                                        :value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
+                                        :severity="profileSeverity[user.profile] || 'secondary'" />
+                                </TableCell>
+                                <TableCell>
+                                    <StatusBadge
+                                        :value="trans(activeLabelKey[user.active] || 'users.active_status.inactive')"
+                                        :severity="activeSeverity[user.active] || 'secondary'" />
+                                </TableCell>
+                                <TableCell class="w-28 text-right">
+                                    <div class="flex items-center justify-end gap-1 shrink-0">
+                                        <TableIconButton :icon="user.can_update ? 'pencil' : 'eye'"
+                                            :label="user.can_update ? trans('common.edit') : trans('common.view')"
+                                            @click="router.visit(route('users.edit', user.id))" />
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
 
-                <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-800">
-                    <span class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ trans('common.showing') }} {{ users.from }} {{ trans('common.to') }} {{ users.to }} {{
-                        trans('common.of') }} {{ users.total }} {{ trans('common.records') }}
-                    </span>
-                    <InertiaPagination :paginator="users" route-name="users.index" :query="paginationQuery" />
-                </div>
-            </template>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <span class="text-sm text-slate-500 dark:text-slate-400">
+                            {{ trans('common.showing') }} {{ users.from }} {{ trans('common.to') }} {{ users.to }} {{ trans('common.of') }} {{ users.total }} {{ trans('common.records') }}
+                        </span>
+                        <InertiaPagination :paginator="users" route-name="users.index" :query="paginationQuery" />
+                    </div>
+                </template>
+            </div>
         </div>
     </AppLayout>
 </template>
