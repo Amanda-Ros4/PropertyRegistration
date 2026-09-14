@@ -100,7 +100,7 @@ function submit() {
 
         <!-- NOVO CONTAINER: Limita a largura do formulário e centraliza na tela -->
         <div class="max-w-5xl mx-auto w-full">
-            
+
             <PageHeader :title="trans('people.create')" backRoute="people.index" :backLabel="trans('common.back')" />
 
             <FormCard>
@@ -133,7 +133,8 @@ function submit() {
                         </FormField>
 
                         <FormField :label="trans('people.fields.birth_date')" :error="form.errors.birth_date" required>
-                            <BirthDateInput v-model="form.birth_date" :placeholder="trans('people.placeholders.birth_date')"
+                            <BirthDateInput v-model="form.birth_date"
+                                :placeholder="trans('people.placeholders.birth_date')"
                                 :invalid="!!form.errors.birth_date" @update:model-value="onBirthDateInput"
                                 @blur="validateField('birth_date')" />
                         </FormField>
@@ -149,7 +150,8 @@ function submit() {
                         </FormField>
 
                         <FormField :label="trans('people.fields.email')" :error="form.errors.email">
-                            <Input :model-value="form.email" type="email" :placeholder="trans('people.placeholders.email')"
+                            <Input :model-value="form.email" type="email"
+                                :placeholder="trans('people.placeholders.email')"
                                 :class="cn('w-full', form.errors.email && 'border-destructive')" :maxlength="100"
                                 @update:model-value="onEmailInput" @blur="validateField('email')" />
                         </FormField>
