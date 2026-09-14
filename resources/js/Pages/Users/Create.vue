@@ -1,15 +1,3 @@
-Exatamente. Aqui está o seu código completo já com as **três alterações** aplicadas:
-
-1. **Ícones de Visibilidade:** O `ref` do Vue e os ícones `Eye`/`EyeOff` foram importados no topo do script para fazer o
-botão do olho funcionar.
-2. **Limite e Olho:** Os campos de senha agora têm `:maxlength="60"`, o botão flutuante e mudam entre `text` e
-`password`.
-3. **Layout Ideal:** O "Perfil" foi movido para o lado do "CPF", e o "E-mail" passou a ocupar a linha inteira
-(`md:col-span-2`), deixando as duas senhas perfeitamente alinhadas no final.
-
-Pode substituir todo o conteúdo do seu arquivo por este:
-
-```vue
 <script setup>
 import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
