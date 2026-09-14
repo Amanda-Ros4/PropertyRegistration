@@ -185,5 +185,3 @@ function submit() {
         </div>
     </AppLayout>
 </template>
-
-```
