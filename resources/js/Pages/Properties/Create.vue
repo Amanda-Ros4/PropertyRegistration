@@ -186,16 +186,16 @@ function submit() {
 
         <Head :title="trans('properties.create')" />
 
-        <!-- Container centralizado que previne que o formulário estique excessivamente -->
+
         <div class="max-w-5xl mx-auto w-full space-y-6">
             <PageHeader :title="trans('properties.create')" backRoute="properties.index"
                 :backLabel="trans('common.back')" />
 
             <FormCard>
                 <form @submit.prevent="submit" class="space-y-6">
-                    <!-- Grid em 3 colunas para distribuição equilibrada -->
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Contribuinte ocupa toda a largura -->
+
                         <FormField class="md:col-span-3" :label="trans('properties.fields.owner')"
                             :error="form.errors.person_id" required>
                             <AppSelect v-model="form.person_id" :options="peopleOptions"
@@ -204,7 +204,6 @@ function submit() {
                                 @change="() => { form.clearErrors('person_id'); validateField('person_id'); }" />
                         </FormField>
 
-                        <!-- Tipo, Área Terreno, Área Edificação (1/3 cada) -->
                         <FormField class="md:col-span-1" :label="trans('properties.fields.type')"
                             :error="form.errors.type" required>
                             <AppSelect v-model="form.type" :options="typeOptions"
@@ -237,8 +236,7 @@ function submit() {
                                     @change="form.clearErrors('building_area')" />
                             </div>
                         </FormField>
-
-                        <!-- CEP compacto (1/3) e Logradouro maior (2/3) -->
+                        
                         <FormField class="md:col-span-1" :label="trans('properties.fields.cep')"
                             :error="cepErrorDisplay" :hint="trans('properties.hint_cep')">
                             <div class="relative">
@@ -265,7 +263,6 @@ function submit() {
                             </div>
                         </FormField>
 
-                        <!-- Número menor (1/3) e Bairro (2/3) -->
                         <FormField class="md:col-span-1" :label="trans('properties.fields.number')"
                             :error="form.errors.number" required>
                             <div @keydown.capture="blockNonDigitKey" @beforeinput.capture="blockNonDigitBeforeInput">
@@ -289,7 +286,6 @@ function submit() {
                             </div>
                         </FormField>
 
-                        <!-- Complemento em linha inteira -->
                         <FormField class="md:col-span-3" :label="trans('properties.fields.complement')"
                             :error="form.errors.complement">
                             <div @keydown.capture="blockDisallowedAddressKey"
@@ -302,7 +298,6 @@ function submit() {
                             </div>
                         </FormField>
 
-                        <!-- Documentos em linha inteira -->
                         <PropertyDocumentsField v-model="pendingDocuments" :errors="form.errors"
                             class="md:col-span-3" />
                     </div>
