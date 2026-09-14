@@ -59,6 +59,7 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
 
 <template>
     <AppLayout :title="trans('users.title')">
+
         <Head :title="trans('users.title')" />
 
         <div class="max-w-7xl mx-auto space-y-6">
@@ -67,13 +68,15 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
                 :createRoute="showCreateButton ? 'users.create' : null" :createLabel="trans('users.create')" />
 
             <!-- Card dos Filtros encapsulado em sua própria div, igual a Imóveis -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
                 <FilterBar routeName="users.index" :heading="trans('users.filters.heading')"
                     :searchPlaceholder="trans('users.search_placeholder')" :initialSearch="filters.search" />
             </div>
 
             <!-- Card da Tabela com as cores slate -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-6">
+            <div
+                class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-6">
                 <EmptyState v-if="users.data.length === 0" icon="user" :title="trans('users.empty')"
                     :description="trans('users.empty_description')"
                     :actionLabel="showCreateButton ? trans('users.create') : null"
@@ -83,12 +86,14 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead class="w-20">{{ trans('common.id') }}</TableHead>
-                                <TableHead>{{ trans('users.fields.name') }}</TableHead>
-                                <TableHead>{{ trans('users.fields.email') }}</TableHead>
-                                <TableHead class="w-40">{{ trans('users.fields.profile') }}</TableHead>
+                                <TableHead class="w-16">{{ trans('common.id') }}</TableHead>
+
+
+                                <TableHead class="w-[30%]">{{ trans('users.fields.name') }}</TableHead>
+                                <TableHead class="w-[30%]">{{ trans('users.fields.email') }}</TableHead>
+                                <TableHead class="w-56">{{ trans('users.fields.profile') }}</TableHead>
                                 <TableHead class="w-32">{{ trans('users.fields.active') }}</TableHead>
-                                <TableHead class="w-28 flex justify-end items-center">
+                                <TableHead class="w-24 text-right">
                                     <span class="mr-1">{{ trans('common.actions') }}</span>
                                 </TableHead>
                             </TableRow>
@@ -108,8 +113,9 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
                                         :value="trans(activeLabelKey[user.active] || 'users.active_status.inactive')"
                                         :severity="activeSeverity[user.active] || 'secondary'" />
                                 </TableCell>
-                                <TableCell class="w-28 text-right">
-                                    <div class="flex items-center justify-end gap-1 shrink-0">
+                                <TableCell class="w-24">
+                                    <!-- justify-end mantém na direita, e mr-2 empurra o ícone para o centro da palavra acima -->
+                                    <div class="flex items-center justify-end mr-2 gap-1 shrink-0">
                                         <TableIconButton :icon="user.can_update ? 'pencil' : 'eye'"
                                             :label="user.can_update ? trans('common.edit') : trans('common.view')"
                                             @click="router.visit(route('users.edit', user.id))" />
@@ -121,7 +127,8 @@ const showCreateButton = computed(() => props.canCreate && page.props.permission
 
                     <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
                         <span class="text-sm text-slate-500 dark:text-slate-400">
-                            {{ trans('common.showing') }} {{ users.from }} {{ trans('common.to') }} {{ users.to }} {{ trans('common.of') }} {{ users.total }} {{ trans('common.records') }}
+                            {{ trans('common.showing') }} {{ users.from }} {{ trans('common.to') }} {{ users.to }} {{
+                                trans('common.of') }} {{ users.total }} {{ trans('common.records') }}
                         </span>
                         <InertiaPagination :paginator="users" route-name="users.index" :query="paginationQuery" />
                     </div>

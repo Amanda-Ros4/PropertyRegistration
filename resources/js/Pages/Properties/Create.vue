@@ -187,7 +187,7 @@ function submit() {
         <Head :title="trans('properties.create')" />
 
         <!-- Container centralizado que previne que o formulário estique excessivamente -->
-        <div class="max-w-4xl mx-auto space-y-6">
+        <div class="max-w-5xl mx-auto w-full space-y-6">
             <PageHeader :title="trans('properties.create')" backRoute="properties.index"
                 :backLabel="trans('common.back')" />
 
@@ -307,7 +307,7 @@ function submit() {
                             class="md:col-span-3" />
                     </div>
 
-                    <div class="flex justify-end gap-3 pt-6 mt-6 border-t dark:border-gray-800">
+                    <div class="flex justify-end gap-3 pt-6 mt-6 border-t border-gray-100 dark:border-gray-800">
                         <SecondaryButton type="button" @click="router.visit(route('properties.index'))">
                             {{ trans('common.cancel') }}
                         </SecondaryButton>
