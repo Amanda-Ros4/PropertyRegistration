@@ -177,8 +177,9 @@ function submit() {
                             <div class="w-full" @keydown.capture="canUpdate ? blockNonLetterNameKey : null"
                                 @beforeinput.capture="canUpdate ? blockNonLetterNameBeforeInput : null">
                                 <Input :model-value="form.name" :placeholder="trans('users.placeholders.name')"
-                                    :class="cn('w-full', form.errors.name && 'border-destructive')" :disabled="!canUpdate"
-                                    @update:model-value="onNameInput" @blur="canUpdate ? validateField('name') : null" />
+                                    :class="cn('w-full', form.errors.name && 'border-destructive')"
+                                    :disabled="!canUpdate" @update:model-value="onNameInput"
+                                    @blur="canUpdate ? validateField('name') : null" />
                             </div>
                         </FormField>
 
@@ -192,7 +193,8 @@ function submit() {
                             <AppSelect v-if="canChangeProfile" v-model="form.profile" :options="profileSelectOptions"
                                 :placeholder="trans('users.placeholders.profile')" :invalid="!!form.errors.profile"
                                 class="w-full" @change="validateField('profile')" />
-                            <Input v-else :model-value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
+                            <Input v-else
+                                :model-value="trans(profileLabelKey[user.profile] || 'users.profiles.attendant')"
                                 class="w-full" disabled readonly />
                         </FormField>
 
@@ -208,8 +210,8 @@ function submit() {
                         <FormField v-if="canUpdate" :label="trans('users.fields.password')"
                             :hint="trans('users.password_optional_hint')" :error="form.errors.password">
                             <div class="relative">
-                                <Input v-model="form.password" :type="showPassword ? 'text' : 'password'" :maxlength="60"
-                                    :placeholder="trans('users.placeholders.password_optional')"
+                                <Input v-model="form.password" :type="showPassword ? 'text' : 'password'"
+                                    :maxlength="60" :placeholder="trans('users.placeholders.password_optional')"
                                     :class="cn('w-full pr-10', form.errors.password && 'border-destructive')"
                                     @blur="validateField('password')" />
                                 <button type="button" tabindex="-1"
@@ -221,10 +223,11 @@ function submit() {
                             </div>
                         </FormField>
 
-                        <FormField v-if="canUpdate" :label="trans('users.fields.password_confirmation')" 
+                        <FormField v-if="canUpdate" :label="trans('users.fields.password_confirmation')"
                             :error="form.errors.password_confirmation">
                             <div class="relative">
-                                <Input v-model="form.password_confirmation" :type="showPasswordConfirm ? 'text' : 'password'" :maxlength="60"
+                                <Input v-model="form.password_confirmation"
+                                    :type="showPasswordConfirm ? 'text' : 'password'" :maxlength="60"
                                     :class="cn('w-full pr-10', form.errors.password_confirmation && 'border-destructive')"
                                     @blur="validateField('password_confirmation')" />
                                 <button type="button" tabindex="-1"

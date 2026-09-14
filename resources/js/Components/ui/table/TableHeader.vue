@@ -16,10 +16,10 @@ const props = defineProps({
         // Fixa o cabeçalho no topo
         'sticky top-0 z-10',
         
-        // Cores exatas copiadas da sua página de Auditoria
+        // Cores exatas padronizadas
         'bg-gray-50 dark:bg-gray-950/50',
         
-        // Bordas exatas copiadas da sua página de Auditoria
+        // Bordas exatas padronizadas
         'border-b border-gray-100 dark:border-gray-800',
         
         // Mantém a regra que remove o hover/zebra das linhas do cabeçalho
