@@ -10,23 +10,25 @@ const props = defineProps({
 });
 </script>
 <template>
-  <thead :class="cn(
-    // Fixa o cabeçalho no topo
-    'sticky top-0 z-10',
-
-    // COR FIXA: Escurece a linha no modo Light (gray-100) e mantém no Dark (gray-900)
-    'bg-gray-100 dark:bg-gray-900',
-
-    // Bordas que combinam com o tema
-    'border-b border-gray-200 dark:border-gray-800',
-
-    // FORÇA A REMOÇÃO DO HOVER E ZEBRA: O sinal '!' (important) garante que as 
-    // classes do TableRow não consigam sobrescrever esta regra no cabeçalho
-    '[&_tr]:!bg-transparent [&_tr]:hover:!bg-transparent',
-
-    props.class
-  )
-    ">
+  <thead
+    :class="
+      cn(
+        // Fixa o cabeçalho no topo
+        'sticky top-0 z-10',
+        
+        // Cores exatas copiadas da sua página de Auditoria
+        'bg-gray-50 dark:bg-gray-950/50',
+        
+        // Bordas exatas copiadas da sua página de Auditoria
+        'border-b border-gray-100 dark:border-gray-800',
+        
+        // Mantém a regra que remove o hover/zebra das linhas do cabeçalho
+        '[&_tr]:!bg-transparent [&_tr]:hover:!bg-transparent',
+        
+        props.class
+      )
+    "
+  >
     <slot />
   </thead>
 </template>
