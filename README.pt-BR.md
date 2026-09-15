@@ -21,9 +21,6 @@ Sistema de cadastro de imóveis com Laravel 12, Vue 3, Inertia.js (SSR), Jetstre
 | Relatórios   | barryvdh/laravel-dompdf             |
 | Build        | Vite 7 + SSR                        |
 
-> **Observação:** o edital do projeto cita **Vuetify**; a biblioteca de UI implementada é o **shadcn-vue**, integrada em todo o frontend.
-
----
 
 ## Requisitos
 
