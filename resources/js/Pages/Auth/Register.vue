@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AuthTextLink from '@/Components/AuthTextLink.vue';
@@ -13,6 +13,9 @@ import TextInput from '@/Components/TextInput.vue';
 import { AUTH_LINK_CLASS } from '@/lib/auth-ui';
 import { CPF_INPUT_MAX_LENGTH, formatCpfInput } from '@/utils/formatting';
 
+const showPassword = ref(false);
+const showPasswordConfirmation = ref(false);
+
 const form = useForm({
     name: '',
     cpf: '',
@@ -22,23 +25,36 @@ const form = useForm({
     terms: false,
 });
 
-const cpfModel = computed({
-    get() {
-        return form.cpf;
-    },
-    set(value) {
-        form.cpf = formatCpfInput(value);
-    },
-});
+// 2. A função nova blindada para tratar o CPF
+const handleCpfInput = (value) => {
+    // Garante que é texto e remove tudo que não for número
+    let cleaned = (value || '').replace(/\D/g, '');
+    
+    // Aplica a máscara do CPF
+    cleaned = cleaned.replace(/(\d{3})(\d)/, '$1.$2');
+    cleaned = cleaned.replace(/(\d{3})(\d)/, '$1.$2');
+    cleaned = cleaned.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 
+    // O truque mágico do Vue para forçar a exclusão de letras da tela
+    if (form.cpf === cleaned) {
+        form.cpf = ''; // Zera rapidamente
+        nextTick(() => {
+            form.cpf = cleaned; // Devolve o valor limpo na mesma hora
+        });
+    } else {
+        form.cpf = cleaned;
+    }
+};
 const submit = () => {
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
+
 </script>
 
 <template>
+
     <Head :title="trans('auth.register')" />
 
     <AuthenticationCard>
@@ -49,70 +65,81 @@ const submit = () => {
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="name" :value="trans('common.name')" />
-                <TextInput
-                    id="name"
-                    v-model="form.name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
+                <TextInput id="name" v-model="form.name" type="text" class="mt-1 block w-full" required autofocus
+                    autocomplete="name" />
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
 
             <div class="mt-4">
                 <InputLabel for="cpf" :value="trans('people.fields.cpf')" />
-                <TextInput
-                    id="cpf"
-                    v-model="cpfModel"
-                    type="text"
-                    class="mt-1 block w-full"
-                    required
-                    inputmode="numeric"
-                    autocomplete="off"
-                    :maxlength="CPF_INPUT_MAX_LENGTH"
-                    :placeholder="trans('people.placeholders.cpf')"
-                />
+                <TextInput id="cpf" v-model="cpfModel" type="text" class="mt-1 block w-full" required
+                    inputmode="numeric" autocomplete="off" :maxlength="CPF_INPUT_MAX_LENGTH"
+                    :placeholder="trans('people.placeholders.cpf')" />
                 <InputError class="mt-2" :message="form.errors.cpf" />
             </div>
 
             <div class="mt-4">
                 <InputLabel for="email" :value="trans('auth.email')" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="username"
-                />
+                <TextInput id="email" v-model="form.email" type="email" class="mt-1 block w-full" required
+                    autocomplete="username" />
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
+
             <div class="mt-4">
                 <InputLabel for="password" :value="trans('auth.password')" />
-                <TextInput
-                    id="password"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
+                <div class="relative mt-1">
+                    <TextInput id="password" v-model="form.password" maxlength="60"
+                        :type="showPassword ? 'text' : 'password'" class="block w-full pr-10" required
+                        autocomplete="new-password" />
+                    <button type="button" @click="showPassword = !showPassword"
+                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                            <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68">
+                            </path>
+                            <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                            <line x1="2" x2="22" y1="2" y2="22"></line>
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
+
             <div class="mt-4">
                 <InputLabel for="password_confirmation" :value="trans('auth.password_confirmation')" />
-                <TextInput
-                    id="password_confirmation"
-                    v-model="form.password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
+                <div class="relative mt-1">
+                    <TextInput id="password_confirmation" v-model="form.password_confirmation" maxlength="60"
+                        :type="showPasswordConfirmation ? 'text' : 'password'" class="block w-full pr-10" required
+                        autocomplete="new-password" />
+                    <button type="button" @click="showPasswordConfirmation = !showPasswordConfirmation"
+                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg v-if="!showPasswordConfirmation" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                            <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68">
+                            </path>
+                            <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                            <line x1="2" x2="22" y1="2" y2="22"></line>
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
                 <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
@@ -122,7 +149,11 @@ const submit = () => {
                         <Checkbox id="terms" v-model:checked="form.terms" name="terms" required />
 
                         <div class="ms-2 text-sm text-gray-600 dark:text-gray-100">
-                            I agree to the <a target="_blank" :href="route('terms.show')" :class="AUTH_LINK_CLASS">Terms of Service</a> and <a target="_blank" :href="route('policy.show')" :class="AUTH_LINK_CLASS">Privacy Policy</a>
+                            I agree to the <a target="_blank" :href="route('terms.show')" :class="AUTH_LINK_CLASS">Terms
+                                of
+                                Service</a> and <a target="_blank" :href="route('policy.show')"
+                                :class="AUTH_LINK_CLASS">Privacy
+                                Policy</a>
                         </div>
                     </div>
                     <InputError class="mt-2" :message="form.errors.terms" />
@@ -130,12 +161,8 @@ const submit = () => {
             </div>
 
             <div class="mt-6">
-                <PrimaryButton
-                    type="submit"
-                    class="w-full"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
+                <PrimaryButton type="submit" class="w-full" :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing">
                     {{ trans('auth.register') }}
                 </PrimaryButton>
             </div>
