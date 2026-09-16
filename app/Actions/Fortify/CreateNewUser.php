@@ -30,7 +30,7 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make(
             array_merge($input, ['cpf' => $cpfDigits]),
             [
-                'name' => ['required', 'string', 'max:255'],
+                'name' => ['required', 'string', 'max:100'],
                 'cpf' => ['required', 'string', new ValidCpf, Rule::unique('users', 'cpf')],
                 'email' => array_merge(EmailValidation::rules(required: true), [Rule::unique('users', 'email')]),
                 'password' => $this->passwordRules(),

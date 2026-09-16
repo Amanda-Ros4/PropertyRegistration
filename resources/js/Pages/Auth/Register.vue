@@ -25,21 +25,20 @@ const form = useForm({
     terms: false,
 });
 
-// 2. A função nova blindada para tratar o CPF
+
 const handleCpfInput = (value) => {
-    // Garante que é texto e remove tudo que não for número
+
     let cleaned = (value || '').replace(/\D/g, '');
-    
+
     // Aplica a máscara do CPF
     cleaned = cleaned.replace(/(\d{3})(\d)/, '$1.$2');
     cleaned = cleaned.replace(/(\d{3})(\d)/, '$1.$2');
     cleaned = cleaned.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 
-    // O truque mágico do Vue para forçar a exclusão de letras da tela
     if (form.cpf === cleaned) {
-        form.cpf = ''; // Zera rapidamente
+        form.cpf = '';
         nextTick(() => {
-            form.cpf = cleaned; // Devolve o valor limpo na mesma hora
+            form.cpf = cleaned;
         });
     } else {
         form.cpf = cleaned;
@@ -65,8 +64,16 @@ const submit = () => {
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="name" :value="trans('common.name')" />
-                <TextInput id="name" v-model="form.name" type="text" class="mt-1 block w-full" required autofocus
-                    autocomplete="name" />
+                <TextInput 
+                id="name" 
+                v-model="form.name" 
+                type="text" 
+                class="mt-1 block w-full" 
+                required 
+                autofocus
+                autocomplete="name" 
+                maxlength="100"
+            />
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
 

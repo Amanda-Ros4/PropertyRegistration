@@ -21,8 +21,6 @@ Real estate registration system built with Laravel 12, Vue 3, Inertia.js (SSR), 
 | Reports      | barryvdh/laravel-dompdf             |
 | Build        | Vite 7 + SSR                        |
 
-> **Note:** The project specification mentions Vuetify; the implemented UI library is **shadcn-vue**, integrated throughout the frontend.
-
 ---
 
 ## Requirements
