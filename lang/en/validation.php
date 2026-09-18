@@ -13,6 +13,22 @@ return [
     'max' => [
         'string' => 'The :attribute field must not be greater than :max characters.',
     ],
+    'password' => [
+        'letters' => 'The :attribute field must contain at least one letter.',
+        'mixed' => 'The :attribute field must contain at least one uppercase and one lowercase letter.',
+        'numbers' => 'The :attribute field must contain at least one number.',
+        'symbols' => 'The :attribute field must contain at least one symbol.',
+        'uncompromised' => 'The given :attribute has appeared in a data leak. Please choose a different :attribute.',
+    ],
+    'min' => [
+        'string' => 'The :attribute field must be at least :min characters.',
+    ],
+    'password_rules' => [
+        'length' => 'The password must be at least 8 characters, including:',
+        'uppercase' => 'One uppercase letter',
+        'lowercase' => 'One lowercase letter',
+        'symbol' => 'One symbol (e.g., @, #, $, %)',
+    ],
     'invalid_cpf' => 'The CPF provided is not valid.',
     'cpf_taken' => 'This CPF is already registered.',
     'email_invalid' => 'Please enter a valid email address.',

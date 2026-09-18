@@ -29,7 +29,6 @@
     "welcome.security_title": "Operación estandarizada",
     "welcome.security_description": "La navegación, el idioma y la estructura visual fueron organizados para favorecer claridad y productividad en las rutinas administrativas.",
     "welcome.footer": "Construido con",
-
     "common.save": "Guardar",
     "common.cancel": "Cancelar",
     "common.edit": "Editar",
@@ -60,16 +59,13 @@
     "common.showing": "Mostrando",
     "common.to": "a",
     "common.of": "de",
-
     "theme.toggle": "Cambiar tema",
     "theme.dark": "Modo oscuro",
     "theme.light": "Modo claro",
-
     "language.label": "Idioma",
     "language.en": "English",
     "language.pt_BR": "Português",
     "language.es": "Español",
-
     "nav.home": "Inicio",
     "nav.dashboard": "Inicio",
     "nav.people": "Personas",
@@ -78,7 +74,6 @@
     "nav.audit": "Auditoría",
     "nav.settings": "Configuración",
     "nav.toggle_sidebar": "Mostrar/ocultar menú",
-
     "auth.login": "Iniciar sesión",
     "auth.register": "Registrarse",
     "auth.logout": "Cerrar sesión",
@@ -111,7 +106,6 @@
     "auth.confirm_password_intro": "Esta es un área segura de la aplicación. Confirme su contraseña antes de continuar.",
     "The provided two factor authentication code was invalid.": "El código de autenticación en dos pasos informado no es válido.",
     "The provided two factor recovery code was invalid.": "El código de recuperación informado no es válido.",
-
     "dashboard.title": "Panel",
     "dashboard.context": "Secretaría de Hacienda · Operación del IPTU",
     "dashboard.welcome": "Panel operativo del registro inmobiliario",
@@ -125,7 +119,6 @@
     "dashboard.view_all": "Ver todas",
     "dashboard.no_people": "Aún no hay personas registradas.",
     "dashboard.no_properties": "Aún no hay propiedades registradas.",
-
     "people.title": "Personas",
     "people.subtitle": "Gestiona las personas registradas",
     "people.create": "Nueva Persona",
@@ -157,7 +150,6 @@
     "people.delete_confirm_title": "Eliminar persona",
     "people.delete_confirm_message": "¿Está seguro de que desea eliminar esta persona? Esta acción no se puede deshacer.",
     "people.delete_confirm_message_detail": "¿Está seguro de que desea eliminar a \":name\"? Esta acción no se puede deshacer.",
-
     "properties.title": "Propiedades",
     "properties.subtitle": "Gestiona las propiedades registradas",
     "properties.create": "Nueva Propiedad",
@@ -236,7 +228,6 @@
     "properties.documents.invalid_type": "El archivo :name no es un formato permitido. Use JPG, JPEG, PNG o PDF.",
     "properties.documents.too_large": "El archivo :name supera el tamaño máximo de 3 MB.",
     "properties.documents.download": "Descargar",
-
     "properties.endorsements.title": "Averbaciones",
     "properties.endorsements.hint": "Registre cambios y observaciones sobre el inmueble. Cancelación y Reactivación cambian la situación del registro.",
     "properties.endorsements.save": "Registrar averbación",
@@ -255,7 +246,6 @@
     "properties.endorsements.events.observation": "Observación",
     "properties.endorsements.events.cancellation": "Cancelación",
     "properties.endorsements.events.reactivation": "Reactivación",
-
     "properties.reports.synthetic": "Informe PDF",
     "properties.reports.individual": "Informe del inmueble",
     "properties.reports.synthetic_title": "Informe de inmuebles",
@@ -273,7 +263,6 @@
     "reports.municipality": "PREFEITURA MUNICIPAL DE SÃO LEOPOLDO",
     "reports.state": "Estado do Rio Grande do Sul",
     "reports.page_of": "de",
-
     "users.title": "Usuarios",
     "users.subtitle": "Registre y gestione empleados y pasantes con acceso al sistema",
     "users.create": "Nuevo usuario",
@@ -312,12 +301,10 @@
     "users.hint_active_readonly": "Puede visualizar, pero no cambiar el estado de este usuario.",
     "users.hint_cannot_deactivate_self": "No puede desactivar su propio usuario. Pida a otro administrador.",
     "users.hint_profile_self_readonly": "Solo TI puede cambiar su propio perfil.",
-
     "genders.male": "Masculino",
     "genders.female": "Femenino",
     "genders.other": "Otro",
     "genders.prefer_not_to_say": "Prefiero no decirlo",
-
     "validation.required": "El campo :attribute es obligatorio.",
     "validation.email": "El campo :attribute debe ser una dirección de correo válida.",
     "validation.date": "El campo :attribute debe ser una fecha válida.",
@@ -346,18 +333,19 @@
     "validation.date_future": "La fecha de nacimiento no puede ser una fecha futura.",
     "validation.max_length": "El campo :attribute no debe exceder :max caracteres.",
     "validation.owner_not_found": "El propietario seleccionado no pertenece a su cuenta.",
-
+    "validation.password_rules.length": "Al menos 8 caracteres",
+    "validation.password_rules.uppercase": "Al menos una letra mayúscula",
+    "validation.password_rules.lowercase": "Al menos una letra minúscula",
+    "validation.password_rules.symbol": "Al menos un carácter especial",
     "errors.not_found": "Registro no encontrado.",
     "errors.unauthorized": "No está autorizado para realizar esta acción.",
     "errors.server": "Ocurrió un error inesperado. Por favor, inténtelo de nuevo.",
-
     "toast.success_summary": "Éxito",
     "toast.error_summary": "Atención",
     "toast.warn_summary": "Aviso",
     "toast.info_summary": "Información",
     "toast.validation_summary": "No se pudo guardar",
     "toast.validation_generic": "Revise los campos del formulario e inténtelo de nuevo.",
-
     "audit.title": "Consulta de auditoría",
     "audit.subtitle": "Historial de las operaciones realizadas en el sistema",
     "audit.details_title": "Detalles de auditoría #:id",
@@ -395,7 +383,6 @@
     "audit.tables.people": "Personas",
     "audit.tables.properties": "Inmuebles",
     "audit.tables.property_endorsements": "Averbaciones",
-
     "profile.title": "Perfil",
     "profile.information.title": "Información del Perfil",
     "profile.information.description": "Actualice la información de su perfil y dirección de correo electrónico.",
@@ -406,13 +393,11 @@
     "profile.information.email_unverified": "Su dirección de correo electrónico no está verificada.",
     "profile.information.resend_verification": "Haga clic aquí para reenviar el correo de verificación.",
     "profile.information.verification_sent": "Se ha enviado un nuevo enlace de verificación a su correo electrónico.",
-
     "profile.password.title": "Actualizar Contraseña",
     "profile.password.description": "Asegúrese de que su cuenta utilice una contraseña larga y aleatoria para mantenerse segura.",
     "profile.password.current": "Contraseña Actual",
     "profile.password.new": "Nueva Contraseña",
     "profile.password.confirm": "Confirmar Contraseña",
-
     "profile.two_factor.title": "Autenticación en Dos Factores",
     "profile.two_factor.description": "Añada seguridad adicional a su cuenta usando autenticación en dos factores.",
     "profile.two_factor.enabled": "Ha habilitado la autenticación en dos factores.",
@@ -429,7 +414,6 @@
     "profile.two_factor.regenerate_codes": "Regenerar Códigos de Recuperación",
     "profile.two_factor.show_codes": "Mostrar Códigos de Recuperación",
     "profile.two_factor.disable": "Deshabilitar",
-
     "profile.sessions.title": "Sesiones del Navegador",
     "profile.sessions.description": "Administre y cierre sus sesiones activas en otros navegadores y dispositivos.",
     "profile.sessions.info": "Si es necesario, puede cerrar sesión en todas sus otras sesiones en todos sus dispositivos. Algunas de sus sesiones recientes se enumeran a continuación; sin embargo, esta lista puede no ser exhaustiva. Si cree que su cuenta ha sido comprometida, también debe actualizar su contraseña.",
@@ -440,12 +424,10 @@
     "profile.sessions.done": "Listo.",
     "profile.sessions.modal_title": "Cerrar Otras Sesiones",
     "profile.sessions.modal_content": "Ingrese su contraseña para confirmar que desea cerrar sesión en sus otras sesiones en todos sus dispositivos.",
-
     "profile.delete.title": "Eliminar Cuenta",
     "profile.delete.description": "Eliminar permanentemente su cuenta.",
     "profile.delete.info": "Una vez que su cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Antes de eliminar su cuenta, descargue cualquier dato o información que desee conservar.",
     "profile.delete.confirm_question": "¿Está seguro de que desea eliminar su cuenta? Una vez eliminada, todos sus recursos y datos serán eliminados permanentemente. Ingrese su contraseña para confirmar que desea eliminar permanentemente su cuenta.",
-
     "profile.confirm_password.title": "Confirmar Contraseña",
     "profile.confirm_password.content": "Por su seguridad, confirme su contraseña para continuar."
 }

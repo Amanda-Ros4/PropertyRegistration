@@ -10,10 +10,26 @@ return [
     'integer' => 'O campo :attribute deve ser um número inteiro.',
     'unique' => 'Este :attribute já está cadastrado.',
     'exists' => 'O :attribute selecionado é inválido.',
-    
+
     'enum' => 'O valor selecionado para :attribute é inválido.',
     'max' => [
         'string' => 'O campo :attribute não deve ter mais de :max caracteres.',
+    ],
+    'password' => [
+        'letters' => 'O campo :attribute deve conter pelo menos uma letra.',
+        'mixed' => 'O campo :attribute deve conter pelo menos uma letra maiúscula e uma minúscula.',
+        'numbers' => 'O campo :attribute deve conter pelo menos um número.',
+        'symbols' => 'O campo :attribute deve conter pelo menos um símbolo.',
+        'uncompromised' => 'A senha fornecida em :attribute apareceu em um vazamento de dados. Escolha uma senha diferente.',
+    ],
+    'min' => [
+        'string' => 'O campo :attribute deve ter pelo menos :min caracteres.',
+    ],
+    'password_rules' => [
+        'length' => 'A senha deve conter no mínimo 8 caracteres, incluindo:',
+        'uppercase' => 'Uma letra maiúscula',
+        'lowercase' => 'Uma letra minúscula',
+        'symbol' => 'Um símbolo (ex: @, #, $, %)',
     ],
     'invalid_cpf' => 'O CPF informado não é válido.',
     'cpf_taken' => 'Este CPF já está cadastrado.',

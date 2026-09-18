@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch, nextTick } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import AuthTextLink from '@/Components/AuthTextLink.vue';
@@ -25,25 +25,37 @@ const form = useForm({
     terms: false,
 });
 
-
-const handleCpfInput = (value) => {
-
-    let cleaned = (value || '').replace(/\D/g, '');
-
-    // Aplica a máscara do CPF
-    cleaned = cleaned.replace(/(\d{3})(\d)/, '$1.$2');
-    cleaned = cleaned.replace(/(\d{3})(\d)/, '$1.$2');
-    cleaned = cleaned.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-
-    if (form.cpf === cleaned) {
-        form.cpf = '';
+watch(() => form.name, (newValue) => {
+    if (!newValue) return;
+    const clean = newValue.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
+    if (newValue !== clean) {
         nextTick(() => {
-            form.cpf = cleaned;
+            form.name = clean;
         });
-    } else {
-        form.cpf = cleaned;
     }
-};
+});
+
+watch(() => form.cpf, (newValue) => {
+    if (!newValue) return;
+
+    let clean = String(newValue).replace(/\D/g, '').substring(0, 11);
+    let formatted = clean;
+
+    if (clean.length > 9) {
+        formatted = clean.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4');
+    } else if (clean.length > 6) {
+        formatted = clean.replace(/^(\d{3})(\d{3})(\d{1,3}).*/, '$1.$2.$3');
+    } else if (clean.length > 3) {
+        formatted = clean.replace(/^(\d{3})(\d{1,3}).*/, '$1.$2');
+    }
+
+    if (newValue !== formatted) {
+        nextTick(() => {
+            form.cpf = formatted;
+        });
+    }
+});
+
 const submit = () => {
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
@@ -64,34 +76,24 @@ const submit = () => {
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="name" :value="trans('common.name')" />
-                <TextInput 
-                id="name" 
-                v-model="form.name" 
-                type="text" 
-                class="mt-1 block w-full" 
-                required 
-                autofocus
-                autocomplete="name" 
-                maxlength="100"
-            />
+                <TextInput id="name" v-model="form.name" type="text" class="mt-1 block w-full" required autofocus
+                    autocomplete="name" maxlength="100" />
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
 
             <div class="mt-4">
                 <InputLabel for="cpf" :value="trans('people.fields.cpf')" />
-                <TextInput id="cpf" v-model="cpfModel" type="text" class="mt-1 block w-full" required
-                    inputmode="numeric" autocomplete="off" :maxlength="CPF_INPUT_MAX_LENGTH"
-                    :placeholder="trans('people.placeholders.cpf')" />
+                <TextInput id="cpf" v-model="form.cpf" type="text" inputmode="numeric" class="mt-1 block w-full"
+                    required autocomplete="off" maxlength="14" :placeholder="trans('people.placeholders.cpf')" />
                 <InputError class="mt-2" :message="form.errors.cpf" />
             </div>
 
             <div class="mt-4">
                 <InputLabel for="email" :value="trans('auth.email')" />
                 <TextInput id="email" v-model="form.email" type="email" class="mt-1 block w-full" required
-                    autocomplete="username" />
+                    autocomplete="username" maxlength="100" />
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
-
 
             <div class="mt-4">
                 <InputLabel for="password" :value="trans('auth.password')" />
@@ -118,9 +120,18 @@ const submit = () => {
                         </svg>
                     </button>
                 </div>
+
+                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    <p>{{ trans('validation.password_rules.length') }}</p>
+                    <ul class="list-disc list-inside mt-1">
+                        <li>{{ trans('validation.password_rules.uppercase') }}</li>
+                        <li>{{ trans('validation.password_rules.lowercase') }}</li>
+                        <li>{{ trans('validation.password_rules.symbol') }}</li>
+                    </ul>
+                </div>
+
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
-
 
             <div class="mt-4">
                 <InputLabel for="password_confirmation" :value="trans('auth.password_confirmation')" />
@@ -154,7 +165,6 @@ const submit = () => {
                 <InputLabel for="terms">
                     <div class="flex items-center">
                         <Checkbox id="terms" v-model:checked="form.terms" name="terms" required />
-
                         <div class="ms-2 text-sm text-gray-600 dark:text-gray-100">
                             I agree to the <a target="_blank" :href="route('terms.show')" :class="AUTH_LINK_CLASS">Terms
                                 of

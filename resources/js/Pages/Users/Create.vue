@@ -127,35 +127,45 @@ function submit() {
                         </FormField>
 
                         <FormField :label="trans('users.fields.password')" :error="form.errors.password" required>
-                            <div class="relative">
-                                <Input v-model="form.password" :type="showPassword ? 'text' : 'password'"
-                                    :maxlength="60"
-                                    :class="cn('w-full pr-10', form.errors.password && 'border-destructive')"
-                                    @blur="validateField('password')" />
-                                <button type="button" tabindex="-1"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                                    @click="showPassword = !showPassword">
-                                    <EyeOff v-if="showPassword" class="w-4 h-4" />
-                                    <Eye v-else class="w-4 h-4" />
-                                </button>
-                            </div>
-                        </FormField>
+    <div class="relative">
+        <Input v-model="form.password" :type="showPassword ? 'text' : 'password'"
+            :maxlength="60"
+            :class="cn('w-full pr-10', form.errors.password && 'border-destructive')"
+            @blur="validateField('password')" />
+        <button type="button" tabindex="-1"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            @click="showPassword = !showPassword">
+            <EyeOff v-if="showPassword" class="w-4 h-4" />
+            <Eye v-else class="w-4 h-4" />
+        </button>
+    </div>
 
-                        <FormField :label="trans('users.fields.password_confirmation')"
-                            :error="form.errors.password_confirmation" required>
-                            <div class="relative">
-                                <Input v-model="form.password_confirmation"
-                                    :type="showPasswordConfirm ? 'text' : 'password'" :maxlength="60"
-                                    :class="cn('w-full pr-10', form.errors.password_confirmation && 'border-destructive')"
-                                    @blur="validateField('password_confirmation')" />
-                                <button type="button" tabindex="-1"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                                    @click="showPasswordConfirm = !showPasswordConfirm">
-                                    <EyeOff v-if="showPasswordConfirm" class="w-4 h-4" />
-                                    <Eye v-else class="w-4 h-4" />
-                                </button>
-                            </div>
-                        </FormField>
+    <!-- O BLOCO DE REGRAS DEVE FICAR AQUI -->
+    <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <p>{{ trans('validation.password_rules.length') }}</p>
+        <ul class="list-disc list-inside mt-1">
+            <li>{{ trans('validation.password_rules.uppercase') }}</li>
+            <li>{{ trans('validation.password_rules.lowercase') }}</li>
+            <li>{{ trans('validation.password_rules.symbol') }}</li>
+        </ul>
+    </div>
+</FormField>
+
+<FormField :label="trans('users.fields.password_confirmation')"
+    :error="form.errors.password_confirmation" required>
+    <div class="relative">
+        <Input v-model="form.password_confirmation"
+            :type="showPasswordConfirm ? 'text' : 'password'" :maxlength="60"
+            :class="cn('w-full pr-10', form.errors.password_confirmation && 'border-destructive')"
+            @blur="validateField('password_confirmation')" />
+        <button type="button" tabindex="-1"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            @click="showPasswordConfirm = !showPasswordConfirm">
+            <EyeOff v-if="showPasswordConfirm" class="w-4 h-4" />
+            <Eye v-else class="w-4 h-4" />
+        </button>
+    </div>
+</FormField>
 
                     </div>
 

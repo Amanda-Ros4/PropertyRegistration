@@ -13,6 +13,23 @@ return [
     'max' => [
         'string' => 'El campo :attribute no debe tener más de :max caracteres.',
     ],
+    
+    'password' => [
+        'letters' => 'El campo :attribute debe contener al menos una letra.',
+        'mixed' => 'El campo :attribute debe contener al menos una letra mayúscula y una minúscula.',
+        'numbers' => 'El campo :attribute debe contener al menos un número.',
+        'symbols' => 'El campo :attribute debe contener al menos un símbolo.',
+        'uncompromised' => 'La contraseña proporcionada en :attribute ha aparecido en una filtración de datos. Elija una diferente.',
+    ],
+    'min' => [
+        'string' => 'El campo :attribute debe tener al menos :min caracteres.',
+    ],
+    'password_rules' => [
+        'length' => 'La contraseña debe contener al menos 8 caracteres, incluyendo:',
+        'uppercase' => 'Una letra mayúscula',
+        'lowercase' => 'Una letra minúscula',
+        'symbol' => 'Un símbolo (ej: @, #, $, %)',
+    ],
     'invalid_cpf' => 'El CPF proporcionado no es válido.',
     'cpf_taken' => 'Este CPF ya está registrado.',
     'email_invalid' => 'Por favor, ingrese una dirección de correo válida.',
