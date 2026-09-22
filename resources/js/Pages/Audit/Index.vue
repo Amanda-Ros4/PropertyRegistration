@@ -10,6 +10,14 @@ import AuditFilters from '@/Components/AuditFilters.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import InertiaPagination from '@/Components/InertiaPagination.vue';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/Components/ui/table';
 
 const props = defineProps({
     logs: { type: Object, required: true },
@@ -78,74 +86,64 @@ function formatDateTime(value) {
 
                 <template v-else>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left">
-    <thead class="bg-slate-50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
-        <tr>
-            <th class="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-20">
-                {{ trans('audit.fields.id') }}
-            </th>
-            <th class="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">
-                {{ trans('audit.fields.user') }}
-            </th>
-            <th class="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-32">
-                {{ trans('audit.fields.event') }}
-            </th>
-            <th class="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-48">
-                {{ trans('audit.fields.datetime') }}
-            </th>
-            <th class="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-36">
-                {{ trans('audit.fields.table') }}
-            </th>
-            <th class="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-32">
-                {{ trans('audit.fields.audited_id') }}
-            </th>
-            <!-- Coluna de Detalhes centralizada para melhor estética -->
-            <th class="px-4 py-3 text-center font-semibold text-slate-600 dark:text-slate-300 w-24">
-                {{ trans('audit.fields.details') }}
-            </th>
-        </tr>
-    </thead>
-    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-        <tr v-for="row in rows" :key="row.id"
-            class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-            
-            <td class="px-4 py-3 font-medium text-indigo-600 dark:text-indigo-400">
-                #{{ row.id }}
-            </td>
-            
-            <td class="px-4 py-3">
-                <div class="font-medium">{{ row.user_name }}</div>
-                <div class="text-xs text-slate-400">{{ row.user_email || '—' }}</div>
-            </td>
-            
-            <td class="px-4 py-3">
-                <StatusBadge :value="eventLabel(row.event)"
-                    :severity="eventSeverity[row.event] || 'secondary'" />
-            </td>
-            
-            <td class="px-4 py-3 text-sm whitespace-nowrap">
-                {{ formatDateTime(row.created_at) }}
-            </td>
-            
-            <td class="px-4 py-3">
-                {{ tableLabel(row.table_label_key) }}
-            </td>
-            
-            <td class="px-4 py-3">
-                {{ row.auditable_id ?? '—' }}
-            </td>
-            
-            <!-- Botão de Detalhes centralizado -->
-            <td class="px-4 py-3">
-                <div class="flex items-center justify-center">
-                    <TableIconButton icon="eye" :label="trans('audit.details')"
-                        @click="router.visit(route('audit.show', row.id))" />
-                </div>
-            </td>
-
-        </tr>
-    </tbody>
-</table>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead class="w-20">{{ trans('audit.fields.id') }}</TableHead>
+                                    <TableHead>{{ trans('audit.fields.user') }}</TableHead>
+                                    <TableHead class="w-32">{{ trans('audit.fields.event') }}</TableHead>
+                                    <TableHead class="w-48">{{ trans('audit.fields.datetime') }}</TableHead>
+                                    <TableHead class="w-36">{{ trans('audit.fields.table') }}</TableHead>
+                                    <TableHead class="w-32">{{ trans('audit.fields.audited_id') }}</TableHead>
+                                    <TableHead class="w-24 text-center">{{ trans('audit.fields.details') }}</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow 
+                                    v-for="row in rows" 
+                                    :key="row.id"
+                                    class="border-b-0 even:bg-slate-50 dark:even:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                >
+                                    <TableCell class="font-medium text-indigo-600 dark:text-indigo-400">
+                                        #{{ row.id }}
+                                    </TableCell>
+                                    
+                                    <TableCell>
+                                        <div class="font-medium">{{ row.user_name }}</div>
+                                        <div class="text-xs text-slate-400">{{ row.user_email || '—' }}</div>
+                                    </TableCell>
+                                    
+                                    <TableCell>
+                                        <StatusBadge 
+                                            :value="eventLabel(row.event)"
+                                            :severity="eventSeverity[row.event] || 'secondary'" 
+                                        />
+                                    </TableCell>
+                                    
+                                    <TableCell class="whitespace-nowrap">
+                                        {{ formatDateTime(row.created_at) }}
+                                    </TableCell>
+                                    
+                                    <TableCell>
+                                        {{ tableLabel(row.table_label_key) }}
+                                    </TableCell>
+                                    
+                                    <TableCell>
+                                        {{ row.auditable_id ?? '—' }}
+                                    </TableCell>
+                                    
+                                    <TableCell>
+                                        <div class="flex items-center justify-center">
+                                            <TableIconButton 
+                                                icon="eye" 
+                                                :label="trans('audit.details')"
+                                                @click="router.visit(route('audit.show', row.id))" 
+                                            />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
 
                     <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
