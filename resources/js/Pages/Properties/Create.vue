@@ -111,7 +111,7 @@ function onCepInput(value) {
 }
 
 function onNumberInput(value) {
-    syncMasked('number', (v) => stripNonDigits(v).slice(0, 60), value);
+    syncMasked('number', (v) => stripNonDigits(v).slice(0, 10), value);
 }
 
 function onLandAreaInput(value) {
@@ -212,31 +212,33 @@ function submit() {
                                 @change="() => { onTypeChange(); validateField('type'); validateField('land_area'); validateField('building_area'); }" />
                         </FormField>
 
+                        <!-- Campo Área do Terreno -->
                         <FormField class="md:col-span-1" :label="trans('properties.fields.land_area')"
                             :error="form.errors.land_area" :required="landAreaRequired"
                             :hint="landAreaLocked ? trans('properties.hint_land_area_apartment') : null">
                             <div @keydown.capture="blockNonAreaKey" @beforeinput.capture="blockNonAreaBeforeInput">
-                                <Input :model-value="form.land_area" type="number" max="9999999999.99" step="0.01"
-                                    inputmode="decimal" :placeholder="trans('properties.placeholders.land_area')"
+                                <Input :model-value="form.land_area" type="text" maxlength="14" inputmode="decimal"
+                                    :placeholder="trans('properties.placeholders.land_area')"
                                     :class="cn('w-full', form.errors.land_area && 'border-destructive')"
                                     :disabled="landAreaLocked" @update:model-value="onLandAreaInput"
                                     @blur="validateField('land_area')" @change="form.clearErrors('land_area')" />
                             </div>
                         </FormField>
 
+                        <!-- Campo Área da Edificação -->
                         <FormField class="md:col-span-1" :label="trans('properties.fields.building_area')"
                             :error="form.errors.building_area" :required="buildingAreaRequired"
                             :hint="buildingAreaLocked ? trans('properties.hint_building_area_land') : null">
                             <div @keydown.capture="blockNonAreaKey" @beforeinput.capture="blockNonAreaBeforeInput">
-                                <Input :model-value="form.building_area" type="number" max="9999999999.99" step="0.01"
-                                    inputmode="decimal" :placeholder="trans('properties.placeholders.building_area')"
+                                <Input :model-value="form.building_area" type="text" maxlength="14" inputmode="decimal"
+                                    :placeholder="trans('properties.placeholders.building_area')"
                                     :class="cn('w-full', form.errors.building_area && 'border-destructive')"
                                     :disabled="buildingAreaLocked" @update:model-value="onBuildingAreaInput"
                                     @blur="validateField('building_area')"
                                     @change="form.clearErrors('building_area')" />
                             </div>
                         </FormField>
-                        
+
                         <FormField class="md:col-span-1" :label="trans('properties.fields.cep')"
                             :error="cepErrorDisplay" :hint="trans('properties.hint_cep')">
                             <div class="relative">
@@ -269,6 +271,7 @@ function submit() {
                                 <Input :model-value="form.number" inputmode="numeric"
                                     :placeholder="trans('properties.placeholders.number')"
                                     :class="cn('w-full', form.errors.number && 'border-destructive')" :maxlength="60"
+                                    maxlength="10"
                                     @update:model-value="onNumberInput" @blur="validateField('number')"
                                     @change="form.clearErrors('number')" />
                             </div>

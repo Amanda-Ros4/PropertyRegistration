@@ -28,7 +28,7 @@ const NAVIGATION_KEYS = new Set([
 ]);
 
 /**
- * Bloqueia teclas que não sejam dígitos (mantém navegação e atalhos Ctrl/Cmd/Alt).
+ * Bloqueia teclas que não sejam dígitos
  */
 export function blockNonDigitKey(event) {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
@@ -53,14 +53,21 @@ export function blockNonDigitBeforeInput(event) {
  * Área em m²: apenas números com até 2 casas decimais (aceita vírgula ou ponto).
  */
 export function formatAreaInput(value) {
-    let raw = String(value ?? '').replace(/[^\d.,]/g, '');
+    if (value == null || value === '') return '';
+
+    // Remove espaços e caracteres invisíveis (como o \u200b)
+    let raw = String(value).replace(/\u200b/g, '').replace(/[^\d.,]/g, '');
     raw = raw.replace(',', '.');
+
     const firstDot = raw.indexOf('.');
     if (firstDot === -1) {
-        return raw;
+        // Limita a parte inteira a 10 dígitos
+        return raw.slice(0, 10);
     }
-    const intPart = raw.slice(0, firstDot).replace(/\./g, '');
+
+    const intPart = raw.slice(0, firstDot).replace(/\./g, '').slice(0, 10);
     const decPart = raw.slice(firstDot + 1).replace(/\./g, '').slice(0, 2);
+
     return decPart.length > 0 || raw.endsWith('.')
         ? `${intPart}.${decPart}`
         : intPart;

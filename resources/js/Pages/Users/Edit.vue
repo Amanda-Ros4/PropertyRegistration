@@ -179,6 +179,7 @@ function submit() {
                                 <Input :model-value="form.name" :placeholder="trans('users.placeholders.name')"
                                     :class="cn('w-full', form.errors.name && 'border-destructive')"
                                     :disabled="!canUpdate" @update:model-value="onNameInput"
+                                    maxlength="100"
                                     @blur="canUpdate ? validateField('name') : null" />
                             </div>
                         </FormField>
@@ -203,6 +204,7 @@ function submit() {
                             <Input v-if="canEditUserEmail" v-model="form.email" type="email"
                                 :placeholder="trans('users.placeholders.email')"
                                 :class="cn('w-full', form.errors.email && 'border-destructive')"
+                                maxlength="255"
                                 @blur="validateField('email')" />
                             <Input v-else :model-value="user.email" type="email" class="w-full" disabled readonly />
                         </FormField>
