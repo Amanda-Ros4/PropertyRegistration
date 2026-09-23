@@ -99,6 +99,7 @@ function submit() {
                                 @beforeinput.capture="blockNonLetterNameBeforeInput">
                                 <Input :model-value="form.name" :placeholder="trans('users.placeholders.name')"
                                     :class="cn('w-full', form.errors.name && 'border-destructive')"
+                                    maxlength="100"
                                     @update:model-value="onNameInput" @blur="validateField('name')" />
                             </div>
                         </FormField>
@@ -123,6 +124,7 @@ function submit() {
                             required>
                             <Input v-model="form.email" type="email" :placeholder="trans('users.placeholders.email')"
                                 :class="cn('w-full', form.errors.email && 'border-destructive')"
+                                maxlength="255"
                                 @blur="validateField('email')" />
                         </FormField>
 

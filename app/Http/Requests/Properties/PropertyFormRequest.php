@@ -16,7 +16,7 @@ abstract class PropertyFormRequest extends FormRequest
     protected function preparePropertyPayload(): void
     {
         $cep = Digits::only($this->input('cep'));
-        $number = Digits::only($this->input('number'));
+        $number = substr(Digits::only($this->input('number')), 0, 10);
 
         $this->merge([
             'cep' => $cep === '' ? null : $cep,
@@ -48,7 +48,7 @@ abstract class PropertyFormRequest extends FormRequest
             'building_area' => $this->buildingAreaRules(),
             'cep' => ['nullable', 'string', 'size:8', 'regex:/^[0-9]{8}$/'],
             'street' => ['required', 'string', 'max:60', "regex:{$addressRegex}"],
-            'number' => ['required', 'string', 'max:60', 'regex:/^[0-9]+$/'],
+            'number' => ['required', 'string', 'max:10', 'regex:/^[0-9]+$/'],
             'neighborhood' => ['required', 'string', 'max:60', "regex:{$addressRegex}"],
             'complement' => ['nullable', 'string', 'max:60', "regex:{$addressRegex}"],
         ];

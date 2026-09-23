@@ -9,12 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('properties', function (Blueprint $table) {
-            $table->id(); // auto-increment = municipal registration ID
+            $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('person_id')->constrained('people');
             $table->string('cep', 8)->nullable();
             $table->string('street', 60);
-            $table->string('number', 60);
+            $table->string('number', 10);
             $table->string('neighborhood', 60);
             $table->string('complement', 60)->nullable();
             $table->timestamps();
