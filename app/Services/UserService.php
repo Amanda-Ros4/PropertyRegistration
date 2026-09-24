@@ -21,9 +21,21 @@ class UserService
         return User::query()
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($inner) use ($search) {
+                    
+                    // Pesquisa por Nome ou E-mail
                     $inner->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('cpf', 'like', '%'.Digits::only($search).'%');
+                          ->orWhere('email', 'like', "%{$search}%");
+                    
+                    // Pesquisa por ID
+                    if (is_numeric($search)) {
+                        $inner->orWhere('id', (int) $search);
+                    }
+
+                    // Pesquisa por CPF 
+                    $cpfSearch = Digits::only($search);
+                    if (!empty($cpfSearch)) {
+                        $inner->orWhere('cpf', 'like', "%{$cpfSearch}%");
+                    }
                 });
             })
             ->orderBy('id')
