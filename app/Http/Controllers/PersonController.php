@@ -31,7 +31,7 @@ class PersonController extends Controller
             'birth_date' => BirthDate::toIso($request->input('birth_date')),
             'cpf' => $cpfDigits !== '' ? $cpfDigits : null,
             'gender' => is_string($gender) && in_array($gender, Gender::values(), true) ? $gender : null,
-            'search' => SearchInput::sanitize($request->input('search')),
+            'search' => $request->input('search'),
         ];
 
         $people = $this->personService->listForUser(

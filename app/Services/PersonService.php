@@ -14,14 +14,50 @@ class PersonService
 {
     public function listForUser(User $user, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return Person::query()
-            ->visibleTo($user)
-            ->filter($filters)
-            ->orderBy('name')
+        $query = Person::query()
+            ->visibleTo($user);
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $digits = preg_replace('/[^0-9]/', '', $search);
+
+            $query->where(function ($q) use ($search, $digits) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('birth_date', 'LIKE', "%{$search}%");
+
+                  if (is_numeric($search)) {
+                    $q->orWhere('id', $search);
+                }
+
+                if ($digits !== '') {
+                    $q->orWhere('cpf', 'LIKE', "%{$digits}%")
+                      ->orWhere('phone', 'LIKE', "%{$digits}%");
+                }
+            });
+        }
+
+        if (!empty($filters['name'])) {
+            $query->where('name', 'LIKE', "%{$filters['name']}%");
+        }
+
+        if (!empty($filters['cpf'])) {
+            $query->where('cpf', 'LIKE', "%{$filters['cpf']}%");
+        }
+
+        if (!empty($filters['birth_date'])) {
+            $query->where('birth_date', $filters['birth_date']);
+        }
+
+        if (!empty($filters['gender'])) {
+            $query->where('gender', $filters['gender']);
+        }
+
+        return $query->orderBy('name')
             ->paginate($perPage)
             ->withQueryString();
     }
-
+    
     public function allForUser(User $user): Collection
     {
         return Person::query()
